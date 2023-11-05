@@ -16,6 +16,10 @@ bevy_gltf_components = { git = "https://github.com/kaosat-dev/Blender_bevy_compo
 bevy_gltf_blueprints = { git = "https://github.com/kaosat-dev/Blender_bevy_components_workflow/" }
 # Physics engine
 bevy_rapier3d = "0.22.0"
+# To make camera controls
+bevy_dolly = "0.0.1"
+# A nice procedural sky
+bevy_atmosphere = "0.7.0"
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]

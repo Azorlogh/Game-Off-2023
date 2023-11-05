@@ -1,31 +1,44 @@
-use bevy::{gltf::Gltf, prelude::*, utils::HashMap};
+use bevy::{audio::AudioPlugin, gltf::Gltf, prelude::*, utils::HashMap};
 use bevy_asset_loader::{
 	asset_collection::AssetCollection,
 	loading_state::{LoadingState, LoadingStateAppExt},
 	standard_dynamic_asset::StandardDynamicAssetCollection,
 };
-use bevy_gltf_blueprints::{BlueprintsPlugin, GameWorldTag};
-use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_atmosphere::prelude::AtmospherePlugin;
 use bevy_rapier3d::{
 	prelude::{NoUserData, RapierPhysicsPlugin},
 	render::RapierDebugRenderPlugin,
 };
+use camera::CameraPlugin;
+use input::InputPlugin;
+use player::PlayerPlugin;
 use proxies::GltfProxiesPlugin;
+use ::{
+	bevy_gltf_blueprints::{BlueprintsPlugin, GameWorldTag},
+	bevy_inspector_egui::quick::WorldInspectorPlugin,
+};
 
+mod camera;
+mod input;
+mod player;
 mod proxies;
 mod util;
 
 fn main() {
 	App::new()
 		.register_type::<bevy::pbr::wireframe::Wireframe>()
+		// External plugins
 		.add_plugins((
-			DefaultPlugins,
+			DefaultPlugins.build().disable::<AudioPlugin>(), // disabling audio for now because it glitches out on linux when closing the app
 			WorldInspectorPlugin::new(),
 			BlueprintsPlugin::default(),
 			GltfProxiesPlugin,
 			RapierPhysicsPlugin::<NoUserData>::default(),
 			RapierDebugRenderPlugin::default(),
+			AtmospherePlugin,
 		))
+		// Our own plugins
+		.add_plugins((InputPlugin, CameraPlugin, PlayerPlugin))
 		// Game state
 		.add_state::<GameState>()
 		.add_loading_state(
@@ -39,7 +52,6 @@ fn main() {
 		)
 		// Once the assets are loaded, spawn the level
 		.add_systems(OnEnter(GameState::Running), spawn_level)
-		.add_systems(Startup, setup)
 		.run();
 }
 
@@ -67,13 +79,4 @@ fn spawn_level(mut commands: Commands, game_assets: Res<GameAssets>) {
 		},
 		GameWorldTag,
 	));
-}
-
-fn setup(mut commands: Commands) {
-	// camera
-	commands.spawn(Camera3dBundle {
-		transform: Transform::from_translation(Vec3::new(-2.5, 4.5, 9.0) * 5.0)
-			.looking_at(Vec3::ZERO, Vec3::Y),
-		..default()
-	});
 }
