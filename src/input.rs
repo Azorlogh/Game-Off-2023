@@ -160,8 +160,8 @@ fn handle_mouse_input(
 	mut mouse_motion: EventReader<MouseMotion>,
 ) {
 	let delta = mouse_motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
-	inputs.pitch += delta.y / (time.delta_seconds().max(0.001)) * -5e-4;
-	inputs.yaw += delta.x / (time.delta_seconds().max(0.001)) * 5e-4;
+	inputs.pitch += delta.y / (time.delta_seconds().max(0.001)) * -1e-5;
+	inputs.yaw += delta.x / (time.delta_seconds().max(0.001)) * -1e-5;
 	inputs.punch |= buttons.pressed(MouseButton::Right);
 }
 

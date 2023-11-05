@@ -1,9 +1,13 @@
-use bevy::{math::Vec3Swizzles, prelude::*};
+use bevy::{core_pipeline::bloom::BloomSettings, math::Vec3Swizzles, prelude::*};
+use bevy_atmosphere::prelude::AtmosphereCamera;
 use bevy_rapier3d::prelude::{
 	Collider, CollidingEntities, GravityScale, LockedAxes, RigidBody, Sensor, Velocity,
 };
 
-use crate::{camera::MainCamera, input::Inputs, GameState};
+use crate::{input::Inputs, GameState};
+
+#[derive(Component)]
+struct MainCamera;
 
 const SPEED: f32 = 10.0;
 const PLAYER_HEIGHT: f32 = 2.0;
@@ -13,7 +17,15 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_systems(OnEnter(GameState::Running), player_spawn)
-			.add_systems(Update, (player_movement, player_on_ground, player_jump));
+			.add_systems(
+				Update,
+				(
+					player_camera,
+					player_movement,
+					player_on_ground,
+					player_jump,
+				),
+			);
 	}
 }
 
@@ -23,29 +35,11 @@ pub struct Player;
 #[derive(Event)]
 pub struct PlayerSpawn;
 
-pub fn player_spawn(
-	mut cmds: Commands,
-	mut meshes: ResMut<Assets<Mesh>>,
-	mut materials: ResMut<Assets<StandardMaterial>>,
-) {
+pub fn player_spawn(mut cmds: Commands) {
 	cmds.spawn((
+		Name::new("Player"),
 		Player,
-		PbrBundle {
-			mesh: meshes.add(
-				shape::Capsule {
-					radius: PLAYER_RADIUS,
-					depth: PLAYER_HEIGHT - PLAYER_RADIUS * 2.0,
-					..default()
-				}
-				.into(),
-			),
-			material: materials.add(StandardMaterial {
-				base_color: Color::RED,
-				..default()
-			}),
-			transform: Transform::from_xyz(0.0, 10.0, 0.0),
-			..default()
-		},
+		SpatialBundle::default(),
 		RigidBody::Dynamic,
 		Velocity::default(),
 		Collider::capsule(
@@ -66,7 +60,38 @@ pub fn player_spawn(
 			Sensor,
 			CollidingEntities::default(),
 		));
+		cmds.spawn((
+			Camera3dBundle {
+				camera: Camera {
+					hdr: true,
+					..default()
+				},
+				..default()
+			},
+			MainCamera,
+			CameraAngles::default(),
+			AtmosphereCamera::default(),
+			BloomSettings::default(),
+		));
 	});
+}
+
+#[derive(Default, Component)]
+pub struct CameraAngles {
+	yaw: f32,
+	pitch: f32,
+}
+
+fn player_camera(
+	inputs: Res<Inputs>,
+	mut q_camera: Query<(&mut CameraAngles, &mut Transform), With<MainCamera>>,
+) {
+	for (mut camera_angles, mut camera_tr) in &mut q_camera {
+		camera_angles.yaw += inputs.yaw;
+		camera_angles.pitch += inputs.pitch;
+		camera_tr.rotation =
+			Quat::from_rotation_y(camera_angles.yaw) * Quat::from_rotation_x(camera_angles.pitch);
+	}
 }
 
 fn player_movement(

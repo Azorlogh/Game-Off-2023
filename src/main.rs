@@ -9,7 +9,6 @@ use bevy_rapier3d::{
 	prelude::{NoUserData, RapierPhysicsPlugin},
 	render::RapierDebugRenderPlugin,
 };
-use camera::CameraPlugin;
 use input::InputPlugin;
 use player::PlayerPlugin;
 use proxies::GltfProxiesPlugin;
@@ -18,7 +17,6 @@ use ::{
 	bevy_inspector_egui::quick::WorldInspectorPlugin,
 };
 
-mod camera;
 mod input;
 mod player;
 mod proxies;
@@ -38,7 +36,7 @@ fn main() {
 			AtmospherePlugin,
 		))
 		// Our own plugins
-		.add_plugins((InputPlugin, CameraPlugin, PlayerPlugin))
+		.add_plugins((InputPlugin, PlayerPlugin))
 		// Game state
 		.add_state::<GameState>()
 		.add_loading_state(
