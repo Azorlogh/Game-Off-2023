@@ -6,6 +6,14 @@ use bevy_asset_loader::{
 };
 use bevy_gltf_blueprints::{BlueprintsPlugin, GameWorldTag};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_rapier3d::{
+	prelude::{NoUserData, RapierPhysicsPlugin},
+	render::RapierDebugRenderPlugin,
+};
+use proxies::GltfProxiesPlugin;
+
+mod proxies;
+mod util;
 
 fn main() {
 	App::new()
@@ -14,6 +22,9 @@ fn main() {
 			DefaultPlugins,
 			WorldInspectorPlugin::new(),
 			BlueprintsPlugin::default(),
+			GltfProxiesPlugin,
+			RapierPhysicsPlugin::<NoUserData>::default(),
+			RapierDebugRenderPlugin::default(),
 		))
 		// Game state
 		.add_state::<GameState>()
@@ -61,7 +72,8 @@ fn spawn_level(mut commands: Commands, game_assets: Res<GameAssets>) {
 fn setup(mut commands: Commands) {
 	// camera
 	commands.spawn(Camera3dBundle {
-		transform: Transform::from_xyz(-2.5, 4.5, 9.0).looking_at(Vec3::ZERO, Vec3::Y),
+		transform: Transform::from_translation(Vec3::new(-2.5, 4.5, 9.0) * 5.0)
+			.looking_at(Vec3::ZERO, Vec3::Y),
 		..default()
 	});
 }
