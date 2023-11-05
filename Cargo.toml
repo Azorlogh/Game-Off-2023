@@ -4,7 +4,18 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+# Bevy
 bevy = "0.11.3"
+# Debug menu to inspect the game world
+bevy-inspector-egui = "0.20.0"
+# Plugin to pre-load assets before the game starts
+bevy_asset_loader = { version = "0.17.0", features = ["standard_dynamic_assets"] }
+# Automatically inserts component to entities spawned from glb files
+bevy_gltf_components = { git = "https://github.com/kaosat-dev/Blender_bevy_components_workflow/" }
+# Support for glb blueprints
+bevy_gltf_blueprints = { git = "https://github.com/kaosat-dev/Blender_bevy_components_workflow/" }
+# Physics engine
+bevy_rapier3d = "0.22.0"
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]
