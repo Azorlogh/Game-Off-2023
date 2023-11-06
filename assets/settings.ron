@@ -1,12 +1,15 @@
 Settings(
     keyboard_input: {
-        Right: A,
-        Left: D,
-        Forward: W,
-        Backward: S,
-        Jump: Space,
+        Z: Forward,
+        S: Backward,
+        Q: Left,
+        D: Right,
+        Space: Jump,
+        T: Yaw(Some(true)),
+        B: Yaw(Some(false)),
     },
     mouse_input: {
-        Punch: Right
-    }
+        Right: Punch
+    },
+    mouse_motion: Some([Yaw(None), Pitch(None)])
 )

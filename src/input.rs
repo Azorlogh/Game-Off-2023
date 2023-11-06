@@ -137,21 +137,12 @@ fn handle_gamepad_input(
 	inputs.punch = gamepad_buttons.pressed(GamepadButton::new(gamepad, GamepadButtonType::East));
 }
 
-fn handle_keyboard_input(mut inputs: ResMut<Inputs>, keys: Res<Input<KeyCode>>, settings: Res<Settings>) {
-	if keys.pressed(*settings.keyboard_input.get(&Movement::Forward).unwrap()) {
-		inputs.dir.y += 1.0;
-	}
-	if keys.pressed(*settings.keyboard_input.get(&Movement::Backward).unwrap()) {
-		inputs.dir.y += -1.0;
-	}
-	if keys.pressed(*settings.keyboard_input.get(&Movement::Left).unwrap()) {
-		inputs.dir.x += -1.0;
-	}
-	if keys.pressed(*settings.keyboard_input.get(&Movement::Right).unwrap()) {
-		inputs.dir.x += 1.0;
-	}
-	if keys.pressed(*settings.keyboard_input.get(&Movement::Jump).unwrap()) {
-		inputs.jump = true;
+fn handle_keyboard_input(mut inputs: ResMut<Inputs>, keys: Res<Input<KeyCode>>, settings: Res<Settings>, time: Res<Time>) {
+	for key in keys.get_pressed() {
+		match settings.keyboard_input.get(key) {
+			Some(i) => i.input(&mut inputs, Vec2::new(time.delta_seconds() * 35.0, 0.0)),
+			None => {},
+		};
 	}
 }
 
@@ -163,9 +154,17 @@ fn handle_mouse_input(
 	settings: Res<Settings>
 ) {
 	let delta = mouse_motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
-	inputs.pitch += delta.y / (time.delta_seconds().max(0.001)) * -1e-5;
-	inputs.yaw += delta.x / (time.delta_seconds().max(0.001)) * -1e-5;
-	inputs.punch |= buttons.pressed(*settings.mouse_input.get(&Movement::Punch).unwrap());
+	if let Some(v) = &settings.mouse_motion {
+		for mov in v {
+			mov.input(&mut inputs, delta / (time.delta_seconds().max(0.001)) * -1e-5);
+		}
+	}
+	for button in buttons.get_pressed() {
+		match settings.mouse_input.get(button) {
+			Some(i) => i.input(&mut inputs, Vec2::new(time.delta_seconds() * 35.0, 0.0)),
+			None => {},
+		};
+	}
 }
 
 fn finalize_input(mut inputs: ResMut<Inputs>) {
