@@ -1,6 +1,6 @@
 use std::{fs::read_to_string, collections::HashMap};
 
-use bevy::{prelude::*, input::mouse::MouseMotion};
+use bevy::prelude::*;
 
 use serde::{Deserialize, Serialize};
 
@@ -54,7 +54,6 @@ impl Movement {
 
             Movement::Yaw(None) => { inputs.yaw += modifier.x }
             Movement::Pitch(None) => { inputs.pitch += modifier.y }
-            _ => {}
         };
     }
 }

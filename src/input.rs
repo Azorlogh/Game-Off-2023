@@ -4,7 +4,7 @@ use bevy::{
 	window::{CursorGrabMode, PrimaryWindow},
 };
 
-use crate::settings::{Settings, Movement};
+use crate::settings::Settings;
 
 const DEADZONE: f32 = 0.2;
 
