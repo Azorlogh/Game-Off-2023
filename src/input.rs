@@ -1,8 +1,10 @@
 use bevy::{
-	input::{mouse::MouseMotion, InputSystem},
+	input::{mouse::MouseMotion, InputSystem, Input},
 	prelude::*,
 	window::{CursorGrabMode, PrimaryWindow},
 };
+
+use crate::settings::{self, Settings};
 
 const DEADZONE: f32 = 0.2;
 
@@ -93,7 +95,7 @@ fn handle_gamepad_input(
 	inputs.dir.x = {
 		let val = gamepad_axes
 			.get(GamepadAxis {
-				gamepad: gamepad,
+				gamepad,
 				axis_type: GamepadAxisType::LeftStickX,
 			})
 			.unwrap();
@@ -103,7 +105,7 @@ fn handle_gamepad_input(
 	inputs.dir.y = {
 		let val = gamepad_axes
 			.get(GamepadAxis {
-				gamepad: gamepad,
+				gamepad,
 				axis_type: GamepadAxisType::LeftStickY,
 			})
 			.unwrap();
@@ -135,20 +137,20 @@ fn handle_gamepad_input(
 	inputs.punch = gamepad_buttons.pressed(GamepadButton::new(gamepad, GamepadButtonType::East));
 }
 
-fn handle_keyboard_input(mut inputs: ResMut<Inputs>, keys: Res<Input<KeyCode>>) {
-	if keys.pressed(KeyCode::W) {
+fn handle_keyboard_input(mut inputs: ResMut<Inputs>, keys: Res<Input<KeyCode>>, settings: Res<Settings>) {
+	if keys.pressed(*settings.keyboard_input.get(&settings::Input::Forward).unwrap()) {
 		inputs.dir.y += 1.0;
 	}
-	if keys.pressed(KeyCode::S) {
+	if keys.pressed(*settings.keyboard_input.get(&settings::Input::Backward).unwrap()) {
 		inputs.dir.y += -1.0;
 	}
-	if keys.pressed(KeyCode::A) {
+	if keys.pressed(*settings.keyboard_input.get(&settings::Input::Left).unwrap()) {
 		inputs.dir.x += -1.0;
 	}
-	if keys.pressed(KeyCode::D) {
+	if keys.pressed(*settings.keyboard_input.get(&settings::Input::Right).unwrap()) {
 		inputs.dir.x += 1.0;
 	}
-	if keys.pressed(KeyCode::Space) {
+	if keys.pressed(*settings.keyboard_input.get(&settings::Input::Jump).unwrap()) {
 		inputs.jump = true;
 	}
 }

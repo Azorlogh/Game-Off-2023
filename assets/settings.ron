@@ -1,0 +1,9 @@
+Settings(
+    keyboard_input: {
+        Right: A,
+        Left: D,
+        Forward: W,
+        Backward: S,
+        Jump: Space,
+    }
+)

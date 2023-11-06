@@ -12,6 +12,7 @@ use bevy_rapier3d::{
 use input::InputPlugin;
 use player::PlayerPlugin;
 use proxies::GltfProxiesPlugin;
+use settings::SettingsPlugin;
 use ::{
 	bevy_gltf_blueprints::{BlueprintsPlugin, GameWorldTag},
 	bevy_inspector_egui::quick::WorldInspectorPlugin,
@@ -21,6 +22,7 @@ mod input;
 mod player;
 mod proxies;
 mod util;
+mod settings;
 
 fn main() {
 	App::new()
@@ -36,7 +38,7 @@ fn main() {
 			AtmospherePlugin,
 		))
 		// Our own plugins
-		.add_plugins((InputPlugin, PlayerPlugin))
+		.add_plugins((InputPlugin, PlayerPlugin, SettingsPlugin))
 		// Game state
 		.add_state::<GameState>()
 		.add_loading_state(
@@ -48,10 +50,12 @@ fn main() {
 			GameState::Loading,
 			"assets_game.assets.ron",
 		)
+
 		// Once the assets are loaded, spawn the level
 		.add_systems(OnEnter(GameState::Running), spawn_level)
 		.run();
 }
+
 
 // Our game's assets
 #[derive(AssetCollection, Resource)]
