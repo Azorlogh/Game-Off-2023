@@ -7,6 +7,7 @@ pub struct SettingsPlugin;
 
 impl Plugin for SettingsPlugin {
 	fn build(&self, app: &mut App) {
+        // Load Settings
 		let settings = match read_to_string("assets/settings.ron") {
             Ok(s) => match ron::from_str::<Settings>(&s) {
                 Ok(s) => s,
@@ -25,27 +26,33 @@ impl Plugin for SettingsPlugin {
 	}
 }
 
-
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
-pub enum Input {
+pub enum Movement {
     Right,
     Left,
     Forward,
     Backward,
-    Jump
+    Jump,
+    Punch
 }
 #[derive(Debug, Serialize, Deserialize, Resource)]
 pub struct Settings {
-    pub keyboard_input: HashMap<Input, KeyCode>,
+    pub keyboard_input: HashMap<Movement, KeyCode>,
+    pub mouse_input: HashMap<Movement, MouseButton>
 }
 impl Default for Settings {
     fn default() -> Self {
-        Self { keyboard_input: HashMap::from([
-            (Input::Forward, KeyCode::W),
-            (Input::Left, KeyCode::A),
-            (Input::Right, KeyCode::D),
-            (Input::Backward, KeyCode::S),
-            (Input::Jump, KeyCode::Space),
-        ])}
+        Self {
+            keyboard_input: HashMap::from([
+                (Movement::Forward, KeyCode::W),
+                (Movement::Left, KeyCode::A),
+                (Movement::Right, KeyCode::D),
+                (Movement::Backward, KeyCode::S),
+                (Movement::Jump, KeyCode::Space),
+            ]),
+            mouse_input: HashMap::from([
+                (Movement::Punch, MouseButton::Right)
+            ])
+        }
     }
 }

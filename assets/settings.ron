@@ -5,5 +5,8 @@ Settings(
         Forward: W,
         Backward: S,
         Jump: Space,
+    },
+    mouse_input: {
+        Punch: Right
     }
 )

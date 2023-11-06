@@ -4,7 +4,7 @@ use bevy::{
 	window::{CursorGrabMode, PrimaryWindow},
 };
 
-use crate::settings::{self, Settings};
+use crate::settings::{Settings, Movement};
 
 const DEADZONE: f32 = 0.2;
 
@@ -138,19 +138,19 @@ fn handle_gamepad_input(
 }
 
 fn handle_keyboard_input(mut inputs: ResMut<Inputs>, keys: Res<Input<KeyCode>>, settings: Res<Settings>) {
-	if keys.pressed(*settings.keyboard_input.get(&settings::Input::Forward).unwrap()) {
+	if keys.pressed(*settings.keyboard_input.get(&Movement::Forward).unwrap()) {
 		inputs.dir.y += 1.0;
 	}
-	if keys.pressed(*settings.keyboard_input.get(&settings::Input::Backward).unwrap()) {
+	if keys.pressed(*settings.keyboard_input.get(&Movement::Backward).unwrap()) {
 		inputs.dir.y += -1.0;
 	}
-	if keys.pressed(*settings.keyboard_input.get(&settings::Input::Left).unwrap()) {
+	if keys.pressed(*settings.keyboard_input.get(&Movement::Left).unwrap()) {
 		inputs.dir.x += -1.0;
 	}
-	if keys.pressed(*settings.keyboard_input.get(&settings::Input::Right).unwrap()) {
+	if keys.pressed(*settings.keyboard_input.get(&Movement::Right).unwrap()) {
 		inputs.dir.x += 1.0;
 	}
-	if keys.pressed(*settings.keyboard_input.get(&settings::Input::Jump).unwrap()) {
+	if keys.pressed(*settings.keyboard_input.get(&Movement::Jump).unwrap()) {
 		inputs.jump = true;
 	}
 }
@@ -160,11 +160,12 @@ fn handle_mouse_input(
 	mut inputs: ResMut<Inputs>,
 	buttons: Res<Input<MouseButton>>,
 	mut mouse_motion: EventReader<MouseMotion>,
+	settings: Res<Settings>
 ) {
 	let delta = mouse_motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
 	inputs.pitch += delta.y / (time.delta_seconds().max(0.001)) * -1e-5;
 	inputs.yaw += delta.x / (time.delta_seconds().max(0.001)) * -1e-5;
-	inputs.punch |= buttons.pressed(MouseButton::Right);
+	inputs.punch |= buttons.pressed(*settings.mouse_input.get(&Movement::Punch).unwrap());
 }
 
 fn finalize_input(mut inputs: ResMut<Inputs>) {
