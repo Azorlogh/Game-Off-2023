@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy_asset_loader::loading_state::LoadingStateAppExt;
 
 pub struct MenuPlugin;
 impl Plugin for MenuPlugin {
