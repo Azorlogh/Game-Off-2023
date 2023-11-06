@@ -83,6 +83,6 @@ fn spawn_level(mut commands: Commands, game_assets: Res<GameAssets>) {
 	));
 }
 
-fn change_state(mut app_sttate: ResMut<NextState<GameState>>) {
-	app_sttate.set(GameState::Running);
+fn change_state(mut app_state: ResMut<NextState<GameState>>) {
+	app_state.set(GameState::Running);
 }
