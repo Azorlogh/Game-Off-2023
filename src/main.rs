@@ -10,6 +10,7 @@ use bevy_rapier3d::{
 	render::RapierDebugRenderPlugin,
 };
 use input::InputPlugin;
+use menu::MenuPlugin;
 use player::PlayerPlugin;
 use proxies::GltfProxiesPlugin;
 use ::{
@@ -21,6 +22,7 @@ mod input;
 mod player;
 mod proxies;
 mod util;
+mod menu;
 
 fn main() {
 	App::new()
@@ -36,11 +38,11 @@ fn main() {
 			AtmospherePlugin,
 		))
 		// Our own plugins
-		.add_plugins((InputPlugin, PlayerPlugin))
+		.add_plugins((InputPlugin, PlayerPlugin, MenuPlugin))
 		// Game state
 		.add_state::<GameState>()
 		.add_loading_state(
-			LoadingState::new(GameState::Loading).continue_to_state(GameState::Running),
+			LoadingState::new(GameState::Loading).continue_to_state(GameState::Charging),
 		)
 		// Game assets: Tell our app to load the assets from GameAssets
 		.add_collection_to_loading_state::<_, GameAssets>(GameState::Loading)
@@ -49,7 +51,7 @@ fn main() {
 			"assets_game.assets.ron",
 		)
 		// Once the assets are loaded, spawn the level
-		.add_systems(OnEnter(GameState::Running), spawn_level)
+		.add_systems(OnEnter(GameState::Charging), (spawn_level, change_state))
 		.run();
 }
 
@@ -66,7 +68,9 @@ pub struct GameAssets {
 enum GameState {
 	#[default]
 	Loading,
+	Charging,
 	Running,
+	Menu,
 }
 
 fn spawn_level(mut commands: Commands, game_assets: Res<GameAssets>) {
@@ -77,4 +81,8 @@ fn spawn_level(mut commands: Commands, game_assets: Res<GameAssets>) {
 		},
 		GameWorldTag,
 	));
+}
+
+fn change_state(mut app_sttate: ResMut<NextState<GameState>>) {
+	app_sttate.set(GameState::Running);
 }
