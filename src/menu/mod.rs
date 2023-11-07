@@ -28,14 +28,15 @@ pub enum MenuState {
     Menu,
 }
 
-fn ui_system(mut contexts: EguiContexts) {
+fn ui_system(mut contexts: EguiContexts, mut game_state: ResMut<NextState<GameState>>) {
     egui::Window::new("Hello").show(contexts.ctx_mut(), |ui| {
-        ui.label("world");
+        if ui.button("New Game").clicked() {
+            game_state.set(GameState::Running);
+        }
     });
 }
 
 fn ui_pause_game(mut contexts: EguiContexts) {
-    egui::Window::new("Hello").show(contexts.ctx_mut(), |ui| {
-        ui.label("world");
+    egui::Window::new("Pause Game, Press Escape").show(contexts.ctx_mut(), |ui| {
     });
 }

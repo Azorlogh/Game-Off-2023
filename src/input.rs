@@ -12,7 +12,7 @@ pub struct InputPlugin;
 impl Plugin for InputPlugin {
 	fn build(&self, app: &mut App) {
 		app.init_resource::<Inputs>()
-			.add_systems(Update, capture_mouse)
+			.add_systems(Update, capture_mouse.run_if(in_state(GameState::Running)))
 			.add_systems(PreUpdate, handle_menu.run_if(in_state(GameState::Running).or_else(in_state(GameState::Pause))))
 			.add_systems(
 				PreUpdate,
