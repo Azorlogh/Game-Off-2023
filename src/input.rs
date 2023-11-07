@@ -13,7 +13,7 @@ impl Plugin for InputPlugin {
 	fn build(&self, app: &mut App) {
 		app.init_resource::<Inputs>()
 			.add_systems(Update, capture_mouse)
-			.add_systems(PreUpdate, handle_menu)
+			.add_systems(PreUpdate, handle_menu.run_if(in_state(MenuState::InGame)))
 			.add_systems(
 				PreUpdate,
 				(
@@ -157,11 +157,11 @@ fn handle_keyboard_input(mut inputs: ResMut<Inputs>, keys: Res<Input<KeyCode>>) 
 	}
 }
 
-fn handle_menu(keys: Res<Input<KeyCode>>, mut app_state: ResMut<NextState<GameState>>, state: Res<State<GameState>>, menu_state: Res<State<MenuState>>) {
+fn handle_menu(keys: Res<Input<KeyCode>>, mut app_state: ResMut<NextState<GameState>>, state: Res<State<GameState>>) {
 	if keys.just_pressed(KeyCode::Escape) {
 		match state.get() {
 			GameState::Running => app_state.set(GameState::Menu),
-			GameState::Menu => if menu_state.get() == &MenuState::InGame { app_state.set(GameState::Running) },
+			GameState::Menu => app_state.set(GameState::Running),
     		_ => {},
 		};
 	}
