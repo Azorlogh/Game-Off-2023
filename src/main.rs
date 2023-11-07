@@ -13,6 +13,7 @@ use input::InputPlugin;
 use menu::{MenuPlugin, MenuState};
 use player::PlayerPlugin;
 use proxies::GltfProxiesPlugin;
+use settings::SettingsPlugin;
 use ::{
 	bevy_gltf_blueprints::{BlueprintsPlugin, GameWorldTag},
 	bevy_inspector_egui::quick::WorldInspectorPlugin,
@@ -22,7 +23,9 @@ mod input;
 mod player;
 mod proxies;
 mod util;
+mod settings;
 mod menu;
+
 
 fn main() {
 	App::new()
@@ -38,7 +41,7 @@ fn main() {
 			AtmospherePlugin,
 		))
 		// Our own plugins
-		.add_plugins((InputPlugin, PlayerPlugin, MenuPlugin))
+		.add_plugins((InputPlugin, PlayerPlugin, SettingsPlugin, MenuPlugin))
 		// Game state
 		.add_state::<GameState>()
 		.add_loading_state(
@@ -73,6 +76,7 @@ fn main() {
 		
 		.run();
 }
+
 
 // Our game's assets
 #[derive(AssetCollection, Resource)]

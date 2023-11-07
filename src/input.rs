@@ -1,10 +1,11 @@
 use bevy::{
-	input::{mouse::MouseMotion, InputSystem},
+	input::{mouse::MouseMotion, InputSystem, Input},
 	prelude::*,
 	window::{CursorGrabMode, PrimaryWindow},
 };
 
-use crate::{GameState, menu::MenuState};
+
+use crate::{settings::Settings, GameState, menu::MenuState};
 
 const DEADZONE: f32 = 0.2;
 
@@ -97,7 +98,7 @@ fn handle_gamepad_input(
 	inputs.dir.x = {
 		let val = gamepad_axes
 			.get(GamepadAxis {
-				gamepad: gamepad,
+				gamepad,
 				axis_type: GamepadAxisType::LeftStickX,
 			})
 			.unwrap();
@@ -107,7 +108,7 @@ fn handle_gamepad_input(
 	inputs.dir.y = {
 		let val = gamepad_axes
 			.get(GamepadAxis {
-				gamepad: gamepad,
+				gamepad,
 				axis_type: GamepadAxisType::LeftStickY,
 			})
 			.unwrap();
@@ -139,21 +140,12 @@ fn handle_gamepad_input(
 	inputs.punch = gamepad_buttons.pressed(GamepadButton::new(gamepad, GamepadButtonType::East));
 }
 
-fn handle_keyboard_input(mut inputs: ResMut<Inputs>, keys: Res<Input<KeyCode>>) {
-	if keys.pressed(KeyCode::W) {
-		inputs.dir.y += 1.0;
-	}
-	if keys.pressed(KeyCode::S) {
-		inputs.dir.y += -1.0;
-	}
-	if keys.pressed(KeyCode::A) {
-		inputs.dir.x += -1.0;
-	}
-	if keys.pressed(KeyCode::D) {
-		inputs.dir.x += 1.0;
-	}
-	if keys.pressed(KeyCode::Space) {
-		inputs.jump = true;
+fn handle_keyboard_input(mut inputs: ResMut<Inputs>, keys: Res<Input<KeyCode>>, settings: Res<Settings>, time: Res<Time>) {
+	for key in keys.get_pressed() {
+		match settings.keyboard_input.get(key) {
+			Some(i) => i.input(&mut inputs, Vec2::new(time.delta_seconds() * 35.0, 0.0)),
+			None => {},
+		};
 	}
 }
 
@@ -172,11 +164,20 @@ fn handle_mouse_input(
 	mut inputs: ResMut<Inputs>,
 	buttons: Res<Input<MouseButton>>,
 	mut mouse_motion: EventReader<MouseMotion>,
+	settings: Res<Settings>
 ) {
 	let delta = mouse_motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
-	inputs.pitch += delta.y / (time.delta_seconds().max(0.001)) * -1e-5;
-	inputs.yaw += delta.x / (time.delta_seconds().max(0.001)) * -1e-5;
-	inputs.punch |= buttons.pressed(MouseButton::Right);
+	if let Some(v) = &settings.mouse_motion {
+		for mov in v {
+			mov.input(&mut inputs, delta / (time.delta_seconds().max(0.001)) * -1e-5);
+		}
+	}
+	for button in buttons.get_pressed() {
+		match settings.mouse_input.get(button) {
+			Some(i) => i.input(&mut inputs, Vec2::new(time.delta_seconds() * 35.0, 0.0)),
+			None => {},
+		};
+	}
 }
 
 fn finalize_input(mut inputs: ResMut<Inputs>) {

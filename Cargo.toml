@@ -22,6 +22,13 @@ bevy_dolly = "0.0.1"
 bevy_atmosphere = "0.7.0"
 #Bevy iced
 bevy_egui = "0.22.0"
+# Serde
+serde = "1.0.190"
+#Ron
+ron = "0.8.1"
+#Directories to save files
+directories = "5.0.1"
+
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]
