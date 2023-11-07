@@ -1,4 +1,4 @@
-use std::{fs::read_to_string, collections::HashMap};
+use std::{fs::read_to_string, collections::HashMap, path::PathBuf};
 
 use bevy::prelude::*;
 
@@ -9,8 +9,9 @@ pub struct SettingsPlugin;
 
 impl Plugin for SettingsPlugin {
 	fn build(&self, app: &mut App) {
+        let path = settings_path();
         // Load Settings
-		let settings = match read_to_string("assets/settings.ron") {
+		let settings = match read_to_string(path) {
             Ok(s) => match ron::from_str::<Settings>(&s) {
                 Ok(s) => s,
                 Err(e) => {
@@ -26,6 +27,13 @@ impl Plugin for SettingsPlugin {
         
 		app.insert_resource(settings);
 	}
+}
+
+fn settings_path() -> PathBuf {
+    directories::ProjectDirs::from("", "NeuroControls", "GameOff")
+    .unwrap()
+    .config_dir()
+    .join("settings.ron")
 }
 
 #[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
