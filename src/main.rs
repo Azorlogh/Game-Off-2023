@@ -10,7 +10,7 @@ use bevy_rapier3d::{
 	render::RapierDebugRenderPlugin,
 };
 use input::InputPlugin;
-use menu::MenuPlugin;
+use menu::{MenuPlugin, MenuState};
 use player::PlayerPlugin;
 use proxies::GltfProxiesPlugin;
 use ::{
@@ -42,7 +42,7 @@ fn main() {
 		// Game state
 		.add_state::<GameState>()
 		.add_loading_state(
-			LoadingState::new(GameState::Loading).continue_to_state(GameState::Charging),
+			LoadingState::new(GameState::Loading).continue_to_state(GameState::Menu),
 		)
 		// Game assets: Tell our app to load the assets from GameAssets
 		.add_collection_to_loading_state::<_, GameAssets>(GameState::Loading)
@@ -51,7 +51,7 @@ fn main() {
 			"assets_game.assets.ron",
 		)
 		// Once the assets are loaded, spawn the level
-		.add_systems(OnEnter(GameState::Charging), (spawn_level, change_state))
+		.add_systems(OnEnter(GameState::Charging), (spawn_level, load_game))
 		.run();
 }
 
@@ -83,6 +83,7 @@ fn spawn_level(mut commands: Commands, game_assets: Res<GameAssets>) {
 	));
 }
 
-fn change_state(mut app_state: ResMut<NextState<GameState>>) {
+fn load_game(mut app_state: ResMut<NextState<GameState>>, mut menu_state: ResMut<NextState<MenuState>>) {
 	app_state.set(GameState::Running);
+	menu_state.set(MenuState::InGame);
 }

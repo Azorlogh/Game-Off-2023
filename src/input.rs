@@ -4,7 +4,7 @@ use bevy::{
 	window::{CursorGrabMode, PrimaryWindow},
 };
 
-use crate::GameState;
+use crate::{GameState, menu::MenuState};
 
 const DEADZONE: f32 = 0.2;
 
@@ -157,11 +157,11 @@ fn handle_keyboard_input(mut inputs: ResMut<Inputs>, keys: Res<Input<KeyCode>>) 
 	}
 }
 
-fn handle_menu(keys: Res<Input<KeyCode>>, mut app_state: ResMut<NextState<GameState>>, state: Res<State<GameState>>) {
+fn handle_menu(keys: Res<Input<KeyCode>>, mut app_state: ResMut<NextState<GameState>>, state: Res<State<GameState>>, menu_state: Res<State<MenuState>>) {
 	if keys.just_pressed(KeyCode::Escape) {
 		match state.get() {
 			GameState::Running => app_state.set(GameState::Menu),
-			GameState::Menu => app_state.set(GameState::Running),
+			GameState::Menu => if menu_state.get() == &MenuState::InGame { app_state.set(GameState::Running) },
     		_ => {},
 		};
 	}
