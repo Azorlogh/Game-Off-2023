@@ -4,7 +4,7 @@ use bevy_rapier3d::prelude::{
 	ActiveEvents, Collider as RapierCollider, ComputedColliderShape, RigidBody,
 };
 
-use crate::{util::*, GameState};
+use crate::util::*;
 
 pub struct PhysicsProxies;
 impl Plugin for PhysicsProxies {

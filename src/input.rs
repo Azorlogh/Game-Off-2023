@@ -149,8 +149,8 @@ fn handle_keyboard_input(mut inputs: ResMut<Inputs>, keys: Res<Input<KeyCode>>, 
 	}
 }
 
-fn handle_menu(keys: Res<Input<KeyCode>>, mut app_state: ResMut<NextState<GameState>>, state: Res<State<GameState>>) {
-	if keys.just_pressed(KeyCode::Escape) {
+fn handle_menu(keys: Res<Input<KeyCode>>, mut app_state: ResMut<NextState<GameState>>, state: Res<State<GameState>>, menu_state: Res<State<MenuState>>) {
+	if keys.just_pressed(KeyCode::Escape) && menu_state.get() == &MenuState::Menu {
 		match state.get() {
 			GameState::Running => app_state.set(GameState::Pause),
 			GameState::Pause => app_state.set(GameState::Running),
