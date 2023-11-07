@@ -14,7 +14,7 @@ impl Plugin for PhysicsProxies {
 			(
 				replace_physics_proxies.after(GltfBlueprintsSet::AfterSpawn),
 				detach_rigid_bodies,
-			).run_if(in_state(GameState::Running)),
+			)
 		);
 	}
 }

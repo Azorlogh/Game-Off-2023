@@ -1,17 +1,19 @@
 use bevy::prelude::*;
-use bevy_iced::{IcedPlugin, IcedContext, iced::widget::text};
+use bevy_egui::{EguiPlugin, EguiContexts};
+use bevy_inspector_egui::egui;
+use bevy_rapier3d::prelude::{RapierConfiguration, TimestepMode};
 
 use crate::GameState;
+
 
 
 pub struct MenuPlugin;
 impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app
-        .add_plugins(IcedPlugin::default())
-        .add_event::<UiMessage>()
         .add_state::<MenuState>()
-        .add_systems(Update, ui_system.run_if(in_state(GameState::Menu)).run_if(in_state(MenuState::Menu)))
+        .add_systems(Update, ui_system.run_if(in_state(GameState::Menu)))
+        .add_systems(Update, ui_pause_game.run_if(in_state(GameState::Pause)))
         ;
     }
 }
@@ -24,13 +26,16 @@ enum UiMessage {
 pub enum MenuState {
     #[default]
     Menu,
-    InGame
 }
 
+fn ui_system(mut contexts: EguiContexts) {
+    egui::Window::new("Hello").show(contexts.ctx_mut(), |ui| {
+        ui.label("world");
+    });
+}
 
-fn ui_system(time: Res<Time>, mut ctx: IcedContext<UiMessage>) {
-    ctx.display(text(format!(
-        "Hello Iced! Running for {:.2} seconds.",
-        time.elapsed_seconds()
-    )));
+fn ui_pause_game(mut contexts: EguiContexts) {
+    egui::Window::new("Hello").show(contexts.ctx_mut(), |ui| {
+        ui.label("world");
+    });
 }

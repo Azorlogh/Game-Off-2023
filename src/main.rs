@@ -1,4 +1,4 @@
-use bevy::{audio::AudioPlugin, gltf::Gltf, prelude::*, utils::HashMap};
+use bevy::{audio::AudioPlugin, gltf::Gltf, prelude::*, utils::HashMap, transform::TransformSystem};
 use bevy_asset_loader::{
 	asset_collection::AssetCollection,
 	loading_state::{LoadingState, LoadingStateAppExt},
@@ -6,7 +6,7 @@ use bevy_asset_loader::{
 };
 use bevy_atmosphere::prelude::AtmospherePlugin;
 use bevy_rapier3d::{
-	prelude::{NoUserData, RapierPhysicsPlugin},
+	prelude::{NoUserData, RapierPhysicsPlugin, PhysicsSet},
 	render::RapierDebugRenderPlugin,
 };
 use input::InputPlugin;
@@ -33,7 +33,7 @@ fn main() {
 			WorldInspectorPlugin::new(),
 			BlueprintsPlugin::default(),
 			GltfProxiesPlugin,
-			RapierPhysicsPlugin::<NoUserData>::default(),
+			RapierPhysicsPlugin::<NoUserData>::default().with_default_system_setup(false),
 			RapierDebugRenderPlugin::default(),
 			AtmospherePlugin,
 		))
@@ -50,8 +50,27 @@ fn main() {
 			GameState::Loading,
 			"assets_game.assets.ron",
 		)
+		.configure_sets(
+			PostUpdate,
+			(
+				PhysicsSet::SyncBackend,
+				PhysicsSet::StepSimulation,
+				PhysicsSet::Writeback,
+			)
+				.chain()
+				.before(TransformSystem::TransformPropagate),
+		)
+		.add_systems(PostUpdate, (
+			RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::SyncBackend)
+                .in_set(PhysicsSet::SyncBackend),
+                RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::StepSimulation)
+                .in_set(PhysicsSet::StepSimulation),
+            RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::Writeback)
+                .in_set(PhysicsSet::Writeback),
+		).run_if(in_state(GameState::Running)))
 		// Once the assets are loaded, spawn the level
-		.add_systems(OnEnter(GameState::Charging), (spawn_level, load_game))
+		.add_systems(OnExit(GameState::Loading), spawn_level)
+		
 		.run();
 }
 
@@ -68,9 +87,9 @@ pub struct GameAssets {
 enum GameState {
 	#[default]
 	Loading,
-	Charging,
 	Running,
 	Menu,
+	Pause,
 }
 
 fn spawn_level(mut commands: Commands, game_assets: Res<GameAssets>) {
@@ -85,5 +104,5 @@ fn spawn_level(mut commands: Commands, game_assets: Res<GameAssets>) {
 
 fn load_game(mut app_state: ResMut<NextState<GameState>>, mut menu_state: ResMut<NextState<MenuState>>) {
 	app_state.set(GameState::Running);
-	menu_state.set(MenuState::InGame);
+	menu_state.set(MenuState::Menu);
 }
