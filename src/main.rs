@@ -10,7 +10,7 @@ use bevy_rapier3d::{
 	render::RapierDebugRenderPlugin,
 };
 use input::InputPlugin;
-use menu::MenuPlugin;
+use menu::{MenuPlugin, MenuState};
 use player::PlayerPlugin;
 use proxies::GltfProxiesPlugin;
 use ::{
@@ -83,6 +83,7 @@ fn spawn_level(mut commands: Commands, game_assets: Res<GameAssets>) {
 	));
 }
 
-fn change_state(mut app_sttate: ResMut<NextState<GameState>>) {
-	app_sttate.set(GameState::Running);
+fn change_state(mut app_state: ResMut<NextState<GameState>>, mut menu_state: ResMut<NextState<MenuState>>) {
+	app_state.set(GameState::Running);
+	menu_state.set(MenuState::InGame);
 }
