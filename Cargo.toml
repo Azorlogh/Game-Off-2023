@@ -20,12 +20,15 @@ bevy_rapier3d = "0.22.0"
 bevy_dolly = "0.0.1"
 # A nice procedural sky
 bevy_atmosphere = "0.7.0"
+#Bevy iced
+bevy_egui = "0.22.0"
 # Serde
 serde = "1.0.190"
 #Ron
 ron = "0.8.1"
 #Directories to save files
 directories = "5.0.1"
+
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]

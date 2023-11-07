@@ -4,7 +4,8 @@ use bevy::{
 	window::{CursorGrabMode, PrimaryWindow},
 };
 
-use crate::settings::Settings;
+
+use crate::{settings::Settings, GameState, menu::MenuState};
 
 const DEADZONE: f32 = 0.2;
 
@@ -12,7 +13,8 @@ pub struct InputPlugin;
 impl Plugin for InputPlugin {
 	fn build(&self, app: &mut App) {
 		app.init_resource::<Inputs>()
-			.add_systems(Update, capture_mouse)
+			.add_systems(Update, capture_mouse.run_if(in_state(GameState::Running)))
+			.add_systems(PreUpdate, handle_menu.run_if(in_state(GameState::Running).or_else(in_state(GameState::Pause))))
 			.add_systems(
 				PreUpdate,
 				(
@@ -24,7 +26,8 @@ impl Plugin for InputPlugin {
 				)
 					.chain()
 					.in_set(InputSet)
-					.after(InputSystem),
+					.after(InputSystem)
+					.run_if(in_state(GameState::Running)),
 			);
 	}
 }
@@ -142,6 +145,16 @@ fn handle_keyboard_input(mut inputs: ResMut<Inputs>, keys: Res<Input<KeyCode>>, 
 		match settings.keyboard_input.get(key) {
 			Some(i) => i.input(&mut inputs, Vec2::new(time.delta_seconds() * 35.0, 0.0)),
 			None => {},
+		};
+	}
+}
+
+fn handle_menu(keys: Res<Input<KeyCode>>, mut app_state: ResMut<NextState<GameState>>, state: Res<State<GameState>>) {
+	if keys.just_pressed(KeyCode::Escape) {
+		match state.get() {
+			GameState::Running => app_state.set(GameState::Pause),
+			GameState::Pause => app_state.set(GameState::Running),
+    		_ => {},
 		};
 	}
 }

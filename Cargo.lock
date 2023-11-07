@@ -1918,6 +1918,7 @@ dependencies = [
  "bevy_asset_loader",
  "bevy_atmosphere",
  "bevy_dolly",
+ "bevy_egui",
  "bevy_gltf_blueprints",
  "bevy_gltf_components 0.1.3 (git+https://github.com/kaosat-dev/Blender_bevy_components_workflow/)",
  "bevy_rapier3d",
