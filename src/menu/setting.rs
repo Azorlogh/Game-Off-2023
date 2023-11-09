@@ -46,7 +46,7 @@ pub(super) fn ui_waitinput(mut contexts: EguiContexts) {
     egui::Window::new("WAIT INPUT").show(contexts.ctx_mut(), |_ui| {});
 }
 
-pub(super) fn transfer_input<T: Serialize + DeserializeOwned + Sync + Send + GetType + 'static> (
+pub(super) fn transfer_input<T: Sync + Send + GetType + 'static> (
     input: Res<GetInput<T>>,
     mut option_state: ResMut<NextState<OptionState>>,
     mut settings: ResMut<Settings>,
@@ -63,7 +63,7 @@ pub(super) fn transfer_input<T: Serialize + DeserializeOwned + Sync + Send + Get
 pub struct GetInput<T: Serialize> (pub T);
 
 
-pub trait GetType where Self: Sized {
+pub trait GetType where Self: Sized + Serialize + DeserializeOwned {
     fn get_type(&self) -> GetInputType;
     fn to_key(self) -> Option<KeyCode> {None}
     fn to_button(self) -> Option<MouseButton> {None}
@@ -89,7 +89,7 @@ impl GetType for Motion {
 }
 
 
-impl<T: Serialize + GetType> ToString for GetInput<T> {
+impl<T: GetType> ToString for GetInput<T> {
     fn to_string(&self) -> String {
         ron::ser::to_string(&self).unwrap_or(String::from(""))
     }
@@ -99,7 +99,7 @@ trait Transform {
     fn to_settings(&self) -> Settings;
 }
 
-impl<T: Serialize + DeserializeOwned + GetType> Transform for GetInput<T> {
+impl<T: GetType> Transform for GetInput<T> {
     fn to_settings(&self) -> Settings {
         let mut set = Settings { keyboard_input: HashMap::new(), mouse_input: HashMap::new(), mouse_motion: HashMap::new() };
         if let Ok(input) = ron::from_str::<T>(&self.to_string()) {
