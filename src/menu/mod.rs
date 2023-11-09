@@ -12,13 +12,14 @@ impl Plugin for MenuPlugin {
     fn build(&self, app: &mut App) {
         app
         .add_state::<MenuState>()
+        .add_state::<OptionState>()
         .add_systems(Update, ui_system.run_if(in_state(GameState::Menu).and_then(in_state(MenuState::Menu))))
         .add_systems(Update, ui_pause_game.run_if(in_state(GameState::Pause).and_then(in_state(MenuState::Menu))))
         .add_systems(Update, ui_options.run_if(in_state(MenuState::Option)))
         .add_systems(OnEnter(OptionState::AddInput), (
-            transfer_input::<KeyCode>,
-            transfer_input::<MouseButton>,
-            transfer_input::<Motion>
+            transfer_input::<KeyCode>.run_if(resource_added::<GetInput<KeyCode>>()),
+            transfer_input::<MouseButton>.run_if(resource_added::<GetInput<MouseButton>>()),
+            transfer_input::<Motion>.run_if(resource_added::<GetInput<Motion>>())
         ))
         .add_systems(Update, ui_waitinput.run_if(in_state(OptionState::WaitInput)))
         ;

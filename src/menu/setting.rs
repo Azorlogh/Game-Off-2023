@@ -52,6 +52,7 @@ pub(super) fn transfer_input<T: Sync + Send + GetType + 'static> (
     mut settings: ResMut<Settings>,
     mut command: Commands
 ) {
+    println!("{:?}", input.to_settings());
     if let Some(s) = input.to_settings().is_void() {
         *settings += s;
         command.remove_resource::<GetInput<T>>();
@@ -65,9 +66,9 @@ pub struct GetInput<T: Serialize> (pub T);
 
 pub trait GetType where Self: Sized + Serialize + DeserializeOwned {
     fn get_type(&self) -> GetInputType;
-    fn to_key(self) -> Option<KeyCode> {None}
-    fn to_button(self) -> Option<MouseButton> {None}
-    fn to_motion(self) -> Option<Motion> {None}
+    fn to_key(&self) -> Option<KeyCode> {None}
+    fn to_button(&self) -> Option<MouseButton> {None}
+    fn to_motion(&self) -> Option<Motion> {None}
 }
 pub enum GetInputType {
     KeyCode,
@@ -77,38 +78,29 @@ pub enum GetInputType {
 
 impl GetType for KeyCode {
     fn get_type(&self) -> GetInputType { GetInputType::KeyCode }
-    fn to_key(self) -> Option<KeyCode> {Some(self)}
+    fn to_key(&self) -> Option<KeyCode> {Some(*self)}
 }
 impl GetType for MouseButton {
     fn get_type(&self) -> GetInputType { GetInputType::MouseButton }
-    fn to_button(self) -> Option<MouseButton> { Some(self) }
+    fn to_button(&self) -> Option<MouseButton> { Some(*self) }
 }
 impl GetType for Motion {
     fn get_type(&self) -> GetInputType { GetInputType::Motion }
-    fn to_motion(self) -> Option<Motion> { Some(self) }
+    fn to_motion(&self) -> Option<Motion> { Some(*self) }
 }
 
 
-impl<T: GetType> ToString for GetInput<T> {
-    fn to_string(&self) -> String {
-        ron::ser::to_string(&self).unwrap_or(String::from(""))
-    }
-}
 
-trait Transform {
-    fn to_settings(&self) -> Settings;
-}
 
-impl<T: GetType> Transform for GetInput<T> {
+impl<T: GetType> GetInput<T> {
     fn to_settings(&self) -> Settings {
         let mut set = Settings { keyboard_input: HashMap::new(), mouse_input: HashMap::new(), mouse_motion: HashMap::new() };
-        if let Ok(input) = ron::from_str::<T>(&self.to_string()) {
-            match input.get_type() {
-                GetInputType::KeyCode => set.keyboard_input.insert(input.to_key().unwrap(), Movement::Void),
-                GetInputType::MouseButton => set.mouse_input.insert(input.to_button().unwrap(), Movement::Void),
-                GetInputType::Motion => set.mouse_motion.insert(input.to_motion().unwrap(), Movement::Void),
-            };
-        }
+        match self.0.get_type() {
+            GetInputType::KeyCode => set.keyboard_input.insert(self.0.to_key().unwrap(), Movement::Void),
+            GetInputType::MouseButton => set.mouse_input.insert(self.0.to_button().unwrap(), Movement::Void),
+            GetInputType::Motion => set.mouse_motion.insert(self.0.to_motion().unwrap(), Movement::Void),
+        };
+        
         set
     }
 }

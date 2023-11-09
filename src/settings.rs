@@ -88,7 +88,7 @@ impl Movement {
         };
     }
 }
-#[derive(Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+#[derive(Debug, Eq, Hash, PartialEq, Serialize, Deserialize, Copy, Clone)]
 pub struct Motion;
 
 #[derive(Debug, Serialize, Deserialize, Resource)]
