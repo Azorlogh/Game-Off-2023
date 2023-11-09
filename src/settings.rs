@@ -4,7 +4,7 @@ use bevy::prelude::*;
 
 use serde::{Deserialize, Serialize};
 
-use crate::input::Inputs;
+use crate::{input::Inputs, menu::GeneralInput};
 pub struct SettingsPlugin;
 
 impl Plugin for SettingsPlugin {
@@ -91,52 +91,49 @@ pub struct Motion(pub usize);
 
 #[derive(Debug, Serialize, Deserialize, Resource)]
 pub struct Settings {
-    pub keyboard_input: HashMap<KeyCode, Movement>,
-    pub mouse_input: HashMap<MouseButton, Movement>,
-    pub mouse_motion: HashMap<Motion, Movement>
+    pub input: HashMap<GeneralInput, Movement>
 }
 
 impl Settings {
     pub fn is_void(self) -> Option<Self> {
-        if self.keyboard_input.len() > 0 || self.mouse_input.len() > 0 || self.mouse_motion.len() > 0 {
+        if self.input.len() > 0 {
             return Some(self);
         }
         None
     }
     pub fn length_motion(&self) -> usize {
-        self.mouse_motion.len()
+        self.input.keys().map(|k| {
+            match k {
+                GeneralInput::Motion(_) => 1,
+                _ => 0
+            }
+        }).sum()
     }
 }
 
 impl AddAssign for Settings {
     fn add_assign(&mut self, rhs: Self) {
-        self.keyboard_input.extend(rhs.keyboard_input);
-        self.mouse_input.extend(rhs.mouse_input);
-        self.mouse_motion.extend(rhs.mouse_motion);
+        self.input.extend(rhs.input);
     }
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            keyboard_input: HashMap::from([
-                (KeyCode::Z, Movement::Forward),
-                (KeyCode::S, Movement::Backward),
-                (KeyCode::Q, Movement::Left),
-                (KeyCode::D, Movement::Right),
-                (KeyCode::Space, Movement::Jump),
-                (KeyCode::T, Movement::Yaw(Some(true))),
-                (KeyCode::B, Movement::Yaw(Some(false))),
-            ]),
-            mouse_input: HashMap::from([
-                (MouseButton::Right, Movement::Punch),
-                (MouseButton::Left, Movement::Jump)
+            input: HashMap::from([
+                (GeneralInput::KeyCode(KeyCode::Z), Movement::Forward),
+                (GeneralInput::KeyCode(KeyCode::S), Movement::Backward),
+                (GeneralInput::KeyCode(KeyCode::Q), Movement::Left),
+                (GeneralInput::KeyCode(KeyCode::D), Movement::Right),
+                (GeneralInput::KeyCode(KeyCode::Space), Movement::Jump),
+                (GeneralInput::KeyCode(KeyCode::T), Movement::Yaw(Some(true))),
+                (GeneralInput::KeyCode(KeyCode::B), Movement::Yaw(Some(false))),
 
-            ]),
-            mouse_motion: HashMap::from([
-                (Motion(0), Movement::Yaw(None)),
-                (Motion(1), Movement::Pitch(None)
-            )])
+                (GeneralInput::MouseButton(MouseButton::Left), Movement::Punch),
+
+                (GeneralInput::Motion(0), Movement::Yaw(None)),
+                (GeneralInput::Motion(1), Movement::Pitch(None)),
+            ])
         }
     }
 }

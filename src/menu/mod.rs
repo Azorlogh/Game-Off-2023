@@ -2,7 +2,7 @@ use bevy::{prelude::*, app::AppExit};
 use bevy_egui::EguiContexts;
 use bevy_inspector_egui::egui;
 
-use crate::{GameState, settings::Motion};
+use crate::GameState;
 
 mod setting;
 mod input_tranformer;
@@ -18,11 +18,7 @@ impl Plugin for MenuPlugin {
         .add_systems(Update, ui_system.run_if(in_state(GameState::Menu).and_then(in_state(MenuState::Menu))))
         .add_systems(Update, ui_pause_game.run_if(in_state(GameState::Pause).and_then(in_state(MenuState::Menu))))
         .add_systems(Update, ui_options.run_if(in_state(MenuState::Option)))
-        .add_systems(OnEnter(OptionState::AddInput), (
-            transfer_input::<KeyCode>.run_if(resource_added::<GetInput<KeyCode>>()),
-            transfer_input::<MouseButton>.run_if(resource_added::<GetInput<MouseButton>>()),
-            transfer_input::<Motion>.run_if(resource_added::<GetInput<Motion>>())
-        ))
+        .add_systems(OnEnter(OptionState::AddInput), transfer_input)
         .add_systems(Update, ui_waitinput.run_if(in_state(OptionState::WaitInput)))
         ;
     }

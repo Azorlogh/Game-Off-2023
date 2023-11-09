@@ -5,7 +5,6 @@ use bevy_egui::{EguiContexts, egui};
 use super::MenuState;
 
 use crate::settings::*;
-use crate::util::VecExt;
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
 pub enum OptionState {
@@ -26,37 +25,20 @@ pub(super) fn ui_options(
             // Save
             menu_state.set(MenuState::Menu);
         }
-        for (k, m) in settings.keyboard_input.iter().map(|(k, m)| (k, m)).collect::<Vec<(&KeyCode, &Movement)>>().sorted() {
-            if ui.button(format!("{:?}", k)).clicked() {
-                option_state.set(OptionState::WaitInput);
-                // wait input
-            }
+        ui.separator();
+        for (k, m) in settings.input.iter() {
+            ui.horizontal(|ui| {
+                if ui.button(m.to_string()).clicked() {
+                    // set List Selector
+                }
 
-            if ui.button(m.to_string()).clicked() {
-                // set List Selector
-            }
+                if ui.button(format!("{:?}", k)).clicked() {
+                    option_state.set(OptionState::WaitInput);
+                    // wait input
+                }
+            });
         }
-        for (k, m) in settings.mouse_input.iter() {
-            if ui.button(format!("{:?}", k)).clicked() {
-                option_state.set(OptionState::WaitInput);
-                // wait input
-            }
-
-            if ui.button(m.to_string()).clicked() {
-                // set List Selector
-            }
-        }
-        for (k, m) in settings.mouse_motion.iter().map(|(k, m)| (k, m)).collect::<Vec<(&Motion, &Movement)>>().sorted() {
-            if ui.button(format!("{:?}", k)).clicked() {
-                option_state.set(OptionState::WaitInput);
-                // wait input
-            }
-
-            if ui.button(m.to_string()).clicked() {
-                // set List Selector
-            }
-        }
-
+        ui.separator();
         if ui.button("+").clicked() {
             option_state.set(OptionState::WaitInput);
         }

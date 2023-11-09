@@ -83,17 +83,3 @@ impl MeshExt for Mesh {
 		}
 	}
 }
-
-pub trait VecExt {
-    fn sorted(self) -> Self;
-}
-
-impl<T> VecExt for Vec<T>
-where
-    T: std::cmp::Ord,
-{
-    fn sorted(mut self) -> Self {
-        self.sort();
-        self
-    }
-}

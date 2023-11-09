@@ -5,7 +5,7 @@ use bevy::{
 };
 use std::hash::Hash;
 
-use crate::{settings::{Settings, Motion}, GameState, menu::{MenuState, OptionState, GetInput, GetType}};
+use crate::{settings::Settings, GameState, menu::{MenuState, OptionState, GeneralInput}};
 
 const DEADZONE: f32 = 0.2;
 
@@ -15,19 +15,13 @@ impl Plugin for InputPlugin {
 		app.init_resource::<Inputs>()
 			.add_systems(Update, capture_mouse.run_if(in_state(GameState::Running)))
 			.add_systems(PreUpdate, handle_menu.run_if(in_state(GameState::Running).or_else(in_state(GameState::Pause))))
-			.add_systems(Update,
-				(
-					get_input_to_settings_input::<KeyCode>,
-					get_input_to_settings_input::<MouseButton>,
-					get_input_to_settings_motion,
-				).run_if(in_state(MenuState::Option).and_then(in_state(OptionState::WaitInput))))
+			.add_systems(Update,get_input_to_settings_input.run_if(in_state(MenuState::Option).and_then(in_state(OptionState::WaitInput))))
 			.add_systems(
 				PreUpdate,
 				(
 					reset_input,
 					handle_gamepad_input,
-					handle_keyboard_input,
-					handle_mouse_input,
+					handle_inputs,
 					finalize_input,
 				)
 					.chain()
@@ -146,12 +140,40 @@ fn handle_gamepad_input(
 	inputs.punch = gamepad_buttons.pressed(GamepadButton::new(gamepad, GamepadButtonType::East));
 }
 
-fn handle_keyboard_input(mut inputs: ResMut<Inputs>, keys: Res<Input<KeyCode>>, settings: Res<Settings>, time: Res<Time>) {
+fn handle_inputs(
+	mut inputs: ResMut<Inputs>,
+	buttons: Res<Input<MouseButton>>,
+	keys: Res<Input<KeyCode>>,
+	mut mouse_motion: EventReader<MouseMotion>,
+	settings: Res<Settings>,
+	time: Res<Time>
+) {
+	let delta = mouse_motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
 	for key in keys.get_pressed() {
-		match settings.keyboard_input.get(key) {
+		match settings.input.get(&GeneralInput::KeyCode(*key)) {
 			Some(i) => i.input(&mut inputs, Vec2::new(time.delta_seconds() * 35.0, 0.0)),
 			None => {},
 		};
+	}
+	for button in buttons.get_pressed() {
+		match settings.input.get(&GeneralInput::MouseButton(*button)) {
+			Some(i) => i.input(&mut inputs, Vec2::new(time.delta_seconds() * 35.0, 0.0)),
+			None => {},
+		};
+	}
+	for i in 0..settings.length_motion() {
+		match settings.input.get(&GeneralInput::Motion(i)) {
+			Some(mov) => mov.input(&mut inputs, delta / (time.delta_seconds().max(0.001)) * -1e-5),
+			None => {},
+		};
+	}
+}
+
+
+
+fn finalize_input(mut inputs: ResMut<Inputs>) {
+	if inputs.dir.length() > 1.0 {
+		inputs.dir = inputs.dir.normalize();
 	}
 }
 
@@ -160,59 +182,34 @@ fn handle_menu(keys: Res<Input<KeyCode>>, mut app_state: ResMut<NextState<GameSt
 		match state.get() {
 			GameState::Running => app_state.set(GameState::Pause),
 			GameState::Pause => app_state.set(GameState::Running),
-    		_ => {},
+			_ => {},
 		};
 	}
 }
 
-fn handle_mouse_input(
-	time: Res<Time>,
-	mut inputs: ResMut<Inputs>,
+
+fn get_input_to_settings_input (
+	keys: Res<Input<KeyCode>>,
 	buttons: Res<Input<MouseButton>>,
-	mut mouse_motion: EventReader<MouseMotion>,
-	settings: Res<Settings>
-) {
-	let delta = mouse_motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
-	for (_, mov) in &settings.mouse_motion {
-		mov.input(&mut inputs, delta / (time.delta_seconds().max(0.001)) * -1e-5);
-	}
-
-	for button in buttons.get_pressed() {
-		match settings.mouse_input.get(button) {
-			Some(i) => i.input(&mut inputs, Vec2::new(time.delta_seconds() * 35.0, 0.0)),
-			None => {},
-		};
-	}
-}
-
-fn finalize_input(mut inputs: ResMut<Inputs>) {
-	if inputs.dir.length() > 1.0 {
-		inputs.dir = inputs.dir.normalize();
-	}
-}
-
-
-
-fn get_input_to_settings_input<T> (
-	p: Res<Input<T>>,
-	mut option_state: ResMut<NextState<OptionState>>,
-	mut command: Commands
-) where T: GetType + Copy + Eq + Hash + Send + Sync {
-	for k in p.get_just_pressed() {
-		command.insert_resource(GetInput(*k));
-		option_state.set(OptionState::AddInput);
-	}
-}
-
-fn get_input_to_settings_motion(
-	mut motion: EventReader<MouseMotion>,
 	mut option_state: ResMut<NextState<OptionState>>,
 	mut command: Commands,
+	mut motion: EventReader<MouseMotion>,
 	settings: Res<Settings>
 ) {
 	let delta = motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
+	for k in keys.get_just_pressed() {
+		command.insert_resource(GeneralInput::KeyCode(*k));
+		option_state.set(OptionState::AddInput);
+	}
+
+	for b in buttons.get_just_pressed() {
+		command.insert_resource(GeneralInput::MouseButton(*b));
+		option_state.set(OptionState::AddInput);
+	}
+
 	if delta.length() > 0.0 {
-		command.insert_resource(GetInput(Motion(settings.length_motion())));
+		command.insert_resource(GeneralInput::Motion(settings.length_motion()));
 		option_state.set(OptionState::AddInput);
 	}
 }
+

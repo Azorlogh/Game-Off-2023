@@ -36,7 +36,7 @@ fn main() {
 			WorldInspectorPlugin::new(),
 			BlueprintsPlugin::default(),
 			GltfProxiesPlugin,
-			RapierPhysicsPlugin::<NoUserData>::default().with_default_system_setup(false),
+			RapierPhysicsPlugin::<NoUserData>::default(),
 			RapierDebugRenderPlugin::default(),
 			AtmospherePlugin,
 		))
@@ -63,14 +63,14 @@ fn main() {
 				.chain()
 				.before(TransformSystem::TransformPropagate),
 		)
-		.add_systems(PostUpdate, (
-			RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::SyncBackend)
-                .in_set(PhysicsSet::SyncBackend),
-                RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::StepSimulation)
-                .in_set(PhysicsSet::StepSimulation),
-            RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::Writeback)
-                .in_set(PhysicsSet::Writeback),
-		).run_if(in_state(GameState::Running)))
+		// .add_systems(PostUpdate, (
+		// 	RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::SyncBackend)
+        //         .in_set(PhysicsSet::SyncBackend),
+        //         RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::StepSimulation)
+        //         .in_set(PhysicsSet::StepSimulation),
+        //     RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::Writeback)
+        //         .in_set(PhysicsSet::Writeback),
+		// ).run_if(in_state(GameState::Running)))
 		// Once the assets are loaded, spawn the level
 		.add_systems(OnExit(GameState::Loading), spawn_level)
 		
