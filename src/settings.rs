@@ -1,4 +1,4 @@
-use std::{fs::read_to_string, collections::HashMap, path::PathBuf};
+use std::{fs::read_to_string, collections::HashMap, path::PathBuf, ops::{Add, AddAssign}};
 
 use bevy::prelude::*;
 
@@ -9,24 +9,28 @@ pub struct SettingsPlugin;
 
 impl Plugin for SettingsPlugin {
 	fn build(&self, app: &mut App) {
-        let path = settings_path();
-        // Load Settings
-		let settings = match read_to_string(path) {
-            Ok(s) => match ron::from_str::<Settings>(&s) {
-                Ok(s) => s,
-                Err(e) => {
-                    warn!("failed to load settings, using defaults: {e}");
-                    Settings::default()
-                },
-            },
+       
+        
+		app.insert_resource(load_settings());
+	}
+}
+
+pub fn load_settings() -> Settings {
+    let path = settings_path();
+    // Load Settings
+    match read_to_string(path) {
+        Ok(s) => match ron::from_str::<Settings>(&s) {
+            Ok(s) => s,
             Err(e) => {
                 warn!("failed to load settings, using defaults: {e}");
                 Settings::default()
-            }
-        };
-        
-		app.insert_resource(settings);
-	}
+            },
+        },
+        Err(e) => {
+            warn!("failed to load settings, using defaults: {e}");
+            Settings::default()
+        }
+    }
 }
 
 fn settings_path() -> PathBuf {
@@ -45,7 +49,24 @@ pub enum Movement {
     Jump,
     Punch,
     Yaw(Option<bool>),
-    Pitch(Option<bool>)
+    Pitch(Option<bool>),
+    Void
+}
+
+impl ToString for Movement {
+    fn to_string(&self) -> String {
+        match self {
+            Movement::Right => String::from("Right"),
+            Movement::Left => String::from("Left"),
+            Movement::Forward => String::from("Forward"),
+            Movement::Backward => String::from("Backward"),
+            Movement::Jump => String::from("Jump"),
+            Movement::Punch => String::from("Punch"),
+            Movement::Yaw(_) => String::from("X Vision"),
+            Movement::Pitch(_) => String::from("Y Vision"),
+            Movement::Void => String::from("")
+        }
+    }
 }
 
 impl Movement {
@@ -60,8 +81,10 @@ impl Movement {
             Movement::Yaw(Some(t)) => { inputs.yaw += 0.1 * modifier.x * if *t {-1.0} else {1.0} },
             Movement::Pitch(Some(t)) => { inputs.pitch += 0.1 * modifier.x * if *t {-1.0} else {1.0} },
 
-            Movement::Yaw(None) => { inputs.yaw += modifier.x }
-            Movement::Pitch(None) => { inputs.pitch += modifier.y }
+            Movement::Yaw(None) => { inputs.yaw += modifier.x },
+            Movement::Pitch(None) => { inputs.pitch += modifier.y },
+
+            Movement::Void => {}
         };
     }
 }
@@ -71,6 +94,28 @@ pub struct Settings {
     pub mouse_input: HashMap<MouseButton, Movement>,
     pub mouse_motion: Option<Vec<Movement>>
 }
+
+impl Settings {
+    pub fn is_void(self) -> Option<Self> {
+        if self.keyboard_input.len() > 0 || self.mouse_input.len() > 0 || self.mouse_motion.is_some() {
+            return Some(self);
+        }
+        None
+    }
+}
+
+impl AddAssign for Settings {
+    fn add_assign(&mut self, rhs: Self) {
+        self.keyboard_input.extend(rhs.keyboard_input);
+        self.mouse_input.extend(rhs.mouse_input);
+        if let Some(m) = &mut self.mouse_motion {
+            m.append(&mut rhs.mouse_motion.unwrap_or(vec![]));
+        } else {
+            self.mouse_motion = rhs.mouse_motion;
+        }
+    }
+}
+
 impl Default for Settings {
     fn default() -> Self {
         Self {

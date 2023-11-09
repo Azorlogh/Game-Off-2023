@@ -5,7 +5,7 @@ use bevy::{
 };
 
 
-use crate::{settings::Settings, GameState, menu::MenuState};
+use crate::{settings::Settings, GameState, menu::{MenuState, OptionState, GetInput}};
 
 const DEADZONE: f32 = 0.2;
 
@@ -15,6 +15,12 @@ impl Plugin for InputPlugin {
 		app.init_resource::<Inputs>()
 			.add_systems(Update, capture_mouse.run_if(in_state(GameState::Running)))
 			.add_systems(PreUpdate, handle_menu.run_if(in_state(GameState::Running).or_else(in_state(GameState::Pause))))
+			.add_systems(Update,
+				(
+					get_input_to_settings_buttons,
+					get_input_to_settings_motion,
+					get_input_to_settings_keyboard
+				).run_if(in_state(MenuState::Option).and_then(in_state(OptionState::WaitInput))))
 			.add_systems(
 				PreUpdate,
 				(
@@ -183,5 +189,40 @@ fn handle_mouse_input(
 fn finalize_input(mut inputs: ResMut<Inputs>) {
 	if inputs.dir.length() > 1.0 {
 		inputs.dir = inputs.dir.normalize();
+	}
+}
+
+
+fn get_input_to_settings_buttons(
+	buttons: Res<Input<MouseButton>>,
+	mut option_state: ResMut<NextState<OptionState>>,
+	mut input: ResMut<GetInput<MouseButton>>
+) {
+	for b in buttons.get_just_pressed() {
+		*input = GetInput(*b);
+		option_state.set(OptionState::AddInput);
+	}
+}
+
+fn get_input_to_settings_motion(
+	mut motion: EventReader<MouseMotion>,
+	mut option_state: ResMut<NextState<OptionState>>,
+	mut input: ResMut<GetInput<MouseMotion>>
+) {
+	let delta = motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
+	if delta.length() > 0.0 {
+		*input = GetInput(MouseMotion { delta });
+		option_state.set(OptionState::AddInput);
+	}
+}
+
+fn get_input_to_settings_keyboard(
+	keys: Res<Input<KeyCode>>,
+	mut option_state: ResMut<NextState<OptionState>>,
+	mut input: ResMut<GetInput<KeyCode>>
+) {
+	for k in keys.get_just_pressed() {
+		*input = GetInput(*k);
+		option_state.set(OptionState::AddInput);
 	}
 }

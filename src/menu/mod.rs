@@ -1,10 +1,11 @@
-use bevy::{prelude::*, app::AppExit};
+use bevy::{prelude::*, app::AppExit, input::mouse::MouseMotion};
 use bevy_egui::EguiContexts;
 use bevy_inspector_egui::egui;
 
 use crate::GameState;
 
-
+mod setting;
+pub use setting::*;
 
 pub struct MenuPlugin;
 impl Plugin for MenuPlugin {
@@ -14,6 +15,11 @@ impl Plugin for MenuPlugin {
         .add_systems(Update, ui_system.run_if(in_state(GameState::Menu).and_then(in_state(MenuState::Menu))))
         .add_systems(Update, ui_pause_game.run_if(in_state(GameState::Pause).and_then(in_state(MenuState::Menu))))
         .add_systems(Update, ui_options.run_if(in_state(MenuState::Option)))
+        .add_systems(OnEnter(OptionState::AddInput), (
+            transfer_input::<KeyCode>,
+            transfer_input::<MouseButton>,
+            transfer_input::<MouseMotion>
+        ))
         ;
     }
 }
@@ -63,18 +69,6 @@ fn ui_pause_game(
         }
         if ui.button("Quit").clicked() {
             app_exit_events.send(AppExit)
-        }
-    });
-}
-
-fn ui_options(mut contexts: EguiContexts, mut menu_state: ResMut<NextState<MenuState>>) {
-    egui::Window::new("Menu").show(contexts.ctx_mut(), |ui| {
-        if ui.button("Back").clicked() {
-            menu_state.set(MenuState::Menu);
-        }
-
-        if ui.button("Apply").clicked() {
-
         }
     });
 }
