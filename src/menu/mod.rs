@@ -1,8 +1,8 @@
-use bevy::{prelude::*, app::AppExit, input::mouse::MouseMotion};
+use bevy::{prelude::*, app::AppExit};
 use bevy_egui::EguiContexts;
 use bevy_inspector_egui::egui;
 
-use crate::GameState;
+use crate::{GameState, settings::Motion};
 
 mod setting;
 pub use setting::*;
@@ -18,7 +18,7 @@ impl Plugin for MenuPlugin {
         .add_systems(OnEnter(OptionState::AddInput), (
             transfer_input::<KeyCode>,
             transfer_input::<MouseButton>,
-            transfer_input::<MouseMotion>
+            transfer_input::<Motion>
         ))
         .add_systems(Update, ui_waitinput.run_if(in_state(OptionState::WaitInput)))
         ;

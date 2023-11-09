@@ -88,16 +88,19 @@ impl Movement {
         };
     }
 }
+#[derive(Debug, Eq, Hash, PartialEq, Serialize, Deserialize)]
+pub struct Motion;
+
 #[derive(Debug, Serialize, Deserialize, Resource)]
 pub struct Settings {
     pub keyboard_input: HashMap<KeyCode, Movement>,
     pub mouse_input: HashMap<MouseButton, Movement>,
-    pub mouse_motion: Option<Vec<Movement>>
+    pub mouse_motion: HashMap<Motion, Movement>
 }
 
 impl Settings {
     pub fn is_void(self) -> Option<Self> {
-        if self.keyboard_input.len() > 0 || self.mouse_input.len() > 0 || self.mouse_motion.is_some() {
+        if self.keyboard_input.len() > 0 || self.mouse_input.len() > 0 || self.mouse_motion.len() > 0 {
             return Some(self);
         }
         None
@@ -108,11 +111,7 @@ impl AddAssign for Settings {
     fn add_assign(&mut self, rhs: Self) {
         self.keyboard_input.extend(rhs.keyboard_input);
         self.mouse_input.extend(rhs.mouse_input);
-        if let Some(m) = &mut self.mouse_motion {
-            m.append(&mut rhs.mouse_motion.unwrap_or(vec![]));
-        } else {
-            self.mouse_motion = rhs.mouse_motion;
-        }
+        self.mouse_motion.extend(rhs.mouse_motion);
     }
 }
 
@@ -133,7 +132,7 @@ impl Default for Settings {
                 (MouseButton::Left, Movement::Jump)
 
             ]),
-            mouse_motion: Some(vec![Movement::Yaw(None), Movement::Pitch(None)])
+            mouse_motion: HashMap::from([(Motion, Movement::Yaw(None)), (Motion, Movement::Pitch(None))])
         }
     }
 }

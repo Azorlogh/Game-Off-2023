@@ -5,7 +5,7 @@ use bevy::{
 };
 
 
-use crate::{settings::Settings, GameState, menu::{MenuState, OptionState, GetInput}};
+use crate::{settings::{Settings, Motion}, GameState, menu::{MenuState, OptionState, GetInput}};
 
 const DEADZONE: f32 = 0.2;
 
@@ -173,11 +173,10 @@ fn handle_mouse_input(
 	settings: Res<Settings>
 ) {
 	let delta = mouse_motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
-	if let Some(v) = &settings.mouse_motion {
-		for mov in v {
-			mov.input(&mut inputs, delta / (time.delta_seconds().max(0.001)) * -1e-5);
-		}
+	for (_, mov) in &settings.mouse_motion {
+		mov.input(&mut inputs, delta / (time.delta_seconds().max(0.001)) * -1e-5);
 	}
+
 	for button in buttons.get_pressed() {
 		match settings.mouse_input.get(button) {
 			Some(i) => i.input(&mut inputs, Vec2::new(time.delta_seconds() * 35.0, 0.0)),
@@ -211,7 +210,7 @@ fn get_input_to_settings_motion(
 ) {
 	let delta = motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
 	if delta.length() > 0.0 {
-		command.insert_resource(GetInput(MouseMotion { delta }));
+		command.insert_resource(GetInput(Motion));
 		option_state.set(OptionState::AddInput);
 	}
 }
