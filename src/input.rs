@@ -3,9 +3,9 @@ use bevy::{
 	prelude::*,
 	window::{CursorGrabMode, PrimaryWindow},
 };
+use std::hash::Hash;
 
-
-use crate::{settings::{Settings, Motion}, GameState, menu::{MenuState, OptionState, GetInput}};
+use crate::{settings::{Settings, Motion}, GameState, menu::{MenuState, OptionState, GetInput, GetType}};
 
 const DEADZONE: f32 = 0.2;
 
@@ -17,9 +17,9 @@ impl Plugin for InputPlugin {
 			.add_systems(PreUpdate, handle_menu.run_if(in_state(GameState::Running).or_else(in_state(GameState::Pause))))
 			.add_systems(Update,
 				(
-					get_input_to_settings_buttons,
+					get_input_to_settings_input::<KeyCode>,
+					get_input_to_settings_input::<MouseButton>,
 					get_input_to_settings_motion,
-					get_input_to_settings_keyboard
 				).run_if(in_state(MenuState::Option).and_then(in_state(OptionState::WaitInput))))
 			.add_systems(
 				PreUpdate,
@@ -192,13 +192,14 @@ fn finalize_input(mut inputs: ResMut<Inputs>) {
 }
 
 
-fn get_input_to_settings_buttons(
-	buttons: Res<Input<MouseButton>>,
+
+fn get_input_to_settings_input<T> (
+	p: Res<Input<T>>,
 	mut option_state: ResMut<NextState<OptionState>>,
 	mut command: Commands
-) {
-	for b in buttons.get_just_pressed() {
-		command.insert_resource(GetInput(*b));
+) where T: GetType + Copy + Eq + Hash + Send + Sync {
+	for k in p.get_just_pressed() {
+		command.insert_resource(GetInput(*k));
 		option_state.set(OptionState::AddInput);
 	}
 }
@@ -206,22 +207,12 @@ fn get_input_to_settings_buttons(
 fn get_input_to_settings_motion(
 	mut motion: EventReader<MouseMotion>,
 	mut option_state: ResMut<NextState<OptionState>>,
-	mut command: Commands
+	mut command: Commands,
+	settings: Res<Settings>
 ) {
 	let delta = motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
 	if delta.length() > 0.0 {
-		command.insert_resource(GetInput(Motion));
-		option_state.set(OptionState::AddInput);
-	}
-}
-
-fn get_input_to_settings_keyboard(
-	keys: Res<Input<KeyCode>>,
-	mut option_state: ResMut<NextState<OptionState>>,
-	mut command: Commands
-) {
-	for k in keys.get_just_pressed() {
-		command.insert_resource(GetInput(*k));
+		command.insert_resource(GetInput(Motion(settings.length_motion())));
 		option_state.set(OptionState::AddInput);
 	}
 }

@@ -5,7 +5,9 @@ use bevy_inspector_egui::egui;
 use crate::{GameState, settings::Motion};
 
 mod setting;
+mod input_tranformer;
 pub use setting::*;
+pub use input_tranformer::*;
 
 pub struct MenuPlugin;
 impl Plugin for MenuPlugin {

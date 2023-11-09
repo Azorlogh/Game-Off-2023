@@ -9,8 +9,6 @@ pub struct SettingsPlugin;
 
 impl Plugin for SettingsPlugin {
 	fn build(&self, app: &mut App) {
-       
-        
 		app.insert_resource(load_settings());
 	}
 }
@@ -40,7 +38,7 @@ fn settings_path() -> PathBuf {
     .join("settings.ron")
 }
 
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash, PartialOrd, Ord)]
 pub enum Movement {
     Right,
     Left,
@@ -88,8 +86,8 @@ impl Movement {
         };
     }
 }
-#[derive(Debug, Eq, Hash, PartialEq, Serialize, Deserialize, Copy, Clone)]
-pub struct Motion;
+#[derive(Debug, Eq, Hash, PartialEq, Serialize, Deserialize, Copy, Clone, PartialOrd, Ord)]
+pub struct Motion(pub usize);
 
 #[derive(Debug, Serialize, Deserialize, Resource)]
 pub struct Settings {
@@ -104,6 +102,9 @@ impl Settings {
             return Some(self);
         }
         None
+    }
+    pub fn length_motion(&self) -> usize {
+        self.mouse_motion.len()
     }
 }
 
@@ -132,7 +133,10 @@ impl Default for Settings {
                 (MouseButton::Left, Movement::Jump)
 
             ]),
-            mouse_motion: HashMap::from([(Motion, Movement::Yaw(None)), (Motion, Movement::Pitch(None))])
+            mouse_motion: HashMap::from([
+                (Motion(0), Movement::Yaw(None)),
+                (Motion(1), Movement::Pitch(None)
+            )])
         }
     }
 }
