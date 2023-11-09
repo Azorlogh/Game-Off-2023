@@ -22,7 +22,7 @@ pub(super) fn ui_options(
     mut contexts: EguiContexts,
     mut menu_state: ResMut<NextState<MenuState>>,
     mut option_state: ResMut<NextState<OptionState>>,
-    mut settings: ResMut<Settings>
+    settings: Res<Settings>
 ) {
     egui::Window::new("Menu").show(contexts.ctx_mut(), |ui| {
         if ui.button("Back").clicked() {
@@ -40,18 +40,23 @@ pub(super) fn ui_options(
         }
 
         if ui.button("+").clicked() {
-            settings.keyboard_input.insert(KeyCode::Space, Movement::Void);
+            option_state.set(OptionState::WaitInput);
         }
     });
+}
+pub(super) fn ui_waitinput(mut contexts: EguiContexts) {
+    egui::Window::new("WAIT INPUT").show(contexts.ctx_mut(), |_ui| {});
 }
 
 pub(super) fn transfer_input<T: Serialize + Sync + Send + 'static> (
     input: Res<GetInput<T>>,
     mut option_state: ResMut<NextState<OptionState>>,
-    mut settings: ResMut<Settings>
+    mut settings: ResMut<Settings>,
+    mut command: Commands
 ) {
     if let Some(s) = input.to_settings().is_void() {
         *settings += s;
+        command.remove_resource::<GetInput<T>>();
         option_state.set(OptionState::Option);
     }
 }

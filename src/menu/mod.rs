@@ -20,6 +20,7 @@ impl Plugin for MenuPlugin {
             transfer_input::<MouseButton>,
             transfer_input::<MouseMotion>
         ))
+        .add_systems(Update, ui_waitinput.run_if(in_state(OptionState::WaitInput)))
         ;
     }
 }

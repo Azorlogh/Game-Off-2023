@@ -196,10 +196,10 @@ fn finalize_input(mut inputs: ResMut<Inputs>) {
 fn get_input_to_settings_buttons(
 	buttons: Res<Input<MouseButton>>,
 	mut option_state: ResMut<NextState<OptionState>>,
-	mut input: ResMut<GetInput<MouseButton>>
+	mut command: Commands
 ) {
 	for b in buttons.get_just_pressed() {
-		*input = GetInput(*b);
+		command.insert_resource(GetInput(*b));
 		option_state.set(OptionState::AddInput);
 	}
 }
@@ -207,11 +207,11 @@ fn get_input_to_settings_buttons(
 fn get_input_to_settings_motion(
 	mut motion: EventReader<MouseMotion>,
 	mut option_state: ResMut<NextState<OptionState>>,
-	mut input: ResMut<GetInput<MouseMotion>>
+	mut command: Commands
 ) {
 	let delta = motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
 	if delta.length() > 0.0 {
-		*input = GetInput(MouseMotion { delta });
+		command.insert_resource(GetInput(MouseMotion { delta }));
 		option_state.set(OptionState::AddInput);
 	}
 }
@@ -219,10 +219,10 @@ fn get_input_to_settings_motion(
 fn get_input_to_settings_keyboard(
 	keys: Res<Input<KeyCode>>,
 	mut option_state: ResMut<NextState<OptionState>>,
-	mut input: ResMut<GetInput<KeyCode>>
+	mut command: Commands
 ) {
 	for k in keys.get_just_pressed() {
-		*input = GetInput(*k);
+		command.insert_resource(GetInput(*k));
 		option_state.set(OptionState::AddInput);
 	}
 }
