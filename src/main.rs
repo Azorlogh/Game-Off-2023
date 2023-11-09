@@ -9,6 +9,9 @@ use bevy_rapier3d::{
 	prelude::{NoUserData, RapierPhysicsPlugin},
 	render::RapierDebugRenderPlugin,
 };
+use bevy_vector_shapes::Shape2dPlugin;
+use health::HealthPlugin;
+use hud::HudPlugin;
 use input::InputPlugin;
 use player::PlayerPlugin;
 use proxies::GltfProxiesPlugin;
@@ -17,6 +20,8 @@ use ::{
 	bevy_inspector_egui::quick::WorldInspectorPlugin,
 };
 
+mod health;
+mod hud;
 mod input;
 mod player;
 mod proxies;
@@ -34,9 +39,10 @@ fn main() {
 			RapierPhysicsPlugin::<NoUserData>::default(),
 			RapierDebugRenderPlugin::default(),
 			AtmospherePlugin,
+			Shape2dPlugin::default(),
 		))
 		// Our own plugins
-		.add_plugins((InputPlugin, PlayerPlugin))
+		.add_plugins((InputPlugin, PlayerPlugin, HealthPlugin, HudPlugin))
 		// Game state
 		.add_state::<GameState>()
 		.add_loading_state(
