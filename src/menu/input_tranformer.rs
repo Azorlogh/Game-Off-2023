@@ -4,19 +4,25 @@ use serde::{Serialize, Deserialize};
 
 use crate::settings::*;
 
-use super::OptionState;
+use super::{OptionState, LastInput};
 
 pub(super) fn transfer_input (
     input: Res<GeneralInput>,
     mut option_state: ResMut<NextState<OptionState>>,
     mut settings: ResMut<Settings>,
+    last_input: Option<Res<LastInput>>,
     mut command: Commands
 ) {
-    if let Some(s) = input.to_settings().is_void() {
-        *settings += s;
-        command.remove_resource::<GeneralInput>();
-        option_state.set(OptionState::Option);
+    if let Some(last_input) = last_input {
+        if let Some((_, last_value)) = settings.input.remove_entry(&last_input.0) {
+            settings.input.insert(input.clone(), last_value);
+        }
     }
+    else if let Some(s) = input.to_settings().is_void() {
+        *settings += s;
+    }
+    command.remove_resource::<GeneralInput>();
+    option_state.set(OptionState::Option);
 }
 
 #[derive(Resource, Eq, Hash, PartialEq, Serialize, Deserialize, Debug, Clone, Copy)]

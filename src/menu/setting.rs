@@ -2,7 +2,7 @@ use std::hash::Hash;
 
 use bevy::prelude::*;
 use bevy_egui::{EguiContexts, egui};
-use super::MenuState;
+use super::{MenuState, GeneralInput};
 
 use crate::settings::*;
 
@@ -18,6 +18,7 @@ pub(super) fn ui_options(
     mut contexts: EguiContexts,
     mut menu_state: ResMut<NextState<MenuState>>,
     mut option_state: ResMut<NextState<OptionState>>,
+    mut commands: Commands,
     settings: Res<Settings>
 ) {
     egui::Window::new("Menu").show(contexts.ctx_mut(), |ui| {
@@ -33,8 +34,10 @@ pub(super) fn ui_options(
                 }
 
                 if ui.button(format!("{:?}", k)).clicked() {
+                    //save input to a Ressource
+                    commands.insert_resource(LastInput(k.clone()));
                     option_state.set(OptionState::WaitInput);
-                    // wait input
+                    
                 }
             });
         }
@@ -47,3 +50,6 @@ pub(super) fn ui_options(
 pub(super) fn ui_waitinput(mut contexts: EguiContexts) {
     egui::Window::new("WAIT INPUT").show(contexts.ctx_mut(), |_ui| {});
 }
+
+#[derive(Resource)]
+pub(super) struct LastInput(pub GeneralInput);

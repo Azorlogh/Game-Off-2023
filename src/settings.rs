@@ -96,18 +96,13 @@ pub struct Settings {
 
 impl Settings {
     pub fn is_void(self) -> Option<Self> {
-        if self.input.len() > 0 {
-            return Some(self);
+        match self.input.is_empty() {
+            true => Some(self),
+            false => None
         }
-        None
     }
     pub fn length_motion(&self) -> usize {
-        self.input.keys().map(|k| {
-            match k {
-                GeneralInput::Motion(_) => 1,
-                _ => 0
-            }
-        }).sum()
+        self.input.keys().filter(|k| matches!(k, GeneralInput::Motion(_))).count()
     }
 }
 
