@@ -1,10 +1,10 @@
-use std::{fs::read_to_string, collections::HashMap, path::PathBuf, ops::AddAssign};
+use std::{fs::read_to_string, collections::HashMap, path::PathBuf};
 
 use bevy::prelude::*;
 
 use serde::{Deserialize, Serialize};
 
-use crate::{input::Inputs, menu::GeneralInput};
+use crate::input::Inputs;
 pub struct SettingsPlugin;
 
 impl Plugin for SettingsPlugin {
@@ -53,7 +53,15 @@ fn settings_path() -> PathBuf {
     .join("settings.ron")
 }
 
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash, PartialOrd, Ord, Clone, Copy)]
+
+#[derive(Resource, Eq, Hash, PartialEq, Serialize, Deserialize, Debug, Clone, Copy)]
+pub enum GeneralInput {
+    KeyCode(KeyCode),
+    MouseButton(MouseButton),
+    Motion
+}
+
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash, PartialOrd, Ord, Clone, Copy, Resource)]
 pub enum Movement {
     Right,
     Left,
@@ -64,7 +72,6 @@ pub enum Movement {
     Yaw(Option<bool>),
     Pitch(Option<bool>),
     Eat,
-    Void
 }
 
 impl ToString for Movement {
@@ -76,10 +83,15 @@ impl ToString for Movement {
             Movement::Backward => String::from("Backward"),
             Movement::Jump => String::from("Jump"),
             Movement::Punch => String::from("Punch"),
-            Movement::Yaw(_) => String::from("X Vision"),
-            Movement::Pitch(_) => String::from("Y Vision"),
+            Movement::Yaw(o) => match o {
+                Some(b) => format!("X Vision Keyboard {}", if *b {"-"} else {"+"}),
+                None => String::from("X Vision Mouse"),
+            },
+            Movement::Pitch(o) => match o {
+                Some(b) => format!("Y Vision Keyboard {}", if *b {"-"} else {"+"}),
+                None => String::from("Y Vision Mouse"),
+            },
             Movement::Eat => String::from("Eat"),
-            Movement::Void => String::from("")
         }
     }
 }
@@ -100,26 +112,7 @@ impl Movement {
             Movement::Pitch(None) => { inputs.pitch += modifier.y },
 
             Movement::Eat => {},
-
-            Movement::Void => {}
         };
-    }
-
-    pub fn iter() -> impl Iterator<Item = Self> {
-        [
-            Movement::Right,
-            Movement::Left,
-            Movement::Forward,
-            Movement::Backward,
-            Movement::Jump,
-            Movement::Punch,
-            Movement::Yaw(Some(true)),
-            Movement::Yaw(Some(false)),
-            Movement::Pitch(Some(true)),
-            Movement::Pitch(Some(false)),
-            Movement::Eat,
-            Movement::Void
-        ].iter().copied()
     }
 }
 #[derive(Debug, Eq, Hash, PartialEq, Serialize, Deserialize, Copy, Clone, PartialOrd, Ord)]
@@ -127,38 +120,26 @@ pub struct Motion(pub usize);
 
 #[derive(Debug, Serialize, Deserialize, Resource)]
 pub struct Settings {
-    pub input: HashMap<GeneralInput, Movement>
-}
-
-impl Settings {
-    pub fn length_motion(&self) -> usize {
-        self.input.keys().filter(|k| matches!(k, GeneralInput::Motion(_))).count()
-    }
-}
-
-impl AddAssign for Settings {
-    fn add_assign(&mut self, rhs: Self) {
-        self.input.extend(rhs.input);
-    }
+    pub input: HashMap<Movement, GeneralInput>
 }
 
 impl Default for Settings {
     fn default() -> Self {
         Self {
             input: HashMap::from([
-                (GeneralInput::KeyCode(KeyCode::Z), Movement::Forward),
-                (GeneralInput::KeyCode(KeyCode::S), Movement::Backward),
-                (GeneralInput::KeyCode(KeyCode::Q), Movement::Left),
-                (GeneralInput::KeyCode(KeyCode::D), Movement::Right),
-                (GeneralInput::KeyCode(KeyCode::Space), Movement::Jump),
-                (GeneralInput::KeyCode(KeyCode::T), Movement::Yaw(Some(true))),
-                (GeneralInput::KeyCode(KeyCode::B), Movement::Yaw(Some(false))),
-                (GeneralInput::KeyCode(KeyCode::E), Movement::Eat),
-
-                (GeneralInput::MouseButton(MouseButton::Left), Movement::Punch),
-
-                (GeneralInput::Motion(0), Movement::Yaw(None)),
-                (GeneralInput::Motion(1), Movement::Pitch(None)),
+                (Movement::Right, GeneralInput::KeyCode(KeyCode::D)),
+                (Movement::Left, GeneralInput::KeyCode(KeyCode::A)),
+                (Movement::Forward, GeneralInput::KeyCode(KeyCode::W)),
+                (Movement::Backward, GeneralInput::KeyCode(KeyCode::S)),
+                (Movement::Jump, GeneralInput::KeyCode(KeyCode::Space)),
+                (Movement::Punch, GeneralInput::MouseButton(MouseButton::Left)),
+                (Movement::Yaw(None), GeneralInput::Motion),
+                (Movement::Yaw(Some(false)), GeneralInput::KeyCode(KeyCode::T)),
+                (Movement::Yaw(Some(true)), GeneralInput::KeyCode(KeyCode::G)),
+                (Movement::Pitch(None), GeneralInput::Motion),
+                (Movement::Pitch(Some(false)), GeneralInput::KeyCode(KeyCode::R)),
+                (Movement::Pitch(Some(true)), GeneralInput::KeyCode(KeyCode::F)),
+                (Movement::Eat, GeneralInput::MouseButton(MouseButton::Right)),
             ])
         }
     }

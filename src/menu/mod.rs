@@ -5,9 +5,8 @@ use bevy_inspector_egui::egui;
 use crate::GameState;
 
 mod setting;
-mod input_tranformer;
 pub use setting::*;
-pub use input_tranformer::*;
+
 
 pub struct MenuPlugin;
 impl Plugin for MenuPlugin {
@@ -18,9 +17,6 @@ impl Plugin for MenuPlugin {
         .add_systems(Update, ui_system.run_if(in_state(GameState::Menu).and_then(in_state(MenuState::Menu))))
         .add_systems(Update, ui_pause_game.run_if(in_state(GameState::Pause).and_then(in_state(MenuState::Menu))))
         .add_systems(Update, ui_options.run_if(in_state(MenuState::Option)))
-        .add_systems(OnEnter(OptionState::AddInput), transfer_input)
-        .add_systems(Update, ui_waitinput.run_if(in_state(OptionState::WaitInput)))
-        .add_systems(Update, ui_waitmovement.run_if(in_state(OptionState::WaitMovement)))
         ;
     }
 }

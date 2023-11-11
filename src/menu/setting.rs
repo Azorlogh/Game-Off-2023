@@ -1,8 +1,8 @@
 use std::hash::Hash;
 
-use bevy::prelude::*;
+use bevy::{prelude::*, input::mouse::MouseMotion};
 use bevy_egui::{EguiContexts, egui};
-use super::{MenuState, GeneralInput};
+use super::MenuState;
 
 use crate::settings::*;
 
@@ -10,18 +10,42 @@ use crate::settings::*;
 pub enum OptionState {
     #[default]
     Option,
-    WaitInput,
-    WaitMovement,
-    AddInput
 }
 
 pub(super) fn ui_options(
     mut contexts: EguiContexts,
     mut menu_state: ResMut<NextState<MenuState>>,
-    mut option_state: ResMut<NextState<OptionState>>,
-    mut commands: Commands,
-    settings: Res<Settings>
+
+    mut settings: ResMut<Settings>,
+    mut changing_movement: Local<Option<Movement>>,
+
+    keys: Res<Input<KeyCode>>,
+	buttons: Res<Input<MouseButton>>,
+	mut motion: EventReader<MouseMotion>,
 ) {
+    if let Some(movement) = *changing_movement {
+        let delta = motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
+
+        let mut general_input = None;
+
+        for k in keys.get_just_pressed() {
+            general_input = Some(GeneralInput::KeyCode(*k));
+        }
+
+        for b in buttons.get_just_pressed() {
+            general_input = Some(GeneralInput::MouseButton(*b));
+        }
+
+        if delta.length() > 10.0 {
+            general_input = Some(GeneralInput::Motion);
+        }
+
+        if let Some(input) = general_input {
+            *settings.input.get_mut(&movement).unwrap() = input;
+            *changing_movement = None;
+        }
+    }
+
     egui::Window::new("Menu").show(contexts.ctx_mut(), |ui| {
         if ui.button("Back").clicked() {
             // Save
@@ -29,50 +53,15 @@ pub(super) fn ui_options(
             menu_state.set(MenuState::Menu);
         }
         ui.separator();
-        for (k, m) in settings.input.iter() {
+        for (m, input) in settings.input.iter() {
             ui.horizontal(|ui| {
-                if ui.button(m.to_string()).clicked() {
-                    // set List Selector
-                    commands.insert_resource(LastInput(k.clone()));
-                    option_state.set(OptionState::WaitMovement);
-                }
-
-                if ui.button(format!("{:?}", k)).clicked() {
-                    //save input to a Ressource
-                    commands.insert_resource(LastInput(k.clone()));
-                    option_state.set(OptionState::WaitInput);
-                }
+                ui.label(m.to_string());
+                ui.horizontal(|ui_hor| {
+                    if ui_hor.button(format!("{:?}", input)).clicked() {
+                        *changing_movement = Some(*m);
+                    }
+                });
             });
         }
-        ui.separator();
-        if ui.button("+").clicked() {
-            option_state.set(OptionState::WaitInput);
-        }
     });
 }
-pub(super) fn ui_waitinput(mut contexts: EguiContexts) {
-    egui::Window::new("WAIT INPUT").show(contexts.ctx_mut(), |_ui| {});
-}
-
-pub(super) fn ui_waitmovement(
-    mut contexts: EguiContexts,
-    mut option_state: ResMut<NextState<OptionState>>,
-    mut settings: ResMut<Settings>,
-    last_input: Option<Res<LastInput>>,
-    mut commands: Commands
-) {
-    egui::Window::new("SET MOVEMENT").show(contexts.ctx_mut(), |ui| {
-        Movement::iter().for_each(|m| {
-            if ui.button(m.to_string()).clicked() {
-                if let Some(last_in) = &last_input {
-                    settings.input.insert(last_in.0.clone(), m);
-                    commands.remove_resource::<LastInput>();
-                }
-                option_state.set(OptionState::Option);
-            }
-        });
-    });
-}
-
-#[derive(Resource)]
-pub(super) struct LastInput(pub GeneralInput);
