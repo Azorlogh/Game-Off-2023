@@ -27,7 +27,8 @@ impl Plugin for PlayerPlugin {
 					player_movement,
 					player_on_ground,
 					player_jump,
-				).run_if(in_state(GameState::Running)),
+				)
+					.run_if(in_state(GameState::Running)),
 			);
 	}
 }
@@ -42,7 +43,7 @@ pub fn player_spawn(mut cmds: Commands) {
 	cmds.spawn((
 		Name::new("Player"),
 		Player,
-		SpatialBundle::default(),
+		SpatialBundle::from_transform(Transform::from_xyz(0.0, 10.0, 0.0)),
 		RigidBody::Dynamic,
 		Velocity::default(),
 		Collider::capsule(

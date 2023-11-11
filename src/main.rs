@@ -1,4 +1,7 @@
-use bevy::{audio::AudioPlugin, gltf::Gltf, prelude::*, utils::HashMap, transform::TransformSystem};
+use bevy::{
+	asset::Asset, audio::AudioPlugin, gltf::Gltf, prelude::*, transform::TransformSystem,
+	utils::HashMap,
+};
 use bevy_asset_loader::{
 	asset_collection::AssetCollection,
 	loading_state::{LoadingState, LoadingStateAppExt},
@@ -6,7 +9,7 @@ use bevy_asset_loader::{
 };
 use bevy_atmosphere::prelude::AtmospherePlugin;
 use bevy_rapier3d::{
-	prelude::{NoUserData, RapierPhysicsPlugin, PhysicsSet},
+	prelude::{Collider, NoUserData, PhysicsSet, RapierPhysicsPlugin},
 	render::RapierDebugRenderPlugin,
 };
 use bevy_vector_shapes::Shape2dPlugin;
@@ -25,12 +28,11 @@ use ::{
 mod health;
 mod hud;
 mod input;
+mod menu;
 mod player;
 mod proxies;
-mod util;
 mod settings;
-mod menu;
-
+mod util;
 
 fn main() {
 	App::new()
@@ -47,13 +49,17 @@ fn main() {
 			Shape2dPlugin::default(),
 		))
 		// Our own plugins
-		.add_plugins((InputPlugin, PlayerPlugin, SettingsPlugin, MenuPlugin, HealthPlugin, HudPlugin))
-
+		.add_plugins((
+			InputPlugin,
+			PlayerPlugin,
+			SettingsPlugin,
+			MenuPlugin,
+			HealthPlugin,
+			HudPlugin,
+		))
 		// Game state
 		.add_state::<GameState>()
-		.add_loading_state(
-			LoadingState::new(GameState::Loading).continue_to_state(GameState::Menu),
-		)
+		.add_loading_state(LoadingState::new(GameState::Loading).continue_to_state(GameState::Menu))
 		// Game assets: Tell our app to load the assets from GameAssets
 		.add_collection_to_loading_state::<_, GameAssets>(GameState::Loading)
 		.add_dynamic_collection_to_loading_state::<_, StandardDynamicAssetCollection>(
@@ -82,13 +88,12 @@ fn main() {
 					.in_set(PhysicsSet::StepSimulation),
 				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::Writeback)
 					.in_set(PhysicsSet::Writeback),
-			)//.run_if(in_state(GameState::Running).or_else(in_state(GameState::Loading)))
+			), //.run_if(in_state(GameState::Running).or_else(in_state(GameState::Loading)))
 		)
 		// Once the assets are loaded, spawn the level
 		.add_systems(OnExit(GameState::Loading), spawn_level)
 		.run();
 }
-
 
 // Our game's assets
 #[derive(AssetCollection, Resource)]
@@ -108,12 +113,43 @@ enum GameState {
 	Pause,
 }
 
-fn spawn_level(mut commands: Commands, game_assets: Res<GameAssets>) {
-	commands.spawn((
-		SceneBundle {
-			scene: game_assets.world.clone(),
+fn spawn_level(
+	mut commands: Commands,
+	game_assets: Res<GameAssets>,
+	mut meshes: ResMut<Assets<Mesh>>,
+	mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+	// commands.spawn((
+	// 	SceneBundle {
+	// 		scene: game_assets.world.clone(),
+	// 		..default()
+	// 	},
+	// 	GameWorldTag,
+	// ));
+
+	commands.spawn(PointLightBundle {
+		point_light: PointLight {
+			intensity: 1500.0,
+			shadows_enabled: true,
 			..default()
 		},
-		GameWorldTag,
+		transform: Transform::from_xyz(4.0, 8.0, 4.0),
+		..default()
+	});
+
+	let ground_size = 200.1;
+	let ground_height = 0.1;
+	commands.spawn((
+		PbrBundle {
+			mesh: meshes.add(Mesh::from(shape::Box::new(
+				ground_size * 2.0,
+				ground_height * 2.0,
+				ground_size * 2.0,
+			))),
+			material: materials.add(Color::rgb_u8(124, 144, 255).into()),
+			transform: Transform::from_xyz(0.0, -ground_height, 0.0),
+			..default()
+		},
+		Collider::cuboid(ground_size, ground_height, ground_size),
 	));
 }
