@@ -20,6 +20,7 @@ impl Plugin for MenuPlugin {
         .add_systems(Update, ui_options.run_if(in_state(MenuState::Option)))
         .add_systems(OnEnter(OptionState::AddInput), transfer_input)
         .add_systems(Update, ui_waitinput.run_if(in_state(OptionState::WaitInput)))
+        .add_systems(Update, ui_waitmovement.run_if(in_state(OptionState::WaitMovement)))
         ;
     }
 }

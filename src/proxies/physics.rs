@@ -90,3 +90,4 @@ fn detach_rigid_bodies(
 		cmds.entity(entity).remove_parent();
 	}
 }
+

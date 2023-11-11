@@ -35,8 +35,8 @@ fn main() {
 			DefaultPlugins.build().disable::<AudioPlugin>(), // disabling audio for now because it glitches out on linux when closing the app
 			WorldInspectorPlugin::new(),
 			BlueprintsPlugin::default(),
+			RapierPhysicsPlugin::<NoUserData>::default().with_default_system_setup(false),
 			GltfProxiesPlugin,
-			RapierPhysicsPlugin::<NoUserData>::default(),
 			RapierDebugRenderPlugin::default(),
 			AtmospherePlugin,
 		))
@@ -57,23 +57,28 @@ fn main() {
 			PostUpdate,
 			(
 				PhysicsSet::SyncBackend,
+				PhysicsSet::SyncBackendFlush,
 				PhysicsSet::StepSimulation,
 				PhysicsSet::Writeback,
 			)
 				.chain()
 				.before(TransformSystem::TransformPropagate),
 		)
-		// .add_systems(PostUpdate, (
-		// 	RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::SyncBackend)
-        //         .in_set(PhysicsSet::SyncBackend),
-        //         RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::StepSimulation)
-        //         .in_set(PhysicsSet::StepSimulation),
-        //     RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::Writeback)
-        //         .in_set(PhysicsSet::Writeback),
-		// ).run_if(in_state(GameState::Running)))
+		.add_systems(
+			PostUpdate,
+			(
+				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::SyncBackend)
+					.in_set(PhysicsSet::SyncBackend),
+				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::SyncBackendFlush)
+					.in_set(PhysicsSet::SyncBackendFlush),
+				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::StepSimulation)
+					.in_set(PhysicsSet::StepSimulation),
+				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::Writeback)
+					.in_set(PhysicsSet::Writeback),
+			)//.run_if(in_state(GameState::Running).or_else(in_state(GameState::Loading)))
+		)
 		// Once the assets are loaded, spawn the level
 		.add_systems(OnExit(GameState::Loading), spawn_level)
-		
 		.run();
 }
 

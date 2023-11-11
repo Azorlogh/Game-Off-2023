@@ -16,14 +16,16 @@ pub(super) fn transfer_input (
     if let Some(last_input) = last_input {
         if let Some((_, last_value)) = settings.input.remove_entry(&last_input.0) {
             settings.input.insert(input.clone(), last_value);
+            command.remove_resource::<LastInput>();
         }
     }
-    else if let Some(s) = input.to_settings().is_void() {
-        *settings += s;
+    else {
+        *settings += input.to_settings();
     }
     command.remove_resource::<GeneralInput>();
     option_state.set(OptionState::Option);
 }
+
 
 #[derive(Resource, Eq, Hash, PartialEq, Serialize, Deserialize, Debug, Clone, Copy)]
 pub enum GeneralInput {

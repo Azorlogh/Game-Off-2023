@@ -31,6 +31,21 @@ pub fn load_settings() -> Settings {
     }
 }
 
+pub fn save_settings(settings: &Settings) {
+    let path = settings_path();
+    // Save Settings
+    match ron::to_string(settings) {
+        Ok(s) => match std::fs::write(path.clone(), s.clone()) {
+            Ok(_) => {},
+            Err(_) => {
+                std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+                std::fs::write(path, s).unwrap();
+            }
+        },
+        Err(e) => warn!("failed to save settings: {e}")
+    }
+}
+
 fn settings_path() -> PathBuf {
     directories::ProjectDirs::from("", "NeuroControls", "GameOff")
     .unwrap()
@@ -38,7 +53,7 @@ fn settings_path() -> PathBuf {
     .join("settings.ron")
 }
 
-#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash, PartialOrd, Ord)]
+#[derive(Debug, Serialize, Deserialize, Eq, PartialEq, Hash, PartialOrd, Ord, Clone, Copy)]
 pub enum Movement {
     Right,
     Left,
@@ -48,6 +63,7 @@ pub enum Movement {
     Punch,
     Yaw(Option<bool>),
     Pitch(Option<bool>),
+    Eat,
     Void
 }
 
@@ -62,6 +78,7 @@ impl ToString for Movement {
             Movement::Punch => String::from("Punch"),
             Movement::Yaw(_) => String::from("X Vision"),
             Movement::Pitch(_) => String::from("Y Vision"),
+            Movement::Eat => String::from("Eat"),
             Movement::Void => String::from("")
         }
     }
@@ -82,8 +99,27 @@ impl Movement {
             Movement::Yaw(None) => { inputs.yaw += modifier.x },
             Movement::Pitch(None) => { inputs.pitch += modifier.y },
 
+            Movement::Eat => {},
+
             Movement::Void => {}
         };
+    }
+
+    pub fn iter() -> impl Iterator<Item = Self> {
+        [
+            Movement::Right,
+            Movement::Left,
+            Movement::Forward,
+            Movement::Backward,
+            Movement::Jump,
+            Movement::Punch,
+            Movement::Yaw(Some(true)),
+            Movement::Yaw(Some(false)),
+            Movement::Pitch(Some(true)),
+            Movement::Pitch(Some(false)),
+            Movement::Eat,
+            Movement::Void
+        ].iter().copied()
     }
 }
 #[derive(Debug, Eq, Hash, PartialEq, Serialize, Deserialize, Copy, Clone, PartialOrd, Ord)]
@@ -95,12 +131,6 @@ pub struct Settings {
 }
 
 impl Settings {
-    pub fn is_void(self) -> Option<Self> {
-        match self.input.is_empty() {
-            true => Some(self),
-            false => None
-        }
-    }
     pub fn length_motion(&self) -> usize {
         self.input.keys().filter(|k| matches!(k, GeneralInput::Motion(_))).count()
     }
@@ -123,6 +153,7 @@ impl Default for Settings {
                 (GeneralInput::KeyCode(KeyCode::Space), Movement::Jump),
                 (GeneralInput::KeyCode(KeyCode::T), Movement::Yaw(Some(true))),
                 (GeneralInput::KeyCode(KeyCode::B), Movement::Yaw(Some(false))),
+                (GeneralInput::KeyCode(KeyCode::E), Movement::Eat),
 
                 (GeneralInput::MouseButton(MouseButton::Left), Movement::Punch),
 
