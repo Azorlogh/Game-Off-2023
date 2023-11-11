@@ -139,7 +139,7 @@ impl Default for Settings {
                 (Movement::Pitch(None), GeneralInput::Motion),
                 (Movement::Pitch(Some(false)), GeneralInput::KeyCode(KeyCode::R)),
                 (Movement::Pitch(Some(true)), GeneralInput::KeyCode(KeyCode::F)),
-                (Movement::Eat, GeneralInput::MouseButton(MouseButton::Right)),
+                (Movement::Eat, GeneralInput::KeyCode(KeyCode::E)),
             ])
         }
     }
