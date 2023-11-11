@@ -1,4 +1,4 @@
-use bevy::{audio::AudioPlugin, gltf::Gltf, prelude::*, utils::HashMap};
+use bevy::{audio::AudioPlugin, gltf::Gltf, prelude::*, utils::HashMap, transform::TransformSystem};
 use bevy_asset_loader::{
 	asset_collection::AssetCollection,
 	loading_state::{LoadingState, LoadingStateAppExt},
@@ -6,15 +6,17 @@ use bevy_asset_loader::{
 };
 use bevy_atmosphere::prelude::AtmospherePlugin;
 use bevy_rapier3d::{
-	prelude::{NoUserData, RapierPhysicsPlugin},
+	prelude::{NoUserData, RapierPhysicsPlugin, PhysicsSet},
 	render::RapierDebugRenderPlugin,
 };
 use bevy_vector_shapes::Shape2dPlugin;
 use health::HealthPlugin;
 use hud::HudPlugin;
 use input::InputPlugin;
+use menu::MenuPlugin;
 use player::PlayerPlugin;
 use proxies::GltfProxiesPlugin;
+use settings::SettingsPlugin;
 use ::{
 	bevy_gltf_blueprints::{BlueprintsPlugin, GameWorldTag},
 	bevy_inspector_egui::quick::WorldInspectorPlugin,
@@ -26,6 +28,9 @@ mod input;
 mod player;
 mod proxies;
 mod util;
+mod settings;
+mod menu;
+
 
 fn main() {
 	App::new()
@@ -35,18 +40,19 @@ fn main() {
 			DefaultPlugins.build().disable::<AudioPlugin>(), // disabling audio for now because it glitches out on linux when closing the app
 			WorldInspectorPlugin::new(),
 			BlueprintsPlugin::default(),
+			RapierPhysicsPlugin::<NoUserData>::default().with_default_system_setup(false),
 			GltfProxiesPlugin,
-			RapierPhysicsPlugin::<NoUserData>::default(),
 			RapierDebugRenderPlugin::default(),
 			AtmospherePlugin,
 			Shape2dPlugin::default(),
 		))
 		// Our own plugins
-		.add_plugins((InputPlugin, PlayerPlugin, HealthPlugin, HudPlugin))
+		.add_plugins((InputPlugin, PlayerPlugin, SettingsPlugin, MenuPlugin, HealthPlugin, HudPlugin))
+
 		// Game state
 		.add_state::<GameState>()
 		.add_loading_state(
-			LoadingState::new(GameState::Loading).continue_to_state(GameState::Running),
+			LoadingState::new(GameState::Loading).continue_to_state(GameState::Menu),
 		)
 		// Game assets: Tell our app to load the assets from GameAssets
 		.add_collection_to_loading_state::<_, GameAssets>(GameState::Loading)
@@ -54,10 +60,35 @@ fn main() {
 			GameState::Loading,
 			"assets_game.assets.ron",
 		)
+		.configure_sets(
+			PostUpdate,
+			(
+				PhysicsSet::SyncBackend,
+				PhysicsSet::SyncBackendFlush,
+				PhysicsSet::StepSimulation,
+				PhysicsSet::Writeback,
+			)
+				.chain()
+				.before(TransformSystem::TransformPropagate),
+		)
+		.add_systems(
+			PostUpdate,
+			(
+				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::SyncBackend)
+					.in_set(PhysicsSet::SyncBackend),
+				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::SyncBackendFlush)
+					.in_set(PhysicsSet::SyncBackendFlush),
+				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::StepSimulation)
+					.in_set(PhysicsSet::StepSimulation),
+				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::Writeback)
+					.in_set(PhysicsSet::Writeback),
+			)//.run_if(in_state(GameState::Running).or_else(in_state(GameState::Loading)))
+		)
 		// Once the assets are loaded, spawn the level
-		.add_systems(OnEnter(GameState::Running), spawn_level)
+		.add_systems(OnExit(GameState::Loading), spawn_level)
 		.run();
 }
+
 
 // Our game's assets
 #[derive(AssetCollection, Resource)]
@@ -73,6 +104,8 @@ enum GameState {
 	#[default]
 	Loading,
 	Running,
+	Menu,
+	Pause,
 }
 
 fn spawn_level(mut commands: Commands, game_assets: Res<GameAssets>) {

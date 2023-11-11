@@ -14,7 +14,7 @@ impl Plugin for PhysicsProxies {
 			(
 				replace_physics_proxies.after(GltfBlueprintsSet::AfterSpawn),
 				detach_rigid_bodies,
-			),
+			)
 		);
 	}
 }
@@ -90,3 +90,4 @@ fn detach_rigid_bodies(
 		cmds.entity(entity).remove_parent();
 	}
 }
+

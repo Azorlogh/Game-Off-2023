@@ -19,7 +19,7 @@ const PLAYER_RADIUS: f32 = 0.5;
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
 	fn build(&self, app: &mut App) {
-		app.add_systems(OnEnter(GameState::Running), player_spawn)
+		app.add_systems(OnExit(GameState::Loading), player_spawn)
 			.add_systems(
 				Update,
 				(
@@ -27,7 +27,7 @@ impl Plugin for PlayerPlugin {
 					player_movement,
 					player_on_ground,
 					player_jump,
-				),
+				).run_if(in_state(GameState::Running)),
 			);
 	}
 }

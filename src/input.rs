@@ -1,8 +1,12 @@
+use std::hash::Hash;
+
 use bevy::{
-	input::{mouse::MouseMotion, InputSystem},
+	input::{mouse::MouseMotion, Input, InputSystem},
 	prelude::*,
 	window::{CursorGrabMode, PrimaryWindow},
 };
+
+use crate::{settings::{Settings, GeneralInput}, GameState, menu::MenuState};
 
 const DEADZONE: f32 = 0.2;
 
@@ -10,19 +14,20 @@ pub struct InputPlugin;
 impl Plugin for InputPlugin {
 	fn build(&self, app: &mut App) {
 		app.init_resource::<Inputs>()
-			.add_systems(Update, capture_mouse)
+			.add_systems(Update, capture_mouse.run_if(in_state(GameState::Running)))
+			.add_systems(PreUpdate, handle_menu.run_if(in_state(GameState::Running).or_else(in_state(GameState::Pause))))
 			.add_systems(
 				PreUpdate,
 				(
 					reset_input,
 					handle_gamepad_input,
-					handle_keyboard_input,
-					handle_mouse_input,
+					handle_inputs,
 					finalize_input,
 				)
 					.chain()
 					.in_set(InputSet)
-					.after(InputSystem),
+					.after(InputSystem)
+					.run_if(in_state(GameState::Running)),
 			);
 	}
 }
@@ -82,7 +87,6 @@ fn handle_gamepad_input(
 	gamepad_buttons: Res<Input<GamepadButton>>,
 ) {
 	let Some(gamepad) = gamepads.iter().next() else {
-		warn!("gamepad not connected");
 		return;
 	};
 
@@ -93,7 +97,7 @@ fn handle_gamepad_input(
 	inputs.dir.x = {
 		let val = gamepad_axes
 			.get(GamepadAxis {
-				gamepad: gamepad,
+				gamepad,
 				axis_type: GamepadAxisType::LeftStickX,
 			})
 			.unwrap();
@@ -103,7 +107,7 @@ fn handle_gamepad_input(
 	inputs.dir.y = {
 		let val = gamepad_axes
 			.get(GamepadAxis {
-				gamepad: gamepad,
+				gamepad,
 				axis_type: GamepadAxisType::LeftStickY,
 			})
 			.unwrap();
@@ -135,38 +139,52 @@ fn handle_gamepad_input(
 	inputs.punch = gamepad_buttons.pressed(GamepadButton::new(gamepad, GamepadButtonType::East));
 }
 
-fn handle_keyboard_input(mut inputs: ResMut<Inputs>, keys: Res<Input<KeyCode>>) {
-	if keys.pressed(KeyCode::W) {
-		inputs.dir.y += 1.0;
-	}
-	if keys.pressed(KeyCode::S) {
-		inputs.dir.y += -1.0;
-	}
-	if keys.pressed(KeyCode::A) {
-		inputs.dir.x += -1.0;
-	}
-	if keys.pressed(KeyCode::D) {
-		inputs.dir.x += 1.0;
-	}
-	if keys.pressed(KeyCode::Space) {
-		inputs.jump = true;
-	}
-}
-
-fn handle_mouse_input(
-	time: Res<Time>,
+fn handle_inputs(
 	mut inputs: ResMut<Inputs>,
 	buttons: Res<Input<MouseButton>>,
+	keys: Res<Input<KeyCode>>,
 	mut mouse_motion: EventReader<MouseMotion>,
+	settings: Res<Settings>,
+	time: Res<Time>,
 ) {
 	let delta = mouse_motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
-	inputs.pitch += delta.y / (time.delta_seconds().max(0.001)) * -1e-5;
-	inputs.yaw += delta.x / (time.delta_seconds().max(0.001)) * -1e-5;
-	inputs.punch |= buttons.pressed(MouseButton::Right);
+
+	for (m, k) in settings.input.iter() {
+		match k {
+			GeneralInput::KeyCode(key) => {
+				if keys.pressed(*key) {
+					m.input(&mut inputs, Vec2::new(time.delta_seconds() * 35.0, 0.0));
+				}
+			}
+			GeneralInput::MouseButton(button) => {
+				if buttons.pressed(*button) {
+					m.input(&mut inputs, Vec2::new(time.delta_seconds() * 35.0, 0.0));
+				}
+			},
+			GeneralInput::Motion => {
+				m.input(&mut inputs, delta / (time.delta_seconds().max(0.001)) * -1e-5);
+			},
+		};
+	}
 }
 
 fn finalize_input(mut inputs: ResMut<Inputs>) {
 	if inputs.dir.length() > 1.0 {
 		inputs.dir = inputs.dir.normalize();
+	}
+}
+
+fn handle_menu(
+	keys: Res<Input<KeyCode>>,
+	mut app_state: ResMut<NextState<GameState>>,
+	state: Res<State<GameState>>,
+	menu_state: Res<State<MenuState>>,
+) {
+	if keys.just_pressed(KeyCode::Escape) && menu_state.get() == &MenuState::Menu {
+		match state.get() {
+			GameState::Running => app_state.set(GameState::Pause),
+			GameState::Pause => app_state.set(GameState::Running),
+			_ => {}
+		};
 	}
 }
