@@ -1,11 +1,16 @@
+use std::hash::Hash;
+
 use bevy::{
-	input::{mouse::MouseMotion, InputSystem, Input},
+	input::{mouse::MouseMotion, Input, InputSystem},
 	prelude::*,
 	window::{CursorGrabMode, PrimaryWindow},
 };
-use std::hash::Hash;
 
-use crate::{settings::Settings, GameState, menu::{MenuState, OptionState, GeneralInput}};
+use crate::{
+	menu::{GeneralInput, MenuState, OptionState},
+	settings::Settings,
+	GameState,
+};
 
 const DEADZONE: f32 = 0.2;
 
@@ -14,8 +19,16 @@ impl Plugin for InputPlugin {
 	fn build(&self, app: &mut App) {
 		app.init_resource::<Inputs>()
 			.add_systems(Update, capture_mouse.run_if(in_state(GameState::Running)))
-			.add_systems(PreUpdate, handle_menu.run_if(in_state(GameState::Running).or_else(in_state(GameState::Pause))))
-			.add_systems(Update,get_input_to_settings_input.run_if(in_state(MenuState::Option).and_then(in_state(OptionState::WaitInput))))
+			.add_systems(
+				PreUpdate,
+				handle_menu
+					.run_if(in_state(GameState::Running).or_else(in_state(GameState::Pause))),
+			)
+			.add_systems(
+				Update,
+				get_input_to_settings_input
+					.run_if(in_state(MenuState::Option).and_then(in_state(OptionState::WaitInput))),
+			)
 			.add_systems(
 				PreUpdate,
 				(
@@ -87,7 +100,6 @@ fn handle_gamepad_input(
 	gamepad_buttons: Res<Input<GamepadButton>>,
 ) {
 	let Some(gamepad) = gamepads.iter().next() else {
-		warn!("gamepad not connected");
 		return;
 	};
 
@@ -146,30 +158,31 @@ fn handle_inputs(
 	keys: Res<Input<KeyCode>>,
 	mut mouse_motion: EventReader<MouseMotion>,
 	settings: Res<Settings>,
-	time: Res<Time>
+	time: Res<Time>,
 ) {
 	let delta = mouse_motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
 	for key in keys.get_pressed() {
 		match settings.input.get(&GeneralInput::KeyCode(*key)) {
 			Some(i) => i.input(&mut inputs, Vec2::new(time.delta_seconds() * 35.0, 0.0)),
-			None => {},
+			None => {}
 		};
 	}
 	for button in buttons.get_pressed() {
 		match settings.input.get(&GeneralInput::MouseButton(*button)) {
 			Some(i) => i.input(&mut inputs, Vec2::new(time.delta_seconds() * 35.0, 0.0)),
-			None => {},
+			None => {}
 		};
 	}
 	for i in 0..settings.length_motion() {
 		match settings.input.get(&GeneralInput::Motion(i)) {
-			Some(mov) => mov.input(&mut inputs, delta / (time.delta_seconds().max(0.001)) * -1e-5),
-			None => {},
+			Some(mov) => mov.input(
+				&mut inputs,
+				delta / (time.delta_seconds().max(0.001)) * -1e-5,
+			),
+			None => {}
 		};
 	}
 }
-
-
 
 fn finalize_input(mut inputs: ResMut<Inputs>) {
 	if inputs.dir.length() > 1.0 {
@@ -177,24 +190,28 @@ fn finalize_input(mut inputs: ResMut<Inputs>) {
 	}
 }
 
-fn handle_menu(keys: Res<Input<KeyCode>>, mut app_state: ResMut<NextState<GameState>>, state: Res<State<GameState>>, menu_state: Res<State<MenuState>>) {
+fn handle_menu(
+	keys: Res<Input<KeyCode>>,
+	mut app_state: ResMut<NextState<GameState>>,
+	state: Res<State<GameState>>,
+	menu_state: Res<State<MenuState>>,
+) {
 	if keys.just_pressed(KeyCode::Escape) && menu_state.get() == &MenuState::Menu {
 		match state.get() {
 			GameState::Running => app_state.set(GameState::Pause),
 			GameState::Pause => app_state.set(GameState::Running),
-			_ => {},
+			_ => {}
 		};
 	}
 }
 
-
-fn get_input_to_settings_input (
+fn get_input_to_settings_input(
 	keys: Res<Input<KeyCode>>,
 	buttons: Res<Input<MouseButton>>,
 	mut option_state: ResMut<NextState<OptionState>>,
 	mut command: Commands,
 	mut motion: EventReader<MouseMotion>,
-	settings: Res<Settings>
+	settings: Res<Settings>,
 ) {
 	let delta = motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
 	for k in keys.get_just_pressed() {
@@ -212,4 +229,3 @@ fn get_input_to_settings_input (
 		option_state.set(OptionState::AddInput);
 	}
 }
-
