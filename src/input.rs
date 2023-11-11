@@ -1,9 +1,10 @@
+use std::hash::Hash;
+
 use bevy::{
-	input::{mouse::MouseMotion, InputSystem, Input},
+	input::{mouse::MouseMotion, Input, InputSystem},
 	prelude::*,
 	window::{CursorGrabMode, PrimaryWindow},
 };
-use std::hash::Hash;
 
 use crate::{settings::{Settings, GeneralInput}, GameState, menu::MenuState};
 
@@ -86,7 +87,6 @@ fn handle_gamepad_input(
 	gamepad_buttons: Res<Input<GamepadButton>>,
 ) {
 	let Some(gamepad) = gamepads.iter().next() else {
-		warn!("gamepad not connected");
 		return;
 	};
 
@@ -145,7 +145,7 @@ fn handle_inputs(
 	keys: Res<Input<KeyCode>>,
 	mut mouse_motion: EventReader<MouseMotion>,
 	settings: Res<Settings>,
-	time: Res<Time>
+	time: Res<Time>,
 ) {
 	let delta = mouse_motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
 
@@ -168,20 +168,23 @@ fn handle_inputs(
 	}
 }
 
-
-
 fn finalize_input(mut inputs: ResMut<Inputs>) {
 	if inputs.dir.length() > 1.0 {
 		inputs.dir = inputs.dir.normalize();
 	}
 }
 
-fn handle_menu(keys: Res<Input<KeyCode>>, mut app_state: ResMut<NextState<GameState>>, state: Res<State<GameState>>, menu_state: Res<State<MenuState>>) {
+fn handle_menu(
+	keys: Res<Input<KeyCode>>,
+	mut app_state: ResMut<NextState<GameState>>,
+	state: Res<State<GameState>>,
+	menu_state: Res<State<MenuState>>,
+) {
 	if keys.just_pressed(KeyCode::Escape) && menu_state.get() == &MenuState::Menu {
 		match state.get() {
 			GameState::Running => app_state.set(GameState::Pause),
 			GameState::Pause => app_state.set(GameState::Running),
-			_ => {},
+			_ => {}
 		};
 	}
 }
