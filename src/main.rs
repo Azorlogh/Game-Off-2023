@@ -1,13 +1,16 @@
+use std::path::PathBuf;
+
 use bevy::{
-	asset::Asset, audio::AudioPlugin, gltf::Gltf, prelude::*, transform::TransformSystem,
-	utils::HashMap,
+	audio::AudioPlugin, gltf::Gltf, prelude::*, transform::TransformSystem, utils::HashMap,
 };
 use bevy_asset_loader::{
 	asset_collection::AssetCollection,
 	loading_state::{LoadingState, LoadingStateAppExt},
 	standard_dynamic_asset::StandardDynamicAssetCollection,
 };
-use bevy_atmosphere::prelude::AtmospherePlugin;
+use bevy_atmosphere::prelude::{AtmosphereModel, AtmospherePlugin, Nishita};
+use bevy_gltf_blueprints::{BlueprintsPlugin, GameWorldTag};
+use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier3d::{
 	prelude::{Collider, NoUserData, PhysicsSet, RapierPhysicsPlugin},
 	render::RapierDebugRenderPlugin,
@@ -20,10 +23,6 @@ use menu::MenuPlugin;
 use player::PlayerPlugin;
 use proxies::GltfProxiesPlugin;
 use settings::SettingsPlugin;
-use ::{
-	bevy_gltf_blueprints::{BlueprintsPlugin, GameWorldTag},
-	bevy_inspector_egui::quick::WorldInspectorPlugin,
-};
 
 mod health;
 mod hud;
@@ -41,7 +40,10 @@ fn main() {
 		.add_plugins((
 			DefaultPlugins.build().disable::<AudioPlugin>(), // disabling audio for now because it glitches out on linux when closing the app
 			WorldInspectorPlugin::new(),
-			BlueprintsPlugin::default(),
+			BlueprintsPlugin {
+				library_folder: PathBuf::from("world/library"),
+			},
+			// ComponentsFromGltfPlugin::default(),
 			RapierPhysicsPlugin::<NoUserData>::default().with_default_system_setup(false),
 			GltfProxiesPlugin,
 			RapierDebugRenderPlugin::default(),
@@ -113,27 +115,34 @@ enum GameState {
 	Pause,
 }
 
+const SUN_POSITION: Vec3 = Vec3::new(3.0, 10.0, 4.0);
+
 fn spawn_level(
 	mut commands: Commands,
 	game_assets: Res<GameAssets>,
 	mut meshes: ResMut<Assets<Mesh>>,
 	mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-	// commands.spawn((
-	// 	SceneBundle {
-	// 		scene: game_assets.world.clone(),
-	// 		..default()
-	// 	},
-	// 	GameWorldTag,
-	// ));
+	commands.spawn((
+		SceneBundle {
+			scene: game_assets.world.clone(),
+			..default()
+		},
+		GameWorldTag,
+	));
 
-	commands.spawn(PointLightBundle {
-		point_light: PointLight {
-			intensity: 1500.0,
+	commands.insert_resource(AtmosphereModel::new(Nishita {
+		sun_position: SUN_POSITION,
+		..default()
+	}));
+
+	commands.spawn(DirectionalLightBundle {
+		directional_light: DirectionalLight {
+			illuminance: 10000.0,
 			shadows_enabled: true,
 			..default()
 		},
-		transform: Transform::from_xyz(4.0, 8.0, 4.0),
+		transform: Transform::default().looking_to(-SUN_POSITION, Vec3::Y),
 		..default()
 	});
 
@@ -147,7 +156,7 @@ fn spawn_level(
 				ground_size * 2.0,
 			))),
 			material: materials.add(Color::rgb_u8(124, 144, 255).into()),
-			transform: Transform::from_xyz(0.0, -ground_height, 0.0),
+			transform: Transform::from_xyz(0.0, -ground_height - 5.0, 0.0),
 			..default()
 		},
 		Collider::cuboid(ground_size, ground_height, ground_size),
