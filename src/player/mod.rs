@@ -4,10 +4,13 @@ use bevy_rapier3d::prelude::{
 	Collider, CollidingEntities, GravityScale, LockedAxes, RigidBody, Sensor, Velocity,
 };
 
-use crate::{input::Inputs, GameState};
+use self::nutrition::{Glucose, Hydration};
+use crate::{health::Health, input::Inputs, GameState};
 
 #[derive(Component)]
 struct MainCamera;
+
+pub mod nutrition;
 
 const SPEED: f32 = 10.0;
 const PLAYER_HEIGHT: f32 = 2.0;
@@ -51,6 +54,12 @@ pub fn player_spawn(mut cmds: Commands) {
 		CollidingEntities::default(),
 		PlayerOnGround(false),
 		GravityScale(2.0),
+		Health {
+			current: 5.0,
+			max: 10.0,
+		},
+		Hydration(0.5),
+		Glucose(0.5),
 	))
 	.with_children(|cmds| {
 		cmds.spawn((
@@ -63,9 +72,10 @@ pub fn player_spawn(mut cmds: Commands) {
 		cmds.spawn((
 			Camera3dBundle {
 				camera: Camera {
-					hdr: true,
+					// hdr: true,
 					..default()
 				},
+				transform: Transform::from_xyz(0.0, PLAYER_HEIGHT / 2.0, 0.0),
 				..default()
 			},
 			MainCamera,
