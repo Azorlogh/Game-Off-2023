@@ -7,6 +7,6 @@ impl Plugin for HealthPlugin {
 
 #[derive(Component)]
 pub struct Health {
-	pub current: f32,
-	pub max: f32,
+	pub current: u32,
+	pub max: u32,
 }

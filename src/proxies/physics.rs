@@ -14,7 +14,7 @@ impl Plugin for PhysicsProxies {
 			(
 				replace_physics_proxies.after(GltfBlueprintsSet::AfterSpawn),
 				detach_rigid_bodies,
-			)
+			),
 		);
 	}
 }
@@ -25,6 +25,7 @@ pub enum Collider {
 	Ball(f32),
 	Cuboid(Vec3),
 	Capsule(Vec3, Vec3, f32),
+	Cylinder(f32, f32),
 	#[default]
 	Mesh,
 }
@@ -63,6 +64,10 @@ pub fn replace_physics_proxies(
 				rapier_collider = RapierCollider::capsule(*a, *b, *radius);
 				commands.entity(entity).insert(rapier_collider);
 			}
+			Collider::Cylinder(a, radius) => {
+				rapier_collider = RapierCollider::cylinder(*a, *radius);
+				commands.entity(entity).insert(rapier_collider);
+			}
 			Collider::Mesh => {
 				for (_, collider_mesh) in
 					Mesh::search_in_children(entity, &children, &meshes, &mesh_handles)
@@ -90,4 +95,3 @@ fn detach_rigid_bodies(
 		cmds.entity(entity).remove_parent();
 	}
 }
-
