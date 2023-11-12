@@ -6,7 +6,11 @@ use bevy::{
 	window::{CursorGrabMode, PrimaryWindow},
 };
 
-use crate::{settings::{Settings, GeneralInput}, GameState, menu::MenuState};
+use crate::{
+	menu::MenuState,
+	settings::{GeneralInput, Settings},
+	GameState,
+};
 
 const DEADZONE: f32 = 0.2;
 
@@ -15,7 +19,11 @@ impl Plugin for InputPlugin {
 	fn build(&self, app: &mut App) {
 		app.init_resource::<Inputs>()
 			.add_systems(Update, capture_mouse.run_if(in_state(GameState::Running)))
-			.add_systems(PreUpdate, handle_menu.run_if(in_state(GameState::Running).or_else(in_state(GameState::Pause))))
+			.add_systems(
+				PreUpdate,
+				handle_menu
+					.run_if(in_state(GameState::Running).or_else(in_state(GameState::Pause))),
+			)
 			.add_systems(
 				PreUpdate,
 				(
@@ -61,6 +69,7 @@ pub struct Inputs {
 	pub yaw: f32,
 	pub punch: bool,
 	pub jump: bool,
+	pub eat: bool,
 }
 
 impl Default for Inputs {
@@ -71,6 +80,7 @@ impl Default for Inputs {
 			yaw: 0.0,
 			punch: false,
 			jump: false,
+			eat: false,
 		}
 	}
 }
@@ -160,10 +170,13 @@ fn handle_inputs(
 				if buttons.pressed(*button) {
 					m.input(&mut inputs, Vec2::new(time.delta_seconds() * 35.0, 0.0));
 				}
-			},
+			}
 			GeneralInput::Motion => {
-				m.input(&mut inputs, delta / (time.delta_seconds().max(0.001)) * -1e-5);
-			},
+				m.input(
+					&mut inputs,
+					delta / (time.delta_seconds().max(0.001)) * -1e-5,
+				);
+			}
 		};
 	}
 }

@@ -4,16 +4,18 @@ use bevy_rapier3d::prelude::{
 	Collider, CollidingEntities, GravityScale, LockedAxes, RigidBody, Sensor, Velocity,
 };
 
-use self::nutrition::{Glucose, Hydration};
 use crate::{health::Health, input::Inputs, GameState};
+use eat::player_eat;
+use nutrition::{Glucose, Hydration};
 
 #[derive(Component)]
-struct MainCamera;
+pub struct MainCamera;
 
+pub mod eat;
 pub mod nutrition;
 
 const SPEED: f32 = 10.0;
-const PLAYER_HEIGHT: f32 = 2.0;
+const PLAYER_HEIGHT: f32 = 0.8;
 const PLAYER_RADIUS: f32 = 0.5;
 
 pub struct PlayerPlugin;
@@ -27,6 +29,7 @@ impl Plugin for PlayerPlugin {
 					player_movement,
 					player_on_ground,
 					player_jump,
+					player_eat,
 				)
 					.run_if(in_state(GameState::Running)),
 			);
