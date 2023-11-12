@@ -27,6 +27,7 @@ pub fn player_eat(
 	time: Res<Time>,
 ) {
 	if !inputs.eat {
+		*eating_state = EatingState::Idle;
 		return;
 	}
 

@@ -16,7 +16,7 @@ use bevy_rapier3d::{
 	render::RapierDebugRenderPlugin,
 };
 use bevy_screen_diagnostics::{ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin};
-use bevy_vector_shapes::{Shape2dPlugin, ShapePlugin};
+use bevy_vector_shapes::ShapePlugin;
 use food::FoodPlugin;
 use health::HealthPlugin;
 use hud::HudPlugin;
