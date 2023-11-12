@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use bevy::{
-	audio::AudioPlugin, gltf::Gltf, prelude::*, transform::TransformSystem, utils::HashMap,
+	audio::AudioPlugin, gltf::Gltf, prelude::*, utils::HashMap,
 };
 use bevy_asset_loader::{
 	asset_collection::AssetCollection,
@@ -12,7 +12,7 @@ use bevy_atmosphere::prelude::{AtmosphereModel, AtmospherePlugin, Nishita};
 use bevy_gltf_blueprints::{BlueprintsPlugin, GameWorldTag};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
 use bevy_rapier3d::{
-	prelude::{Collider, NoUserData, PhysicsSet, RapierPhysicsPlugin},
+	prelude::{Collider, NoUserData, RapierPhysicsPlugin},
 	render::RapierDebugRenderPlugin,
 };
 use bevy_vector_shapes::Shape2dPlugin;
@@ -44,7 +44,7 @@ fn main() {
 				library_folder: PathBuf::from("world/library"),
 			},
 			// ComponentsFromGltfPlugin::default(),
-			RapierPhysicsPlugin::<NoUserData>::default().with_default_system_setup(false),
+			RapierPhysicsPlugin::<NoUserData>::default().with_default_system_setup(true),
 			GltfProxiesPlugin,
 			RapierDebugRenderPlugin::default(),
 			AtmospherePlugin,
@@ -67,30 +67,6 @@ fn main() {
 		.add_dynamic_collection_to_loading_state::<_, StandardDynamicAssetCollection>(
 			GameState::Loading,
 			"assets_game.assets.ron",
-		)
-		.configure_sets(
-			PostUpdate,
-			(
-				PhysicsSet::SyncBackend,
-				PhysicsSet::SyncBackendFlush,
-				PhysicsSet::StepSimulation,
-				PhysicsSet::Writeback,
-			)
-				.chain()
-				.before(TransformSystem::TransformPropagate),
-		)
-		.add_systems(
-			PostUpdate,
-			(
-				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::SyncBackend)
-					.in_set(PhysicsSet::SyncBackend),
-				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::SyncBackendFlush)
-					.in_set(PhysicsSet::SyncBackendFlush),
-				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::StepSimulation)
-					.in_set(PhysicsSet::StepSimulation),
-				RapierPhysicsPlugin::<NoUserData>::get_systems(PhysicsSet::Writeback)
-					.in_set(PhysicsSet::Writeback),
-			), //.run_if(in_state(GameState::Running).or_else(in_state(GameState::Loading)))
 		)
 		// Once the assets are loaded, spawn the level
 		.add_systems(OnExit(GameState::Loading), spawn_level)

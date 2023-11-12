@@ -1,7 +1,6 @@
 use std::{fs::read_to_string, collections::HashMap, path::PathBuf};
 
 use bevy::prelude::*;
-
 use serde::{Deserialize, Serialize};
 
 use crate::input::Inputs;

@@ -5,23 +5,23 @@ edition = "2021"
 
 [dependencies]
 # Bevy
-bevy = "0.11.3"
+bevy = { version = "0.12.0", features = ["dynamic_linking", "serialize"]}
 # Debug menu to inspect the game world
-bevy-inspector-egui = "0.20.0"
+bevy-inspector-egui = "0.21.0"
 # Plugin to pre-load assets before the game starts
-bevy_asset_loader = { version = "0.17.0", features = ["standard_dynamic_assets"] }
+bevy_asset_loader = { version = "0.18.0", features = ["standard_dynamic_assets"] }
 # Automatically inserts component to entities spawned from glb files
 bevy_gltf_components = { git = "https://github.com/kaosat-dev/Blender_bevy_components_workflow/" }
 # Support for glb blueprints
 bevy_gltf_blueprints = { git = "https://github.com/kaosat-dev/Blender_bevy_components_workflow/" }
 # Physics engine
-bevy_rapier3d = "0.22.0"
+bevy_rapier3d = "0.23.0"
 # To make camera controls
 bevy_dolly = "0.0.1"
 # A nice procedural sky
-bevy_atmosphere = "0.7.0"
+bevy_atmosphere = { git = "https://github.com/elodin-sys/bevy_atmosphere/"}
 #Bevy iced
-bevy_egui = "0.22.0"
+bevy_egui = "0.23.0"
 # Serde
 serde = "1.0.190"
 #Ron
@@ -29,7 +29,7 @@ ron = "0.8.1"
 #Directories to save files
 directories = "5.0.1"
 
-bevy_vector_shapes = "0.5"
+bevy_vector_shapes = "0.6.0"
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]
@@ -38,3 +38,15 @@ opt-level = 1
 # Enable high optimizations for dependencies (incl. Bevy), but not for our code:
 [profile.dev.package."*"]
 opt-level = 3
+
+[patch.crates-io]
+bevy = { git = "https://github.com/cart/bevy/", branch = "fix-load-untyped" }
+bevy_app = { git = "https://github.com/cart/bevy/", branch = "fix-load-untyped" }
+bevy_ecs = { git = "https://github.com/cart/bevy/", branch = "fix-load-untyped" }
+bevy_asset = { git = "https://github.com/cart/bevy/", branch = "fix-load-untyped" }
+bevy_reflect = { git = "https://github.com/cart/bevy/", branch = "fix-load-untyped" }
+bevy_math = { git = "https://github.com/cart/bevy/", branch = "fix-load-untyped" }
+bevy_tasks = { git = "https://github.com/cart/bevy/", branch = "fix-load-untyped" }
+bevy_render = { git = "https://github.com/cart/bevy/", branch = "fix-load-untyped" }
+bevy_utils = { git = "https://github.com/cart/bevy/", branch = "fix-load-untyped" }
+bevy_transform = { git = "https://github.com/cart/bevy/", branch = "fix-load-untyped" }

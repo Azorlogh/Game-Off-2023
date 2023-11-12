@@ -147,7 +147,7 @@ fn handle_inputs(
 	settings: Res<Settings>,
 	time: Res<Time>,
 ) {
-	let delta = mouse_motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
+	let delta = mouse_motion.read().fold(Vec2::ZERO, |acc, x| acc + x.delta);
 
 	for (m, k) in settings.input.iter() {
 		match k {

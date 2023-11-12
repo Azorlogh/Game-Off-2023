@@ -24,7 +24,7 @@ pub(super) fn ui_options(
 	mut motion: EventReader<MouseMotion>,
 ) {
     if let Some(movement) = *changing_movement {
-        let delta = motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
+        let delta = motion.read().fold(Vec2::ZERO, |acc, x| acc + x.delta);
 
         let mut general_input = None;
 
