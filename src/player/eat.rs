@@ -1,7 +1,7 @@
-use bevy::{ecs::query::QueryParIter, prelude::*};
-use bevy_rapier3d::prelude::{Collider, QueryFilter, RapierContext};
+use bevy::prelude::*;
+use bevy_rapier3d::prelude::{QueryFilter, RapierContext};
 
-use crate::food::{self, FoodStats};
+use crate::food::FoodStats;
 use crate::{food::Food, input::Inputs};
 
 use super::nutrition::{Glucose, Hydration};
