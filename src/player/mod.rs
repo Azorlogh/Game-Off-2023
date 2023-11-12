@@ -15,8 +15,9 @@ pub mod eat;
 pub mod nutrition;
 
 const SPEED: f32 = 10.0;
-const PLAYER_HEIGHT: f32 = 0.8;
-const PLAYER_RADIUS: f32 = 0.5;
+const SIZE: f32 = 1.0;
+const PLAYER_HEIGHT: f32 = SIZE * 0.8;
+const PLAYER_RADIUS: f32 = SIZE * 0.2;
 
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
@@ -59,11 +60,11 @@ pub fn player_spawn(mut cmds: Commands) {
 		PlayerOnGround(false),
 		GravityScale(2.0),
 		Health {
-			current: 5.0,
-			max: 10.0,
+			current: 50,
+			max: 100,
 		},
-		Hydration(0.5),
-		Glucose(0.5),
+		Hydration(0),
+		Glucose(0),
 	))
 	.with_children(|cmds| {
 		cmds.spawn((
@@ -79,7 +80,7 @@ pub fn player_spawn(mut cmds: Commands) {
 					// hdr: true,
 					..default()
 				},
-				transform: Transform::from_xyz(0.0, PLAYER_HEIGHT / 2.0, 0.0),
+				transform: Transform::from_xyz(0.0, PLAYER_HEIGHT * 0.4, 0.0),
 				..default()
 			},
 			MainCamera,

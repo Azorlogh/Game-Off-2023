@@ -151,6 +151,7 @@ fn player_status_ui(
 		),
 	>,
 ) {
+	painter.set_2d();
 	painter.render_layers = Some(RenderLayers::layer(1));
 	let Ok((health, hydration, glucose)) = q_player.get_single() else {
 		return;
@@ -159,21 +160,21 @@ fn player_status_ui(
 	// bar
 	show_bar(
 		&mut painter,
-		(health.current / health.max).min(1.0),
+		(health.current as f32 / health.max as f32).min(1.0),
 		HEALTH_OFFSET,
 		Color::RED,
 		&mut q_health.single_mut().sections[0].value,
 	);
 	show_bar(
 		&mut painter,
-		(hydration.0).min(1.0),
+		(hydration.0).min(100) as f32 / 100.0,
 		HYDRATION_OFFSET,
 		Color::CYAN,
 		&mut q_hydration.single_mut().sections[0].value,
 	);
 	show_bar(
 		&mut painter,
-		(glucose.0).min(1.0),
+		(glucose.0).min(100) as f32 / 100.0,
 		GLUCOSE_OFFSET,
 		Color::YELLOW,
 		&mut q_glucose.single_mut().sections[0].value,

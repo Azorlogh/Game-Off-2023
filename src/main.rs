@@ -15,7 +15,8 @@ use bevy_rapier3d::{
 	prelude::{Collider, NoUserData, PhysicsSet, RapierPhysicsPlugin},
 	render::RapierDebugRenderPlugin,
 };
-use bevy_vector_shapes::Shape2dPlugin;
+use bevy_screen_diagnostics::{ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin};
+use bevy_vector_shapes::{Shape2dPlugin, ShapePlugin};
 use food::FoodPlugin;
 use health::HealthPlugin;
 use hud::HudPlugin;
@@ -50,7 +51,9 @@ fn main() {
 			GltfProxiesPlugin,
 			RapierDebugRenderPlugin::default(),
 			AtmospherePlugin,
-			Shape2dPlugin::default(),
+			ShapePlugin::default(),
+			ScreenDiagnosticsPlugin::default(),
+			ScreenFrameDiagnosticsPlugin,
 		))
 		// Our own plugins
 		.add_plugins((

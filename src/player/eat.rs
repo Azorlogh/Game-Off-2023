@@ -1,21 +1,30 @@
-use bevy::{ecs::query::QueryParIter, prelude::*};
-use bevy_rapier3d::prelude::{Collider, QueryFilter, RapierContext};
+use bevy::prelude::*;
+use bevy_rapier3d::prelude::{QueryFilter, RapierContext};
 
-use crate::food::{self, FoodStats};
+use crate::food::{FoodProperties, FoodStats};
 use crate::{food::Food, input::Inputs};
 
 use super::nutrition::{Glucose, Hydration};
 use super::MainCamera;
 use super::Player;
 
+#[derive(Default, Debug)]
+pub enum EatingState {
+	Eating(Entity, f32),
+	#[default]
+	Idle,
+}
+
 pub fn player_eat(
 	rapier_context: Res<RapierContext>,
 	inputs: Res<Inputs>,
-	q_food: Query<&FoodStats, With<Food>>,
+	mut q_food: Query<(&FoodStats, &mut FoodProperties), With<Food>>,
 	q_camera_player: Query<&GlobalTransform, With<MainCamera>>,
 	mut q_player: Query<(Entity, (&mut Glucose, &mut Hydration)), With<Player>>,
 	mut commands: Commands,
 	mut gizmos: Gizmos,
+	mut eating_state: Local<EatingState>,
+	time: Res<Time>,
 ) {
 	if !inputs.eat {
 		return;
@@ -42,13 +51,42 @@ pub fn player_eat(
 		// the ray travelled a distance equal to `ray_dir * toi`.
 		let hit_point = ray_pos + ray_dir * toi;
 
-		println!("Entity {:?} hit at point {}", entity, hit_point);
+		debug!("Entity {:?} hit at point {}", entity, hit_point);
 
-		if let Ok(food_stats) = q_food.get(entity) {
-			// player
-			glucose.0 += food_stats.glucose;
-			hydration.0 += food_stats.hydration;
-			commands.entity(entity).despawn_recursive();
+		println!("Eating state: {:?}", eating_state);
+
+		if let Ok((food_stats, mut food_properties)) = q_food.get_mut(entity) {
+			match &*eating_state {
+				EatingState::Eating(eating_entity, eating_since) => {
+					if *eating_entity != entity {
+						// stop last eating and start new eating
+						*eating_state = EatingState::Eating(entity, 0.0);
+					} else {
+						// continue eating
+						let new_time = eating_since + time.delta_seconds();
+						if new_time > food_properties.time_per_bite {
+							*eating_state = EatingState::Eating(entity, 0.0);
+							glucose.0 += food_stats.glucose;
+							hydration.0 += food_stats.hydration;
+							food_properties.health -= 1;
+							if food_properties.health == 0 {
+								*eating_state = EatingState::Idle;
+								commands.entity(entity).despawn_recursive();
+							}
+						} else {
+							*eating_state = EatingState::Eating(entity, new_time);
+						}
+					}
+				}
+				EatingState::Idle => {
+					*eating_state = EatingState::Eating(entity, 0.0);
+				}
+			};
+		} else {
+			println!("HAAAA");
+			*eating_state = EatingState::Idle;
 		}
+	} else {
+		*eating_state = EatingState::Idle;
 	}
 }
