@@ -16,6 +16,7 @@ use bevy_rapier3d::{
 	render::RapierDebugRenderPlugin,
 };
 use bevy_vector_shapes::Shape2dPlugin;
+use food::FoodPlugin;
 use health::HealthPlugin;
 use hud::HudPlugin;
 use input::InputPlugin;
@@ -24,6 +25,7 @@ use player::PlayerPlugin;
 use proxies::GltfProxiesPlugin;
 use settings::SettingsPlugin;
 
+mod food;
 mod health;
 mod hud;
 mod input;
@@ -58,10 +60,13 @@ fn main() {
 			MenuPlugin,
 			HealthPlugin,
 			HudPlugin,
+			FoodPlugin,
 		))
 		// Game state
 		.add_state::<GameState>()
-		.add_loading_state(LoadingState::new(GameState::Loading).continue_to_state(GameState::Menu))
+		.add_loading_state(
+			LoadingState::new(GameState::Loading).continue_to_state(GameState::Running),
+		)
 		// Game assets: Tell our app to load the assets from GameAssets
 		.add_collection_to_loading_state::<_, GameAssets>(GameState::Loading)
 		.add_dynamic_collection_to_loading_state::<_, StandardDynamicAssetCollection>(
@@ -94,6 +99,7 @@ fn main() {
 		)
 		// Once the assets are loaded, spawn the level
 		.add_systems(OnExit(GameState::Loading), spawn_level)
+		.add_systems(Update, show_full_entity_names)
 		.run();
 }
 
@@ -161,4 +167,10 @@ fn spawn_level(
 		},
 		Collider::cuboid(ground_size, ground_height, ground_size),
 	));
+}
+
+fn show_full_entity_names(mut q_names: Query<(Entity, &mut Name), Added<Name>>) {
+	for (entity, mut name) in q_names.iter_mut() {
+		name.mutate(|name| *name += &format!(" ({entity:?})"));
+	}
 }
