@@ -16,6 +16,7 @@ use bevy_rapier3d::{
 	render::RapierDebugRenderPlugin,
 };
 use bevy_vector_shapes::Shape2dPlugin;
+use enemies::EnemyPlugin;
 use health::HealthPlugin;
 use hud::HudPlugin;
 use input::InputPlugin;
@@ -24,6 +25,7 @@ use player::PlayerPlugin;
 use proxies::GltfProxiesPlugin;
 use settings::SettingsPlugin;
 
+mod enemies;
 mod health;
 mod hud;
 mod input;
@@ -58,6 +60,7 @@ fn main() {
 			MenuPlugin,
 			HealthPlugin,
 			HudPlugin,
+			EnemyPlugin,
 		))
 		// Game state
 		.add_state::<GameState>()
