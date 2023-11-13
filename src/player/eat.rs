@@ -54,7 +54,7 @@ pub fn player_eat(
 
 		debug!("Entity {:?} hit at point {}", entity, hit_point);
 
-		println!("Eating state: {:?}", eating_state);
+		debug!("Eating state: {:?}", eating_state);
 
 		if let Ok((food_stats, mut food_properties)) = q_food.get_mut(entity) {
 			match &*eating_state {
@@ -84,7 +84,6 @@ pub fn player_eat(
 				}
 			};
 		} else {
-			println!("HAAAA");
 			*eating_state = EatingState::Idle;
 		}
 	} else {
