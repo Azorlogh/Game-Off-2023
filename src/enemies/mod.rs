@@ -10,6 +10,7 @@ pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_plugins(EnemyModelPlugin)
+			.register_type::<EnemyState>()
 			.add_event::<SpawnEnemy>()
 			.add_systems(Startup, setup)
 			.add_systems(Update, (enemy_spawn, enemy_start_chase));
@@ -24,7 +25,7 @@ pub struct SpawnEnemy {
 #[derive(Component)]
 pub struct Enemy;
 
-#[derive(Component)]
+#[derive(Component, Reflect)]
 pub enum EnemyState {
 	Idle,
 	Attack(Entity),
@@ -54,9 +55,27 @@ fn enemy_spawn(mut cmds: Commands, mut ev_spawn_enemy: EventReader<SpawnEnemy>) 
 	}
 }
 
+const ENEMY_VIEW_DISTANCE: f32 = 4.0;
+
 fn enemy_start_chase(
-	q_player: Query<&GlobalTransform, With<Player>>,
+	q_player: Query<(Entity, &GlobalTransform), With<Player>>,
 	mut q_enemies: Query<(&mut EnemyState, &GlobalTransform), With<Enemy>>,
 ) {
-	for (enemy_state, enemy_tr) in &mut q_enemies {}
+	for (mut enemy_state, enemy_tr) in q_enemies
+		.iter_mut()
+		.filter(|(state, _)| matches!(**state, EnemyState::Idle))
+	{
+		for (player_entity, player_tr) in &q_player {
+			if enemy_tr.translation().distance(player_tr.translation()) < ENEMY_VIEW_DISTANCE {
+				*enemy_state = EnemyState::Attack(player_entity);
+			}
+		}
+	}
 }
+
+// fn enemy_chase(
+// 	q_global_transform: Query<&GlobalTransform>,
+// 	q_enemies: Query<&EnemyState>,
+// ) {
+// 	for enemy_state in q_enemies.iter().map(||)
+// }
