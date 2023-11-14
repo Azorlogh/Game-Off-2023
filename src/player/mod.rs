@@ -1,12 +1,13 @@
 use bevy::{core_pipeline::bloom::BloomSettings, math::Vec3Swizzles, prelude::*};
 use bevy_atmosphere::prelude::AtmosphereCamera;
-use bevy_rapier3d::prelude::{
-	Collider, CollidingEntities, GravityScale, LockedAxes, RigidBody, Sensor, Velocity,
+use bevy_rapier3d::{
+	geometry::ActiveEvents,
+	prelude::{Collider, CollidingEntities, GravityScale, LockedAxes, RigidBody, Sensor, Velocity},
 };
-
-use crate::{health::Health, input::Inputs, GameState};
 use eat::player_eat;
 use nutrition::{Glucose, Hydration};
+
+use crate::{health::Health, input::Inputs, GameState};
 
 #[derive(Component)]
 pub struct MainCamera;
@@ -72,6 +73,7 @@ pub fn player_spawn(mut cmds: Commands) {
 			TransformBundle::from_transform(Transform::from_xyz(0.0, -PLAYER_HEIGHT / 2.0, 0.0)),
 			Collider::cylinder(0.2, 0.4),
 			Sensor,
+			ActiveEvents::COLLISION_EVENTS,
 			CollidingEntities::default(),
 		));
 		cmds.spawn((
