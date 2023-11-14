@@ -108,7 +108,11 @@ fn enemy_update_animation(
 					anims.0[&*anim_state].clone_weak(),
 					Duration::from_millis(200),
 				)
-				.repeat();
+				.repeat()
+				.set_speed(match *anim_state {
+					AnimationState::Run => 2.0,
+					AnimationState::Idle => 1.0,
+				});
 		}
 	}
 }

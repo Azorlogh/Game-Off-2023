@@ -97,7 +97,7 @@ fn spawn_food(
 fn display_health_food(
 	mut painter: ShapePainter,
 	query: Query<(&FoodProperties, &GlobalTransform), With<Food>>,
-	q_camera: Query<&Transform, With<MainCamera>>,
+	q_camera: Query<&GlobalTransform, With<MainCamera>>,
 ) {
 	const HEALTHBAR_LENGTH: f32 = 0.25;
 	let Ok(camera_tr) = q_camera.get_single() else {

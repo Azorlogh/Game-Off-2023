@@ -105,7 +105,6 @@ fn main() {
 		)
 		// Once the assets are loaded, spawn the level
 		.add_systems(OnExit(GameState::Loading), spawn_level)
-		.add_systems(Update, show_full_entity_names)
 		.run();
 }
 
@@ -135,13 +134,13 @@ fn spawn_level(
 	mut meshes: ResMut<Assets<Mesh>>,
 	mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-	// commands.spawn((
-	// 	SceneBundle {
-	// 		scene: game_assets.world.clone(),
-	// 		..default()
-	// 	},
-	// 	GameWorldTag,
-	// ));
+	commands.spawn((
+		SceneBundle {
+			scene: game_assets.world.clone(),
+			..default()
+		},
+		GameWorldTag,
+	));
 
 	commands.insert_resource(AtmosphereModel::new(Nishita {
 		sun_position: SUN_POSITION,
@@ -175,8 +174,8 @@ fn spawn_level(
 	));
 }
 
-fn show_full_entity_names(mut q_names: Query<(Entity, &mut Name), Added<Name>>) {
-	for (entity, mut name) in q_names.iter_mut() {
-		name.mutate(|name| *name += &format!(" ({entity:?})"));
-	}
-}
+// fn show_full_entity_names(mut q_names: Query<(Entity, &mut Name), Added<Name>>) {
+// 	for (entity, mut name) in q_names.iter_mut() {
+// 		name.mutate(|name| *name += &format!(" ({entity:?})"));
+// 	}
+// }

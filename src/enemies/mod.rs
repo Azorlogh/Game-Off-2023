@@ -58,7 +58,7 @@ fn enemy_spawn(mut cmds: Commands, mut ev_spawn_enemy: EventReader<SpawnEnemy>) 
 			Name::new("Enemy"),
 			Enemy,
 			SpatialBundle::from_transform(
-				Transform::from_translation(ev.pos).with_scale(Vec3::splat(0.5)),
+				Transform::from_translation(ev.pos).with_scale(Vec3::splat(0.07)),
 			),
 			RigidBody::Dynamic,
 			EnemyState::Idle,
@@ -78,7 +78,7 @@ fn enemy_spawn(mut cmds: Commands, mut ev_spawn_enemy: EventReader<SpawnEnemy>) 
 	}
 }
 
-const ENEMY_VIEW_DISTANCE: f32 = 4.0;
+const ENEMY_VIEW_DISTANCE: f32 = 2.0;
 
 fn enemy_start_chase(
 	q_player: Query<(Entity, &GlobalTransform), With<Player>>,
@@ -96,7 +96,7 @@ fn enemy_start_chase(
 	}
 }
 
-const ENEMY_SPEED: f32 = 7.0;
+const ENEMY_SPEED: f32 = 2.0;
 
 fn enemy_chase(
 	time: Res<Time>,
