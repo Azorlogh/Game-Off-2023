@@ -119,7 +119,7 @@ fn display_health_food(
 		painter.color = Color::ORANGE;
 		painter.line(
 			healthbar_left,
-			healthbar_left + camera_tr.right() * HEALTHBAR_LENGTH * health_ratio,
+			healthbar_left + camera_tr.right() * (HEALTHBAR_LENGTH * health_ratio),
 		);
 	}
 }

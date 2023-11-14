@@ -15,7 +15,7 @@ pub mod eat;
 pub mod nutrition;
 
 const SPEED: f32 = 10.0;
-const SIZE: f32 = 1.0;
+const SIZE: f32 = 0.2;
 const PLAYER_HEIGHT: f32 = SIZE * 0.8;
 const PLAYER_RADIUS: f32 = SIZE * 0.2;
 
