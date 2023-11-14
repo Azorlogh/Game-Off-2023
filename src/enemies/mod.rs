@@ -65,8 +65,8 @@ fn enemy_spawn(mut cmds: Commands, mut ev_spawn_enemy: EventReader<SpawnEnemy>) 
 			Velocity::default(),
 			LockedAxes::ROTATION_LOCKED,
 			Health {
-				current: 5.0,
-				max: 10.0,
+				current: 10,
+				max: 10,
 			},
 		))
 		.with_children(|cmds| {

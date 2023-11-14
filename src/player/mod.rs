@@ -1,20 +1,24 @@
 use bevy::{core_pipeline::bloom::BloomSettings, math::Vec3Swizzles, prelude::*};
 use bevy_atmosphere::prelude::AtmosphereCamera;
-use bevy_rapier3d::prelude::{
-	Collider, CollidingEntities, GravityScale, LockedAxes, RigidBody, Sensor, Velocity,
+use bevy_rapier3d::{
+	geometry::ActiveEvents,
+	prelude::{Collider, CollidingEntities, GravityScale, LockedAxes, RigidBody, Sensor, Velocity},
 };
+use eat::player_eat;
+use nutrition::{Glucose, Hydration};
 
-use self::nutrition::{Glucose, Hydration};
 use crate::{health::Health, input::Inputs, GameState};
 
 #[derive(Component)]
-struct MainCamera;
+pub struct MainCamera;
 
+pub mod eat;
 pub mod nutrition;
 
 const SPEED: f32 = 10.0;
-const PLAYER_HEIGHT: f32 = 2.0;
-const PLAYER_RADIUS: f32 = 0.5;
+const SIZE: f32 = 1.0;
+const PLAYER_HEIGHT: f32 = SIZE * 0.8;
+const PLAYER_RADIUS: f32 = SIZE * 0.2;
 
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
@@ -28,6 +32,7 @@ impl Plugin for PlayerPlugin {
 					player_movement,
 					player_on_ground,
 					player_jump,
+					player_eat,
 				)
 					.run_if(in_state(GameState::Running)),
 			);
@@ -57,11 +62,11 @@ pub fn player_spawn(mut cmds: Commands) {
 		PlayerOnGround(false),
 		GravityScale(2.0),
 		Health {
-			current: 5.0,
-			max: 10.0,
+			current: 50,
+			max: 100,
 		},
-		Hydration(0.5),
-		Glucose(0.5),
+		Hydration(0),
+		Glucose(0),
 	))
 	.with_children(|cmds| {
 		cmds.spawn((
@@ -69,6 +74,7 @@ pub fn player_spawn(mut cmds: Commands) {
 			TransformBundle::from_transform(Transform::from_xyz(0.0, -PLAYER_HEIGHT / 2.0, 0.0)),
 			Collider::cylinder(0.2, 0.4),
 			Sensor,
+			ActiveEvents::COLLISION_EVENTS,
 			CollidingEntities::default(),
 		));
 		cmds.spawn((
@@ -77,7 +83,7 @@ pub fn player_spawn(mut cmds: Commands) {
 					// hdr: true,
 					..default()
 				},
-				transform: Transform::from_xyz(0.0, PLAYER_HEIGHT / 2.0, 0.0),
+				transform: Transform::from_xyz(0.0, PLAYER_HEIGHT * 0.4, 0.0),
 				..default()
 			},
 			MainCamera,
