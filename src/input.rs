@@ -62,14 +62,14 @@ fn capture_mouse(
 #[derive(Clone, Debug, PartialEq, Eq, Hash, SystemSet)]
 pub struct InputSet;
 
-#[derive(Debug, Clone, Copy, PartialEq, Resource)]
+#[derive(Debug, Clone, Resource)]
 pub struct Inputs {
 	pub dir: Vec2,
 	pub pitch: f32,
 	pub yaw: f32,
 	pub punch: bool,
 	pub jump: bool,
-	pub eat: bool,
+	pub attract: bool,
 }
 
 impl Default for Inputs {
@@ -80,7 +80,7 @@ impl Default for Inputs {
 			yaw: 0.0,
 			punch: false,
 			jump: false,
-			eat: false,
+			attract: false,
 		}
 	}
 }
@@ -174,7 +174,7 @@ fn handle_inputs(
 			GeneralInput::Motion => {
 				m.input(
 					&mut inputs,
-					delta / (time.delta_seconds().max(0.001)) * -1e-5,
+					delta / (time.delta_seconds().max(0.001)) * -1e-5
 				);
 			}
 		};

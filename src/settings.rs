@@ -72,7 +72,7 @@ pub enum Movement {
 	Punch,
 	Yaw(Option<bool>),
 	Pitch(Option<bool>),
-	Eat,
+	Attract,
 }
 
 impl ToString for Movement {
@@ -92,7 +92,7 @@ impl ToString for Movement {
 				Some(b) => format!("Y Vision Keyboard {}", if *b { "-" } else { "+" }),
 				None => String::from("Y Vision Mouse"),
 			},
-			Movement::Eat => String::from("Eat"),
+			Movement::Attract => String::from("Attract"),
 		}
 	}
 }
@@ -113,8 +113,8 @@ impl Movement {
 
 			Movement::Yaw(None) => inputs.yaw += modifier.x,
 			Movement::Pitch(None) => inputs.pitch += modifier.y,
-
-			Movement::Eat => inputs.eat = true,
+			//transfer time of get pressed ?
+			Movement::Attract => inputs.attract = true,
 		};
 	}
 }
@@ -154,7 +154,7 @@ impl Default for Settings {
 					Movement::Pitch(Some(true)),
 					GeneralInput::KeyCode(KeyCode::F),
 				),
-				(Movement::Eat, GeneralInput::KeyCode(KeyCode::E)),
+				(Movement::Attract, GeneralInput::KeyCode(KeyCode::E)),
 			]),
 		}
 	}

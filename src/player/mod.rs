@@ -5,8 +5,10 @@ use bevy_rapier3d::prelude::{
 };
 
 use crate::{health::Health, input::Inputs, GameState};
-use eat::player_eat;
+
 use nutrition::{Glucose, Hydration};
+
+use self::eat::player_attract_and_eat;
 
 #[derive(Component)]
 pub struct MainCamera;
@@ -30,7 +32,7 @@ impl Plugin for PlayerPlugin {
 					player_movement,
 					player_on_ground,
 					player_jump,
-					player_eat,
+					player_attract_and_eat,
 				)
 					.run_if(in_state(GameState::Running)),
 			);
