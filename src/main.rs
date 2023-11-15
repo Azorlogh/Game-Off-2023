@@ -33,6 +33,7 @@ mod health;
 mod hud;
 mod input;
 mod menu;
+mod movement;
 mod player;
 mod proxies;
 mod settings;

@@ -12,6 +12,7 @@ use bevy_rapier3d::{
 use self::model::EnemyModelPlugin;
 use crate::{
 	health::{Health, Hit},
+	movement::Speed,
 	player::Player,
 };
 
@@ -36,6 +37,16 @@ pub struct SpawnEnemy {
 
 #[derive(Component)]
 pub struct Enemy;
+
+#[derive(Component)]
+pub struct SpottingRange(f32);
+
+#[derive(Component)]
+pub struct AttackStats {
+	range: f32,
+	speed: f32,
+	damage: u32,
+}
 
 #[derive(Component, Reflect)]
 pub enum EnemyState {
@@ -62,7 +73,7 @@ fn setup(mut ev_spawn_enemy: EventWriter<SpawnEnemy>) {
 	// 	}
 	// }
 	ev_spawn_enemy.send(SpawnEnemy {
-		pos: Vec3::new(0.0, 0.0, 0.0),
+		pos: Vec3::new(0.0, 0.0, -5.0),
 	});
 }
 
@@ -78,6 +89,13 @@ fn enemy_spawn(mut cmds: Commands, mut ev_spawn_enemy: EventReader<SpawnEnemy>) 
 			EnemyState::Idle,
 			Velocity::default(),
 			LockedAxes::ROTATION_LOCKED,
+			Speed(2.0),
+			AttackStats {
+				range: 1.0,
+				speed: 1.0,
+				damage: 10,
+			},
+			SpottingRange(3.0),
 			Health {
 				current: 10,
 				max: 10,
@@ -92,35 +110,28 @@ fn enemy_spawn(mut cmds: Commands, mut ev_spawn_enemy: EventReader<SpawnEnemy>) 
 	}
 }
 
-const ENEMY_VIEW_DISTANCE: f32 = 10.0;
-
 fn enemy_start_chase(
 	q_player: Query<(Entity, &GlobalTransform), With<Player>>,
-	mut q_enemies: Query<(&mut EnemyState, &GlobalTransform), With<Enemy>>,
+	mut q_enemies: Query<(&mut EnemyState, &GlobalTransform, &SpottingRange), With<Enemy>>,
 ) {
-	for (mut enemy_state, enemy_tr) in q_enemies
+	for (mut enemy_state, enemy_tr, spotting_range) in q_enemies
 		.iter_mut()
-		.filter(|(state, _)| matches!(**state, EnemyState::Idle))
+		.filter(|(state, _, _)| matches!(**state, EnemyState::Idle))
 	{
 		for (player_entity, player_tr) in &q_player {
-			if enemy_tr.translation().distance(player_tr.translation()) < ENEMY_VIEW_DISTANCE {
+			if enemy_tr.translation().distance(player_tr.translation()) < spotting_range.0 {
 				*enemy_state = EnemyState::Attacking(player_entity, AttackState::Chasing);
 			}
 		}
 	}
 }
 
-const ENEMY_SPEED: f32 = 2.0;
-const ENEMY_ATTACK_RANGE: f32 = 1.0;
-const ENEMY_ATTACK_SPEED: f32 = 1.0;
-const ENEMY_ATTACK_DAMAGE: u32 = 10;
-
 fn enemy_chase(
 	time: Res<Time>,
 	q_global_transform: Query<&GlobalTransform>,
-	mut q_enemies: Query<(&EnemyState, Entity, &mut Transform, &mut Velocity)>,
+	mut q_enemies: Query<(&EnemyState, Entity, &mut Transform, &mut Velocity, &Speed)>,
 ) {
-	for (state, enemy_entity, mut enemy_tr, mut vel) in &mut q_enemies {
+	for (state, enemy_entity, mut enemy_tr, mut vel, speed) in &mut q_enemies {
 		let EnemyState::Attacking(target, AttackState::Chasing) = *state else {
 			continue;
 		};
@@ -133,7 +144,7 @@ fn enemy_chase(
 		let axis = enemy_gtr.forward().cross(to_target_dir);
 		enemy_tr.rotate(Quat::from_scaled_axis(axis * 0.1));
 
-		enemy_tr.translation += to_target_dir * ENEMY_SPEED * time.delta_seconds();
+		enemy_tr.translation += to_target_dir * speed.0 * time.delta_seconds();
 
 		let linvel = vel.linvel;
 		vel.linvel += (to_target_dir * -(to_target_dir.xz().dot(linvel.xz()).max(0.0)))
@@ -145,10 +156,10 @@ fn enemy_chase(
 fn enemy_attack(
 	time: Res<Time>,
 	q_global_transform: Query<&GlobalTransform>,
-	mut q_enemies: Query<(&mut EnemyState, &Transform)>,
+	mut q_enemies: Query<(&mut EnemyState, &Transform, &AttackStats)>,
 	mut ev_hit: EventWriter<Hit>,
 ) {
-	for (mut state, enemy_tr) in &mut q_enemies {
+	for (mut state, enemy_tr, stats) in &mut q_enemies {
 		let EnemyState::Attacking(target, ref mut attack_state) = *state else {
 			continue;
 		};
@@ -158,15 +169,17 @@ fn enemy_attack(
 		let target_distance = enemy_pos.distance(target_pos);
 
 		match attack_state {
-			AttackState::Chasing if target_distance < ENEMY_ATTACK_RANGE => {
+			AttackState::Chasing if target_distance < stats.range => {
 				*attack_state = AttackState::Attacking(0.0);
 			}
-			AttackState::Attacking(attack_time) if *attack_time > ENEMY_ATTACK_SPEED => {
+			AttackState::Attacking(attack_time) if *attack_time > stats.speed => {
 				*attack_state = AttackState::Chasing;
-				ev_hit.send(Hit {
-					target,
-					damage: ENEMY_ATTACK_DAMAGE,
-				});
+				if target_distance < stats.range {
+					ev_hit.send(Hit {
+						target,
+						damage: stats.damage,
+					});
+				}
 			}
 			AttackState::Attacking(attack_time) => {
 				*attack_time += time.delta_seconds();

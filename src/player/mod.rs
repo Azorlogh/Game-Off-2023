@@ -83,6 +83,10 @@ pub fn player_spawn(mut cmds: Commands) {
 					..default()
 				},
 				transform: Transform::from_xyz(0.0, PLAYER_HEIGHT * 0.4, 0.0),
+				projection: Projection::Perspective(PerspectiveProjection {
+					fov: std::f32::consts::PI / 4.0 * 1.5,
+					..default()
+				}),
 				..default()
 			},
 			MainCamera,
