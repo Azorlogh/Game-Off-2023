@@ -6,7 +6,8 @@ use crate::player::MainCamera;
 pub struct HealthPlugin;
 impl Plugin for HealthPlugin {
 	fn build(&self, app: &mut App) {
-		app.add_systems(Update, display_health);
+		app.add_event::<Hit>()
+			.add_systems(Update, (display_health, take_hit));
 	}
 }
 
@@ -16,9 +17,12 @@ pub struct Health {
 	pub max: u32,
 }
 
+#[derive(Component)]
+pub struct HideHealthBar;
+
 fn display_health(
 	mut painter: ShapePainter,
-	query: Query<(&Health, &GlobalTransform)>,
+	query: Query<(&Health, &GlobalTransform), With<HideHealthBar>>,
 	q_camera: Query<&GlobalTransform, With<MainCamera>>,
 ) {
 	const HEALTHBAR_LENGTH: f32 = 0.25;
@@ -43,5 +47,19 @@ fn display_health(
 			healthbar_left,
 			healthbar_left + camera_tr.right() * (HEALTHBAR_LENGTH * health_ratio),
 		);
+	}
+}
+
+#[derive(Event)]
+pub struct Hit {
+	pub target: Entity,
+	pub damage: u32,
+}
+
+fn take_hit(mut ev_take_hit: EventReader<Hit>, mut q_health: Query<&mut Health>) {
+	for ev in ev_take_hit.iter() {
+		if let Ok(mut health) = q_health.get_mut(ev.target) {
+			health.current = health.current.saturating_sub(ev.damage);
+		}
 	}
 }

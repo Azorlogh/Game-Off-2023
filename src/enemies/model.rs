@@ -3,6 +3,7 @@ use std::{f32::consts::TAU, time::Duration};
 use bevy::{prelude::*, utils::HashMap};
 
 use super::{Enemy, EnemyState};
+use crate::enemies::AttackState;
 
 pub struct EnemyModelPlugin;
 impl Plugin for EnemyModelPlugin {
@@ -21,6 +22,7 @@ pub struct AnimationPlayerLink(Entity);
 pub enum AnimationState {
 	Idle,
 	Run,
+	Attack,
 }
 
 #[derive(Component)]
@@ -48,6 +50,10 @@ fn add_enemy_models(
 						(
 							AnimationState::Run,
 							asset_server.load("models/characters/rat.gltf#Animation4"),
+						),
+						(
+							AnimationState::Attack,
+							asset_server.load("models/characters/rat.gltf#Animation0"),
 						),
 					]
 					.into_iter()
@@ -97,9 +103,9 @@ fn enemy_update_animation(
 
 		let new_anim_state = match enemy_state {
 			EnemyState::Idle => AnimationState::Idle,
-			EnemyState::Attack(_) => AnimationState::Run,
+			EnemyState::Attacking(_, AttackState::Chasing) => AnimationState::Run,
+			EnemyState::Attacking(_, AttackState::Attacking(_)) => AnimationState::Attack,
 		};
-		println!("{:?}", new_anim_state);
 
 		if new_anim_state != *anim_state {
 			*anim_state = new_anim_state;
@@ -112,6 +118,7 @@ fn enemy_update_animation(
 				.set_speed(match *anim_state {
 					AnimationState::Run => 2.0,
 					AnimationState::Idle => 1.0,
+					AnimationState::Attack => 0.45,
 				});
 		}
 	}
