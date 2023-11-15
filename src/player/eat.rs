@@ -8,6 +8,9 @@ use super::nutrition::{Glucose, Hydration};
 use super::MainCamera;
 use super::Player;
 
+const EATING_RANGE: f32 = 0.5;
+const RAY_SOLID: bool = true;
+
 #[derive(Default, Debug)]
 pub enum EatingState {
 	Eating(Entity, f32),
@@ -31,7 +34,7 @@ pub fn player_eat(
 		return;
 	}
 
-	let Ok(global_transform) = q_camera_player.get_single() else {
+	let Ok(player_transform) = q_camera_player.get_single() else {
 		return;
 	};
 
@@ -39,10 +42,10 @@ pub fn player_eat(
 		return;
 	};
 
-	let ray_pos = global_transform.translation() - Vec3::Y * 0.1;
-	let ray_dir = global_transform.forward();
-	let max_toi = 4.0;
-	let solid = true;
+	let ray_pos = player_transform.translation();
+	let ray_dir = player_transform.forward();
+	let max_toi = EATING_RANGE;
+	let solid = RAY_SOLID;
 	let filter: QueryFilter = QueryFilter::new().exclude_rigid_body(player_entity);
 
 	gizmos.ray(ray_pos, ray_dir * max_toi, Color::GREEN);
