@@ -52,7 +52,7 @@ fn main() {
 			// ComponentsFromGltfPlugin::default(),
 			RapierPhysicsPlugin::<NoUserData>::default().with_default_system_setup(false),
 			GltfProxiesPlugin,
-			// RapierDebugRenderPlugin::default(),
+			RapierDebugRenderPlugin::default(),
 			AtmospherePlugin,
 			ShapePlugin::default(),
 			ScreenDiagnosticsPlugin::default(),
@@ -177,6 +177,7 @@ fn spawn_level(
 	));
 }
 
+// Disabled because it breaks animations
 // fn show_full_entity_names(mut q_names: Query<(Entity, &mut Name), Added<Name>>) {
 // 	for (entity, mut name) in q_names.iter_mut() {
 // 		name.mutate(|name| *name += &format!(" ({entity:?})"));

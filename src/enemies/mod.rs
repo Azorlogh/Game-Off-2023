@@ -163,9 +163,9 @@ fn enemy_start_chase(
 fn enemy_chase(
 	time: Res<Time>,
 	q_global_transform: Query<&GlobalTransform>,
-	mut q_enemies: Query<(&EnemyState, Entity, &mut Transform, &mut Velocity, &Speed)>,
+	mut q_enemies: Query<(&EnemyState, Entity, &mut Transform, &Speed)>,
 ) {
-	for (state, enemy_entity, mut enemy_tr, mut vel, speed) in &mut q_enemies {
+	for (state, enemy_entity, mut enemy_tr, speed) in &mut q_enemies {
 		let EnemyState::Attacking(target, attack_state) = *state else {
 			continue;
 		};
@@ -180,11 +180,6 @@ fn enemy_chase(
 
 		if let AttackState::Chasing = attack_state {
 			enemy_tr.translation += to_target_dir * speed.0 * time.delta_seconds();
-
-			let linvel = vel.linvel;
-			vel.linvel += (to_target_dir * -(to_target_dir.xz().dot(linvel.xz()).max(0.0)))
-				.extend(0.0)
-				.xzy();
 		}
 	}
 }
