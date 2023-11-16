@@ -1,4 +1,5 @@
 mod model;
+pub mod template;
 
 use bevy::{
 	math::{Vec3Swizzles, Vec4Swizzles},
@@ -8,12 +9,17 @@ use bevy_rapier3d::{
 	dynamics::{LockedAxes, Velocity},
 	prelude::{Collider, RigidBody},
 };
+use serde::Deserialize;
 
-use self::model::EnemyModelPlugin;
+use self::{
+	model::EnemyModelPlugin,
+	template::{EnemyAssetLoader, EnemyTemplate},
+};
 use crate::{
 	health::{Health, Hit},
 	movement::Speed,
 	player::Player,
+	GameAssets, GameState,
 };
 
 pub struct EnemyPlugin;
@@ -21,8 +27,10 @@ impl Plugin for EnemyPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_plugins(EnemyModelPlugin)
 			.register_type::<EnemyState>()
+			.add_asset::<EnemyTemplate>()
+			.add_asset_loader(EnemyAssetLoader)
 			.add_event::<SpawnEnemy>()
-			.add_systems(Startup, setup)
+			.add_systems(OnExit(GameState::Loading), setup)
 			.add_systems(
 				Update,
 				(enemy_spawn, enemy_start_chase, enemy_chase, enemy_attack),
@@ -32,6 +40,7 @@ impl Plugin for EnemyPlugin {
 
 #[derive(Event)]
 pub struct SpawnEnemy {
+	template: Handle<EnemyTemplate>,
 	pos: Vec3,
 }
 
@@ -41,7 +50,7 @@ pub struct Enemy;
 #[derive(Component)]
 pub struct SpottingRange(f32);
 
-#[derive(Component)]
+#[derive(Debug, Clone, Component, Deserialize)]
 pub struct AttackStats {
 	range: f32,
 	speed: f32,
@@ -54,51 +63,76 @@ pub enum EnemyState {
 	Attacking(Entity, AttackState),
 }
 
-#[derive(Reflect)]
+#[derive(Clone, Copy, Reflect)]
 pub enum AttackState {
 	Chasing,
 	Attacking(f32),
 }
 
-fn setup(mut ev_spawn_enemy: EventWriter<SpawnEnemy>) {
-	// To summon the rat army
+fn setup(mut ev_spawn_enemy: EventWriter<SpawnEnemy>, assets: Res<GameAssets>) {
+	// Summon the rat army
 	// const N: usize = 16;
 	// for i in 0..N {
 	// 	for j in 0..N {
 	// 		for k in 0..4 {
 	// 			ev_spawn_enemy.send(SpawnEnemy {
 	// 				pos: Vec3::new(i as f32, k as f32 + 1.0, j as f32),
+	// 				template: assets.enemies["rat"].clone_weak(),
 	// 			});
 	// 		}
 	// 	}
 	// }
+
+	// Summon random enemies
+	// const N: usize = 32;
+	// const RANGE: f32 = 15.0;
+	// for _ in 0..N {
+	// 	let template = match rand::random::<u8>() % 3 {
+	// 		0 => "spider",
+	// 		1 => "rat",
+	// 		2 => "snake",
+	// 		_ => unreachable!(),
+	// 	};
+	// 	let x = (rand::random::<f32>() - 0.5) * RANGE;
+	// 	let z = (rand::random::<f32>() - 0.5) * RANGE;
+	// 	ev_spawn_enemy.send(SpawnEnemy {
+	// 		pos: Vec3::new(x, rand::random::<f32>() * 100.0, z),
+	// 		template: assets.enemies[&format!("enemies/{template}.enemy.ron")].clone_weak(),
+	// 	});
+	// }
+
+	// Summon one enemy
 	ev_spawn_enemy.send(SpawnEnemy {
 		pos: Vec3::new(0.0, 0.0, -5.0),
+		template: assets.enemies["enemies/spider.enemy.ron"].clone_weak(),
 	});
 }
 
-fn enemy_spawn(mut cmds: Commands, mut ev_spawn_enemy: EventReader<SpawnEnemy>) {
+fn enemy_spawn(
+	mut cmds: Commands,
+	mut ev_spawn_enemy: EventReader<SpawnEnemy>,
+	enemy_assets: Res<Assets<EnemyTemplate>>,
+) {
 	for ev in ev_spawn_enemy.iter() {
+		let template = enemy_assets.get(&ev.template).unwrap();
+		println!("{:?}", ev.pos);
 		cmds.spawn((
 			Name::new("Enemy"),
 			Enemy,
+			ev.template.clone_weak(),
 			SpatialBundle::from_transform(
-				Transform::from_translation(ev.pos).with_scale(Vec3::splat(0.15)),
+				Transform::from_translation(ev.pos).with_scale(Vec3::splat(template.scale)),
 			),
 			RigidBody::Dynamic,
 			EnemyState::Idle,
 			Velocity::default(),
 			LockedAxes::ROTATION_LOCKED,
-			Speed(2.0),
-			AttackStats {
-				range: 1.0,
-				speed: 1.0,
-				damage: 10,
-			},
-			SpottingRange(3.0),
+			Speed(template.speed),
+			template.attack_stats.clone(),
+			SpottingRange(template.spotting_range),
 			Health {
-				current: 10,
-				max: 10,
+				current: template.health,
+				max: template.health,
 			},
 		))
 		.with_children(|cmds| {
@@ -132,7 +166,7 @@ fn enemy_chase(
 	mut q_enemies: Query<(&EnemyState, Entity, &mut Transform, &mut Velocity, &Speed)>,
 ) {
 	for (state, enemy_entity, mut enemy_tr, mut vel, speed) in &mut q_enemies {
-		let EnemyState::Attacking(target, AttackState::Chasing) = *state else {
+		let EnemyState::Attacking(target, attack_state) = *state else {
 			continue;
 		};
 
@@ -144,12 +178,14 @@ fn enemy_chase(
 		let axis = enemy_gtr.forward().cross(to_target_dir);
 		enemy_tr.rotate(Quat::from_scaled_axis(axis * 0.1));
 
-		enemy_tr.translation += to_target_dir * speed.0 * time.delta_seconds();
+		if let AttackState::Chasing = attack_state {
+			enemy_tr.translation += to_target_dir * speed.0 * time.delta_seconds();
 
-		let linvel = vel.linvel;
-		vel.linvel += (to_target_dir * -(to_target_dir.xz().dot(linvel.xz()).max(0.0)))
-			.extend(0.0)
-			.xzy();
+			let linvel = vel.linvel;
+			vel.linvel += (to_target_dir * -(to_target_dir.xz().dot(linvel.xz()).max(0.0)))
+				.extend(0.0)
+				.xzy();
+		}
 	}
 }
 

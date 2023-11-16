@@ -17,7 +17,7 @@ use bevy_rapier3d::{
 };
 use bevy_screen_diagnostics::{ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin};
 use bevy_vector_shapes::ShapePlugin;
-use enemies::EnemyPlugin;
+use enemies::{template::EnemyTemplate, EnemyPlugin};
 use food::FoodPlugin;
 use health::HealthPlugin;
 use hud::HudPlugin;
@@ -52,7 +52,7 @@ fn main() {
 			// ComponentsFromGltfPlugin::default(),
 			RapierPhysicsPlugin::<NoUserData>::default().with_default_system_setup(false),
 			GltfProxiesPlugin,
-			RapierDebugRenderPlugin::default(),
+			// RapierDebugRenderPlugin::default(),
 			AtmospherePlugin,
 			ShapePlugin::default(),
 			ScreenDiagnosticsPlugin::default(),
@@ -116,6 +116,8 @@ pub struct GameAssets {
 	pub world: Handle<Scene>,
 	#[asset(key = "models", collection(typed, mapped))]
 	pub models: HashMap<String, Handle<Gltf>>,
+	#[asset(key = "enemies", collection(typed, mapped))]
+	pub enemies: HashMap<String, Handle<EnemyTemplate>>,
 }
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]

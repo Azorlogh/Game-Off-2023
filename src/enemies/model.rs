@@ -2,7 +2,7 @@ use std::{f32::consts::TAU, time::Duration};
 
 use bevy::{prelude::*, utils::HashMap};
 
-use super::{Enemy, EnemyState};
+use super::{template::EnemyTemplate, Enemy, EnemyState};
 use crate::enemies::AttackState;
 
 pub struct EnemyModelPlugin;
@@ -30,14 +30,17 @@ pub struct ModelAnimations(HashMap<AnimationState, Handle<AnimationClip>>);
 
 fn add_enemy_models(
 	mut cmds: Commands,
-	q_added_enemies: Query<Entity, Added<Enemy>>,
+	q_added_enemies: Query<(Entity, &Handle<EnemyTemplate>), Added<Enemy>>,
+	enemy_assets: Res<Assets<EnemyTemplate>>,
 	asset_server: Res<AssetServer>,
 ) {
-	for entity in &q_added_enemies {
+	for (entity, template) in &q_added_enemies {
+		let model_path = &enemy_assets.get(template).unwrap().model_path;
+
 		cmds.entity(entity).with_children(|cmds| {
 			cmds.spawn((
 				SceneBundle {
-					scene: asset_server.load("models/characters/rat.gltf#Scene0"),
+					scene: asset_server.load(format!("{model_path}#Scene0")),
 					transform: Transform::from_rotation(Quat::from_rotation_y(TAU / 2.0)),
 					..default()
 				},
@@ -45,15 +48,15 @@ fn add_enemy_models(
 					[
 						(
 							AnimationState::Idle,
-							asset_server.load("models/characters/rat.gltf#Animation2"),
+							asset_server.load(format!("{model_path}#Animation2")),
 						),
 						(
 							AnimationState::Run,
-							asset_server.load("models/characters/rat.gltf#Animation4"),
+							asset_server.load(format!("{model_path}#Animation4")),
 						),
 						(
 							AnimationState::Attack,
-							asset_server.load("models/characters/rat.gltf#Animation0"),
+							asset_server.load(format!("{model_path}#Animation0")),
 						),
 					]
 					.into_iter()

@@ -1,0 +1,12 @@
+(
+	model_path: "models/characters/snake.glb",
+	scale: 0.15,
+	health: 15,
+	spotting_range: 2.0,
+	speed: 2.0,
+	attack_stats: AttackStats (
+		range: 1.0,
+		speed: 1.0,
+		damage: 10,
+	),
+)

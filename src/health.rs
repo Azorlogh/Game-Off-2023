@@ -22,7 +22,7 @@ pub struct HideHealthBar;
 
 fn display_health(
 	mut painter: ShapePainter,
-	query: Query<(&Health, &GlobalTransform), With<HideHealthBar>>,
+	query: Query<(&Health, &GlobalTransform), Without<HideHealthBar>>,
 	q_camera: Query<&GlobalTransform, With<MainCamera>>,
 ) {
 	const HEALTHBAR_LENGTH: f32 = 0.25;
@@ -33,7 +33,7 @@ fn display_health(
 	for (health, transform) in &query {
 		painter.thickness = 0.02;
 		painter.color = Color::GRAY;
-		let healthbar_pos = transform.translation() + Vec3::Y * 0.3;
+		let healthbar_pos = transform.translation() + Vec3::Y * 0.5;
 		let healthbar_left = healthbar_pos - camera_tr.right() * HEALTHBAR_LENGTH / 2.0;
 		painter.line(
 			healthbar_left,
