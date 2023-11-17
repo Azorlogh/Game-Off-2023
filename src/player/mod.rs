@@ -1,8 +1,10 @@
 use bevy::{core_pipeline::bloom::BloomSettings, math::Vec3Swizzles, prelude::*};
 use bevy_atmosphere::prelude::AtmosphereCamera;
 use bevy_rapier3d::{
-	geometry::ActiveEvents,
+	dynamics::CoefficientCombineRule,
+	geometry::{ActiveEvents, Friction, Restitution},
 	prelude::{Collider, CollidingEntities, GravityScale, LockedAxes, RigidBody, Sensor, Velocity},
+	render::ColliderDebugColor,
 };
 use eat::player_eat;
 use nutrition::{Glucose, Hydration};
@@ -15,7 +17,7 @@ pub struct MainCamera;
 pub mod eat;
 pub mod nutrition;
 
-const SPEED: f32 = 10.0;
+const SPEED: f32 = 5.0;
 const SIZE: f32 = 1.0;
 const PLAYER_HEIGHT: f32 = SIZE * 0.8;
 const PLAYER_RADIUS: f32 = SIZE * 0.2;
@@ -60,6 +62,14 @@ pub fn player_spawn(mut cmds: Commands) {
 		CollidingEntities::default(),
 		PlayerOnGround(false),
 		GravityScale(2.0),
+		Friction {
+			coefficient: 0.0,
+			combine_rule: CoefficientCombineRule::Min,
+		},
+		Restitution {
+			coefficient: 0.0,
+			combine_rule: CoefficientCombineRule::Min,
+		},
 		Health {
 			current: 100,
 			max: 100,
@@ -71,7 +81,8 @@ pub fn player_spawn(mut cmds: Commands) {
 		cmds.spawn((
 			PlayerGroundSensor,
 			TransformBundle::from_transform(Transform::from_xyz(0.0, -PLAYER_HEIGHT / 2.0, 0.0)),
-			Collider::cylinder(0.2, 0.4),
+			Collider::cylinder(PLAYER_RADIUS * 0.8, 0.05),
+			ColliderDebugColor(Color::GREEN),
 			Sensor,
 			ActiveEvents::COLLISION_EVENTS,
 			CollidingEntities::default(),
@@ -118,20 +129,35 @@ fn player_camera(
 fn player_movement(
 	time: Res<Time>,
 	inputs: Res<Inputs>,
-	mut q_player: Query<(&mut Transform, &mut Velocity), With<Player>>,
+	mut q_player: Query<(&mut Velocity, &PlayerOnGround), With<Player>>,
 	q_camera: Query<&Transform, (With<MainCamera>, Without<Player>)>,
 ) {
-	for (mut player_tr, mut vel) in &mut q_player {
+	for (mut vel, on_ground) in &mut q_player {
 		let camera_tr = q_camera.single();
 
 		let camera_forward = (camera_tr.forward() * Vec3::new(1.0, 0.0, 1.0)).normalize_or_zero();
 		let camera_right = (camera_tr.right() * Vec3::new(1.0, 0.0, 1.0)).normalize_or_zero();
-		let dir = camera_forward * inputs.dir.y + camera_right * inputs.dir.x;
-		player_tr.translation += dir * SPEED * time.delta_seconds();
-		let linvel = vel.linvel;
-		vel.linvel += (inputs.dir * -(inputs.dir.dot(linvel.xz()).max(0.0)))
-			.extend(0.0)
-			.xzy();
+		let dir = (camera_forward * inputs.dir.y + camera_right * inputs.dir.x).xz();
+
+		let friction = match on_ground.0 {
+			true => 64.0,
+			false => 1.0,
+		};
+
+		let interp_t = 1.0 - (-friction * time.delta_seconds()).exp();
+
+		let current_vel = vel.linvel.xz();
+
+		let lacking = SPEED - current_vel.dot(dir);
+		vel.linvel += dir.extend(0.0).xzy() * lacking * interp_t;
+
+		let extra = current_vel.dot(dir.perp());
+		vel.linvel -= dir.perp().extend(0.0).xzy() * extra * interp_t;
+
+		if dir == Vec2::ZERO {
+			let linvel = vel.linvel;
+			vel.linvel += -linvel.xz().extend(0.0).xzy() * interp_t;
+		}
 	}
 }
 
