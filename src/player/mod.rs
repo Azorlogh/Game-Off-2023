@@ -61,7 +61,7 @@ pub fn player_spawn(mut cmds: Commands) {
 		PlayerOnGround(false),
 		GravityScale(2.0),
 		Health {
-			current: 50,
+			current: 100,
 			max: 100,
 		},
 		Hydration(0),
@@ -83,6 +83,10 @@ pub fn player_spawn(mut cmds: Commands) {
 					..default()
 				},
 				transform: Transform::from_xyz(0.0, PLAYER_HEIGHT * 0.4, 0.0),
+				projection: Projection::Perspective(PerspectiveProjection {
+					fov: std::f32::consts::PI / 4.0 * 1.5,
+					..default()
+				}),
 				..default()
 			},
 			MainCamera,

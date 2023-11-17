@@ -17,6 +17,7 @@ use bevy_rapier3d::{
 };
 use bevy_screen_diagnostics::{ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin};
 use bevy_vector_shapes::ShapePlugin;
+use enemies::{template::EnemyTemplate, EnemyPlugin};
 use food::FoodPlugin;
 use health::HealthPlugin;
 use hud::HudPlugin;
@@ -26,11 +27,13 @@ use player::PlayerPlugin;
 use proxies::GltfProxiesPlugin;
 use settings::SettingsPlugin;
 
+mod enemies;
 mod food;
 mod health;
 mod hud;
 mod input;
 mod menu;
+mod movement;
 mod player;
 mod proxies;
 mod settings;
@@ -63,6 +66,7 @@ fn main() {
 			MenuPlugin,
 			HealthPlugin,
 			HudPlugin,
+			EnemyPlugin,
 			FoodPlugin,
 		))
 		// Game state
@@ -102,7 +106,6 @@ fn main() {
 		)
 		// Once the assets are loaded, spawn the level
 		.add_systems(OnExit(GameState::Loading), spawn_level)
-		.add_systems(Update, show_full_entity_names)
 		.run();
 }
 
@@ -113,6 +116,8 @@ pub struct GameAssets {
 	pub world: Handle<Scene>,
 	#[asset(key = "models", collection(typed, mapped))]
 	pub models: HashMap<String, Handle<Gltf>>,
+	#[asset(key = "enemies", collection(typed, mapped))]
+	pub enemies: HashMap<String, Handle<EnemyTemplate>>,
 }
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
@@ -172,8 +177,9 @@ fn spawn_level(
 	));
 }
 
-fn show_full_entity_names(mut q_names: Query<(Entity, &mut Name), Added<Name>>) {
-	for (entity, mut name) in q_names.iter_mut() {
-		name.mutate(|name| *name += &format!(" ({entity:?})"));
-	}
-}
+// Disabled because it breaks animations
+// fn show_full_entity_names(mut q_names: Query<(Entity, &mut Name), Added<Name>>) {
+// 	for (entity, mut name) in q_names.iter_mut() {
+// 		name.mutate(|name| *name += &format!(" ({entity:?})"));
+// 	}
+// }

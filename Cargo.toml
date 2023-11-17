@@ -34,6 +34,7 @@ ron = "0.8.1"
 directories = "5.0.1"
 
 bevy_vector_shapes = "0.5"
+rand = "0.8.5"
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]
