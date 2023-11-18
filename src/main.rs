@@ -23,6 +23,7 @@ use health::HealthPlugin;
 use hud::HudPlugin;
 use input::InputPlugin;
 use menu::MenuPlugin;
+use movement::MovementPlugin;
 use player::PlayerPlugin;
 use proxies::GltfProxiesPlugin;
 use settings::SettingsPlugin;
@@ -68,6 +69,7 @@ fn main() {
 			HudPlugin,
 			EnemyPlugin,
 			FoodPlugin,
+			MovementPlugin,
 		))
 		// Game state
 		.add_state::<GameState>()

@@ -1,10 +1,11 @@
+//!
+//! TODO: Let 'em jump?
+//!
+
 mod model;
 pub mod template;
 
-use bevy::{
-	math::{Vec3Swizzles, Vec4Swizzles},
-	prelude::*,
-};
+use bevy::{math::Vec3Swizzles, prelude::*};
 use bevy_rapier3d::{
 	dynamics::{LockedAxes, Velocity},
 	prelude::{Collider, RigidBody},
@@ -17,7 +18,7 @@ use self::{
 };
 use crate::{
 	health::{Health, Hit},
-	movement::Speed,
+	movement::{MovementInput, OnGround, Speed},
 	player::Player,
 	GameAssets, GameState,
 };
@@ -76,8 +77,8 @@ fn setup(mut ev_spawn_enemy: EventWriter<SpawnEnemy>, assets: Res<GameAssets>) {
 	// 	for j in 0..N {
 	// 		for k in 0..4 {
 	// 			ev_spawn_enemy.send(SpawnEnemy {
-	// 				pos: Vec3::new(i as f32, k as f32 + 1.0, j as f32),
-	// 				template: assets.enemies["rat"].clone_weak(),
+	// 				pos: Vec3::new(i as f32, k as f32 + 20.0, j as f32),
+	// 				template: assets.enemies["enemies/rat.enemy.ron"].clone_weak(),
 	// 			});
 	// 		}
 	// 	}
@@ -115,7 +116,6 @@ fn enemy_spawn(
 ) {
 	for ev in ev_spawn_enemy.iter() {
 		let template = enemy_assets.get(&ev.template).unwrap();
-		println!("{:?}", ev.pos);
 		cmds.spawn((
 			Name::new("Enemy"),
 			Enemy,
@@ -127,7 +127,11 @@ fn enemy_spawn(
 			EnemyState::Idle,
 			Velocity::default(),
 			LockedAxes::ROTATION_LOCKED,
-			Speed(template.speed),
+			(
+				OnGround(true),
+				MovementInput::default(),
+				Speed(template.speed),
+			),
 			template.attack_stats.clone(),
 			SpottingRange(template.spotting_range),
 			Health {
@@ -161,11 +165,10 @@ fn enemy_start_chase(
 }
 
 fn enemy_chase(
-	time: Res<Time>,
 	q_global_transform: Query<&GlobalTransform>,
-	mut q_enemies: Query<(&EnemyState, Entity, &mut Transform, &Speed)>,
+	mut q_enemies: Query<(&EnemyState, Entity, &mut Transform, &mut MovementInput)>,
 ) {
-	for (state, enemy_entity, mut enemy_tr, speed) in &mut q_enemies {
+	for (state, enemy_entity, mut enemy_tr, mut input) in &mut q_enemies {
 		let EnemyState::Attacking(target, attack_state) = *state else {
 			continue;
 		};
@@ -179,7 +182,7 @@ fn enemy_chase(
 		enemy_tr.rotate(Quat::from_scaled_axis(axis * 0.1));
 
 		if let AttackState::Chasing = attack_state {
-			enemy_tr.translation += to_target_dir * speed.0 * time.delta_seconds();
+			input.0 = to_target_dir.xz();
 		}
 	}
 }
