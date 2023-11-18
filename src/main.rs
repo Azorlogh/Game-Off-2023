@@ -16,7 +16,7 @@ use bevy_rapier3d::{
 	render::RapierDebugRenderPlugin,
 };
 use bevy_screen_diagnostics::{ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin};
-use bevy_vector_shapes::ShapePlugin;
+use bevy_vector_shapes::{painter::ShapeConfig, ShapePlugin};
 use enemies::{template::EnemyTemplate, EnemyPlugin};
 use food::FoodPlugin;
 use health::HealthPlugin;
@@ -55,7 +55,13 @@ fn main() {
 			GltfProxiesPlugin,
 			RapierDebugRenderPlugin::default(),
 			AtmospherePlugin,
-			ShapePlugin::default(),
+			ShapePlugin {
+				base_config: ShapeConfig {
+					alignment: bevy_vector_shapes::shapes::Alignment::Billboard,
+					..ShapeConfig::default_3d()
+				},
+				..default()
+			},
 			ScreenDiagnosticsPlugin::default(),
 			ScreenFrameDiagnosticsPlugin,
 		))
