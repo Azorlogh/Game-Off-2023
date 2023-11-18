@@ -6,7 +6,7 @@ impl Plugin for NutritionPlugin {
 }
 
 #[derive(Component)]
-pub struct Hydration(pub u32);
+pub struct Hydration(pub i32);
 
 #[derive(Component)]
-pub struct Glucose(pub u32);
+pub struct Glucose(pub i32);
