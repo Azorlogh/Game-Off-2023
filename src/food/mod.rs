@@ -9,7 +9,13 @@ pub struct FoodPlugin;
 impl Plugin for FoodPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_systems(Startup, setup_food)
-			.add_systems(Update, (spawn_food, display_health_food))
+			.add_systems(
+				Update,
+				(
+					// spawn_food,
+					display_health_food,
+				),
+			)
 			.add_event::<SpawnFood>()
 			.register_type::<FoodStats>()
 			.register_type::<FoodProperties>()
@@ -34,14 +40,18 @@ pub struct SpawnFood {
 #[derive(Component, Clone, Copy, Reflect)]
 #[reflect(Component)]
 pub struct FoodStats {
-	pub hydration: u32,
-	pub glucose: u32,
+	pub hydration: i32,
+	pub glucose: i32,
+	pub fat: i32,
+	pub health: i32,
 }
 impl Default for FoodStats {
 	fn default() -> Self {
 		Self {
 			hydration: 1,
 			glucose: 1,
+			fat: 1,
+			health: 0,
 		}
 	}
 }
@@ -61,6 +71,8 @@ fn setup_food(mut ev_spawn_food: EventWriter<SpawnFood>) {
 		stats: FoodStats {
 			hydration: 3,
 			glucose: 7,
+			fat: 2,
+			health: 4,
 		},
 		properties: FoodProperties {
 			health: 3,
