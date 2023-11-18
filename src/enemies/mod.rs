@@ -73,12 +73,11 @@ pub enum AttackState {
 fn setup(mut ev_spawn_enemy: EventWriter<SpawnEnemy>, assets: Res<GameAssets>) {
 	// Summon the rat army
 	// const N: usize = 16;
-	// const S: f32 = 1.0;
 	// for i in 0..N {
 	// 	for j in 0..N {
 	// 		for k in 0..4 {
 	// 			ev_spawn_enemy.send(SpawnEnemy {
-	// 				pos: Vec3::new(i as f32 * S, k as f32 * S + 20.0, j as f32 * S),
+	// 				pos: Vec3::new(i as f32, k as f32 + 20.0, j as f32),
 	// 				template: assets.enemies["enemies/rat.enemy.ron"].clone_weak(),
 	// 			});
 	// 		}
@@ -86,22 +85,22 @@ fn setup(mut ev_spawn_enemy: EventWriter<SpawnEnemy>, assets: Res<GameAssets>) {
 	// }
 
 	// Summon random enemies
-	const N: usize = 32;
-	const RANGE: f32 = 15.0;
-	for _ in 0..N {
-		let template = match rand::random::<u8>() % 3 {
-			0 => "spider",
-			1 => "rat",
-			2 => "snake",
-			_ => unreachable!(),
-		};
-		let x = (rand::random::<f32>() - 0.5) * RANGE;
-		let z = (rand::random::<f32>() - 0.5) * RANGE;
-		ev_spawn_enemy.send(SpawnEnemy {
-			pos: Vec3::new(x, rand::random::<f32>() * 100.0, z),
-			template: assets.enemies[&format!("enemies/{template}.enemy.ron")].clone_weak(),
-		});
-	}
+	// const N: usize = 32;
+	// const RANGE: f32 = 15.0;
+	// for _ in 0..N {
+	// 	let template = match rand::random::<u8>() % 3 {
+	// 		0 => "spider",
+	// 		1 => "rat",
+	// 		2 => "snake",
+	// 		_ => unreachable!(),
+	// 	};
+	// 	let x = (rand::random::<f32>() - 0.5) * RANGE;
+	// 	let z = (rand::random::<f32>() - 0.5) * RANGE;
+	// 	ev_spawn_enemy.send(SpawnEnemy {
+	// 		pos: Vec3::new(x, rand::random::<f32>() * 100.0, z),
+	// 		template: assets.enemies[&format!("enemies/{template}.enemy.ron")].clone_weak(),
+	// 	});
+	// }
 
 	// Summon one enemy
 	ev_spawn_enemy.send(SpawnEnemy {
