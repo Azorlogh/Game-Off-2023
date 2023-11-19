@@ -9,7 +9,7 @@ use eat::player_eat;
 use nutrition::{Glucose, Hydration};
 
 use crate::{
-	health::Health,
+	health::{Health, HideHealthBar},
 	input::Inputs,
 	movement::{GroundSensorBundle, MovementInput, OnGround, Speed},
 	GameState,
@@ -22,8 +22,9 @@ pub mod eat;
 pub mod nutrition;
 
 const SIZE: f32 = 1.0;
-const PLAYER_HEIGHT: f32 = SIZE * 0.8;
-const PLAYER_RADIUS: f32 = SIZE * 0.2;
+const PLAYER_HEIGHT: f32 = SIZE * 1.8;
+const PLAYER_RADIUS: f32 = SIZE * 0.25;
+const PLAYER_EYE_OFFSET: f32 = (PLAYER_HEIGHT * 0.92) / 2.0; // relative to center of body
 
 pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
@@ -68,7 +69,7 @@ pub fn player_spawn(mut cmds: Commands) {
 				combine_rule: CoefficientCombineRule::Min,
 			},
 		),
-		(OnGround(false), MovementInput::default(), Speed(5.0)),
+		(OnGround(false), MovementInput::default(), Speed(1.0)),
 		(
 			Health {
 				current: 100,
@@ -76,6 +77,7 @@ pub fn player_spawn(mut cmds: Commands) {
 			},
 			Hydration(0),
 			Glucose(0),
+			HideHealthBar,
 		),
 	))
 	.with_children(|cmds| {
@@ -89,9 +91,10 @@ pub fn player_spawn(mut cmds: Commands) {
 					// hdr: true,
 					..default()
 				},
-				transform: Transform::from_xyz(0.0, PLAYER_HEIGHT * 0.4, 0.0),
+				transform: Transform::from_xyz(0.0, PLAYER_EYE_OFFSET, 0.0),
 				projection: Projection::Perspective(PerspectiveProjection {
 					fov: std::f32::consts::PI / 4.0 * 1.5,
+					near: 0.01,
 					..default()
 				}),
 				..default()
