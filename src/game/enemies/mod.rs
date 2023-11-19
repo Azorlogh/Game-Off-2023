@@ -16,12 +16,13 @@ use self::{
 	model::EnemyModelPlugin,
 	template::{EnemyAssetLoader, EnemyTemplate},
 };
-use crate::{
-	health::{Health, Hit},
+use crate::game::{
+	hud::health::{Health, Hit},
 	movement::{MovementInput, OnGround, Speed},
 	player::Player,
-	GameAssets, GameState,
 };
+
+use crate::{GameAssets, GameState};
 
 pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {

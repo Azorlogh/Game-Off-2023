@@ -5,12 +5,10 @@ use bevy::{
 };
 use bevy_vector_shapes::{prelude::ShapePainter, shapes::LinePainter};
 
-use crate::{
-	health::Health,
-	player::{
-		nutrition::{Glucose, Hydration},
-		Player,
-	},
+use crate::game::hud::health::Health;
+use crate::game::player::{
+	nutrition::{Glucose, Hydration},
+	Player,
 };
 
 const BAR_LENGTH: f32 = 1.0;
@@ -23,8 +21,8 @@ const GLUCOSE_OFFSET: f32 = -0.8;
 const RIGHT_LABEL_OFFSET: f32 = BAR_LENGTH / 2.0 + 0.1;
 const LEFT_LABEL_OFFSET: f32 = -BAR_LENGTH / 2.0 - 0.15;
 
-pub struct HudPlugin;
-impl Plugin for HudPlugin {
+pub struct PlayerUiPlugin;
+impl Plugin for PlayerUiPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_systems(Startup, setup)
 			.add_systems(Update, player_status_ui);

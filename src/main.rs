@@ -17,25 +17,19 @@ use bevy_rapier3d::{
 };
 use bevy_screen_diagnostics::{ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin};
 use bevy_vector_shapes::{painter::ShapeConfig, ShapePlugin};
-use enemies::{template::EnemyTemplate, EnemyPlugin};
-use food::FoodPlugin;
-use health::HealthPlugin;
-use hud::HudPlugin;
 use input::InputPlugin;
+use main_menu::MainMenuPlugin;
 use menu::MenuPlugin;
-use movement::MovementPlugin;
-use player::PlayerPlugin;
 use proxies::GltfProxiesPlugin;
 use settings::SettingsPlugin;
 
-mod enemies;
-mod food;
-mod health;
-mod hud;
+use game::enemies::template::EnemyTemplate;
+use game::GamePlugin;
+mod game;
+
 mod input;
+mod main_menu;
 mod menu;
-mod movement;
-mod player;
 mod proxies;
 mod settings;
 mod util;
@@ -67,15 +61,11 @@ fn main() {
 		))
 		// Our own plugins
 		.add_plugins((
+			GamePlugin,
+			MainMenuPlugin,
 			InputPlugin,
-			PlayerPlugin,
 			SettingsPlugin,
 			MenuPlugin,
-			HealthPlugin,
-			HudPlugin,
-			EnemyPlugin,
-			FoodPlugin,
-			MovementPlugin,
 		))
 		// Game state
 		.add_state::<GameState>()
@@ -129,14 +119,14 @@ pub struct GameAssets {
 }
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
-enum GameState {
+pub enum GameState {
 	#[default]
 	Loading,
 	Running,
 	Menu,
 	Pause,
+	MainMenu,
 }
-
 const SUN_POSITION: Vec3 = Vec3::new(3.0, 10.0, 4.0);
 
 fn spawn_level(

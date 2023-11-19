@@ -1,8 +1,8 @@
 use bevy::prelude::*;
-use bevy_rapier3d::prelude::{Collider, RigidBody};
+// use bevy_rapier3d::prelude::{Collider, RigidBody};
 use bevy_vector_shapes::{prelude::ShapePainter, shapes::LinePainter};
 
-use crate::player::MainCamera;
+use crate::game::player::PlayerCamera;
 
 pub struct FoodPlugin;
 
@@ -84,32 +84,32 @@ fn setup_food(mut ev_spawn_food: EventWriter<SpawnFood>) {
 	})
 }
 
-fn spawn_food(
-	mut commands: Commands,
-	asset_server: Res<AssetServer>,
-	mut event_reader: EventReader<SpawnFood>,
-) {
-	for event in event_reader.iter() {
-		commands.spawn((
-			Name::new(event.name.clone()),
-			Food,
-			event.properties,
-			event.stats,
-			(RigidBody::Dynamic, Collider::ball(0.5)),
-			SceneBundle {
-				scene: asset_server.load(event.model.clone()),
-				transform: Transform::from_translation(event.position)
-					.with_scale(Vec3::splat(event.scale_factor)),
-				..default()
-			},
-		));
-	}
-}
+// fn spawn_food(
+// 	mut commands: Commands,
+// 	asset_server: Res<AssetServer>,
+// 	mut event_reader: EventReader<SpawnFood>,
+// ) {
+// 	for event in event_reader.iter() {
+// 		commands.spawn((
+// 			Name::new(event.name.clone()),
+// 			Food,
+// 			event.properties,
+// 			event.stats,
+// 			(RigidBody::Dynamic, Collider::ball(0.5)),
+// 			SceneBundle {
+// 				scene: asset_server.load(event.model.clone()),
+// 				transform: Transform::from_translation(event.position)
+// 					.with_scale(Vec3::splat(event.scale_factor)),
+// 				..default()
+// 			},
+// 		));
+// 	}
+// }
 
 fn display_health_food(
 	mut painter: ShapePainter,
 	query: Query<(&FoodProperties, &GlobalTransform), With<Food>>,
-	q_camera: Query<&GlobalTransform, With<MainCamera>>,
+	q_camera: Query<&GlobalTransform, With<PlayerCamera>>,
 ) {
 	const HEALTHBAR_LENGTH: f32 = 0.25;
 	let Ok(camera_tr) = q_camera.get_single() else {

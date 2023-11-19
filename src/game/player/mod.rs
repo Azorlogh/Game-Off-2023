@@ -9,20 +9,21 @@ use eat::player_eat;
 use nutrition::{Glucose, Hydration};
 
 use crate::{
-	health::{Health, HideHealthBar},
+	game::movement::{GroundSensorBundle, MovementInput, OnGround, Speed},
 	input::Inputs,
-	movement::{GroundSensorBundle, MovementInput, OnGround, Speed},
 	GameState,
 };
 
+use crate::game::hud::health::{Health, HideHealthBar};
+
 #[derive(Component)]
-pub struct MainCamera;
+pub struct PlayerCamera;
 
 pub mod eat;
 pub mod nutrition;
 
 const SIZE: f32 = 1.0;
-const PLAYER_HEIGHT: f32 = SIZE * 1.8;
+const PLAYER_HEIGHT: f32 = SIZE * 0.8;
 const PLAYER_RADIUS: f32 = SIZE * 0.25;
 const PLAYER_EYE_OFFSET: f32 = (PLAYER_HEIGHT * 0.92) / 2.0; // relative to center of body
 
@@ -99,7 +100,7 @@ pub fn player_spawn(mut cmds: Commands) {
 				}),
 				..default()
 			},
-			MainCamera,
+			PlayerCamera,
 			CameraAngles::default(),
 			AtmosphereCamera::default(),
 			BloomSettings::default(),
@@ -115,7 +116,7 @@ pub struct CameraAngles {
 
 fn player_camera(
 	inputs: Res<Inputs>,
-	mut q_camera: Query<(&mut CameraAngles, &mut Transform), With<MainCamera>>,
+	mut q_camera: Query<(&mut CameraAngles, &mut Transform), With<PlayerCamera>>,
 ) {
 	for (mut camera_angles, mut camera_tr) in &mut q_camera {
 		camera_angles.yaw += inputs.yaw;
@@ -128,7 +129,7 @@ fn player_camera(
 fn player_movement(
 	inputs: Res<Inputs>,
 	mut q_player: Query<&mut MovementInput, With<Player>>,
-	q_camera: Query<&Transform, (With<MainCamera>, Without<Player>)>,
+	q_camera: Query<&Transform, (With<PlayerCamera>, Without<Player>)>,
 ) {
 	for mut movement_input in &mut q_player {
 		let camera_tr = q_camera.single();
