@@ -1,16 +1,20 @@
 use bevy::{
 	asset::{AssetLoader, LoadedAsset},
+	math::Vec3,
 	reflect::{TypePath, TypeUuid},
 };
 use serde::Deserialize;
 
 use super::AttackStats;
+use crate::proxies;
 
 #[derive(Debug, Deserialize, TypeUuid, TypePath)]
 #[uuid = "75ae51b0-8103-4972-b95c-03d3c1cd166d"]
 pub struct EnemyTemplate {
 	pub model_path: String,
-	pub scale: f32,
+	pub model_scale: f32,
+	pub collider: proxies::physics::Collider,
+	pub collider_offset: Vec3,
 	pub health: u32,
 	pub spotting_range: f32,
 	pub speed: f32,

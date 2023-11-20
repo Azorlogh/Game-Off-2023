@@ -35,13 +35,15 @@ fn add_enemy_models(
 	asset_server: Res<AssetServer>,
 ) {
 	for (entity, template) in &q_added_enemies {
-		let model_path = &enemy_assets.get(template).unwrap().model_path;
+		let template = enemy_assets.get(template).unwrap();
+		let model_path = &template.model_path;
 
 		cmds.entity(entity).with_children(|cmds| {
 			cmds.spawn((
 				SceneBundle {
 					scene: asset_server.load(format!("{model_path}#Scene0")),
-					transform: Transform::from_rotation(Quat::from_rotation_y(TAU / 2.0)),
+					transform: Transform::from_rotation(Quat::from_rotation_y(TAU / 2.0))
+						.with_scale(Vec3::splat(template.model_scale)),
 					..default()
 				},
 				ModelAnimations(
