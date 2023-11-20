@@ -28,7 +28,7 @@ use crate::{
 
 use crate::game::player::components::Player;
 
-use crate::{GameAssets, GameState};
+use crate::GameAssets;
 
 use super::DespawnOnExitGame;
 

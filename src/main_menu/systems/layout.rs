@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-use bevy::render::view::RenderLayers;
 
 use crate::main_menu::components::{
 	MainMenu, MainMenuCamera, MainMenuOptions, MainMenuPlay, MainMenuQuit,
