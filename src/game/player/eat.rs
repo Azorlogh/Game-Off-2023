@@ -1,12 +1,11 @@
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::{QueryFilter, RapierContext};
 
-use crate::game::food::{Food, FoodProperties, FoodStats};
+use crate::game::food::components::{Food, FoodProperties, FoodStats};
 use crate::input::Inputs;
 
+use super::components::{Player, PlayerCamera};
 use super::nutrition::{Glucose, Hydration};
-use super::Player;
-use super::PlayerCamera;
 
 const EATING_RANGE: f32 = 2.0;
 const RAY_SOLID: bool = true;

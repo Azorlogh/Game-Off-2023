@@ -11,3 +11,6 @@ pub struct MainMenuOptions {}
 
 #[derive(Component)]
 pub struct MainMenuQuit {}
+
+#[derive(Component)]
+pub struct MainMenuCamera;

@@ -1,5 +1,3 @@
-use std::hash::Hash;
-
 use bevy::{
 	input::{mouse::MouseMotion, Input, InputSystem},
 	prelude::*,
@@ -14,15 +12,16 @@ use crate::{
 
 const DEADZONE: f32 = 0.2;
 
+// TODO: refactor, pourquoi handle_menu ici ?
 pub struct InputPlugin;
 impl Plugin for InputPlugin {
 	fn build(&self, app: &mut App) {
 		app.init_resource::<Inputs>()
-			.add_systems(Update, capture_mouse.run_if(in_state(GameState::Running)))
+			.add_systems(Update, capture_mouse.run_if(in_state(GameState::Playing)))
 			.add_systems(
 				PreUpdate,
 				handle_menu
-					.run_if(in_state(GameState::Running).or_else(in_state(GameState::Pause))),
+					.run_if(in_state(GameState::Playing).or_else(in_state(GameState::Pause))),
 			)
 			.add_systems(
 				PreUpdate,
@@ -35,7 +34,7 @@ impl Plugin for InputPlugin {
 					.chain()
 					.in_set(InputSet)
 					.after(InputSystem)
-					.run_if(in_state(GameState::Running)),
+					.run_if(in_state(GameState::Playing)),
 			);
 	}
 }
@@ -195,8 +194,8 @@ fn handle_menu(
 ) {
 	if keys.just_pressed(KeyCode::Escape) && menu_state.get() == &MenuState::Menu {
 		match state.get() {
-			GameState::Running => app_state.set(GameState::Pause),
-			GameState::Pause => app_state.set(GameState::Running),
+			GameState::Playing => app_state.set(GameState::Pause),
+			GameState::Pause => app_state.set(GameState::Playing),
 			_ => {}
 		};
 	}

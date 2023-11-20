@@ -1,12 +1,14 @@
-use bevy::{app::AppExit, prelude::*};
-use bevy_egui::EguiContexts;
-use bevy_inspector_egui::egui;
+use bevy::prelude::*;
 
-use crate::GameState;
+use crate::game::GameState;
 
-mod setting;
-pub use setting::*;
+pub(crate) use components::{MenuState, OptionState};
+mod components;
 
+use systems::{ui_options, ui_pause_game, ui_system};
+mod systems;
+
+// TODO: Refactor avec MainMenu
 pub struct MenuPlugin;
 impl Plugin for MenuPlugin {
 	fn build(&self, app: &mut App) {
@@ -23,58 +25,4 @@ impl Plugin for MenuPlugin {
 			)
 			.add_systems(Update, ui_options.run_if(in_state(MenuState::Option)));
 	}
-}
-
-#[derive(Event)]
-enum UiMessage {}
-
-#[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
-pub enum MenuState {
-	#[default]
-	Menu,
-	Option,
-}
-
-fn ui_system(
-	mut contexts: EguiContexts,
-	mut game_state: ResMut<NextState<GameState>>,
-	mut menu_state: ResMut<NextState<MenuState>>,
-	mut app_exit_events: ResMut<Events<AppExit>>,
-) {
-	egui::Window::new("Menu").show(contexts.ctx_mut(), |ui| {
-		if ui.button("New Game").clicked() {
-			game_state.set(GameState::Running);
-		}
-		if ui.button("Options").clicked() {
-			menu_state.set(MenuState::Option);
-		}
-		if ui.button("Back to Main Menu").clicked() {
-			game_state.set(GameState::MainMenu);
-		}
-		if ui.button("Quit").clicked() {
-			app_exit_events.send(AppExit)
-		}
-	});
-}
-
-fn ui_pause_game(
-	mut contexts: EguiContexts,
-	mut game_state: ResMut<NextState<GameState>>,
-	mut menu_state: ResMut<NextState<MenuState>>,
-	mut app_exit_events: ResMut<Events<AppExit>>,
-) {
-	egui::Window::new("Pause Game, Press Escape").show(contexts.ctx_mut(), |ui| {
-		if ui.button("Resume").clicked() {
-			game_state.set(GameState::Running);
-		}
-		if ui.button("Options").clicked() {
-			menu_state.set(MenuState::Option);
-		}
-		if ui.button("Back to Main Menu").clicked() {
-			game_state.set(GameState::MainMenu);
-		}
-		if ui.button("Quit").clicked() {
-			app_exit_events.send(AppExit)
-		}
-	});
 }

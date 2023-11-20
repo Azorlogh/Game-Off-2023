@@ -10,19 +10,31 @@ use bevy_rapier3d::{
 	dynamics::{LockedAxes, Velocity},
 	prelude::{Collider, RigidBody},
 };
-use serde::Deserialize;
 
 use self::{
+	components::{AttackState, AttackStats, Enemy, EnemyState, SpottingRange},
+	events::SpawnEnemy,
 	model::EnemyModelPlugin,
 	template::{EnemyAssetLoader, EnemyTemplate},
 };
-use crate::game::{
-	hud::health::{Health, Hit},
-	movement::{MovementInput, OnGround, Speed},
-	player::Player,
+
+use crate::{
+	game::{
+		hud::health::{Health, Hit},
+		movement::{MovementInput, OnGround, Speed},
+	},
+	AppState,
 };
 
+use crate::game::player::components::Player;
+
 use crate::{GameAssets, GameState};
+
+use super::DespawnOnExitGame;
+
+mod components;
+
+mod events;
 
 pub struct EnemyPlugin;
 impl Plugin for EnemyPlugin {
@@ -32,43 +44,12 @@ impl Plugin for EnemyPlugin {
 			.add_asset::<EnemyTemplate>()
 			.add_asset_loader(EnemyAssetLoader)
 			.add_event::<SpawnEnemy>()
-			.add_systems(OnExit(GameState::Loading), setup)
+			.add_systems(OnEnter(AppState::Game), setup)
 			.add_systems(
 				Update,
 				(enemy_spawn, enemy_start_chase, enemy_chase, enemy_attack),
 			);
 	}
-}
-
-#[derive(Event)]
-pub struct SpawnEnemy {
-	template: Handle<EnemyTemplate>,
-	pos: Vec3,
-}
-
-#[derive(Component)]
-pub struct Enemy;
-
-#[derive(Component)]
-pub struct SpottingRange(f32);
-
-#[derive(Debug, Clone, Component, Deserialize)]
-pub struct AttackStats {
-	range: f32,
-	speed: f32,
-	damage: u32,
-}
-
-#[derive(Component, Reflect)]
-pub enum EnemyState {
-	Idle,
-	Attacking(Entity, AttackState),
-}
-
-#[derive(Clone, Copy, Reflect)]
-pub enum AttackState {
-	Chasing,
-	Attacking(f32),
 }
 
 fn setup(mut ev_spawn_enemy: EventWriter<SpawnEnemy>, assets: Res<GameAssets>) {
@@ -120,6 +101,7 @@ fn enemy_spawn(
 		cmds.spawn((
 			Name::new("Enemy"),
 			Enemy,
+			DespawnOnExitGame,
 			ev.template.clone_weak(),
 			SpatialBundle::from_transform(
 				Transform::from_translation(ev.pos).with_scale(Vec3::splat(template.scale)),

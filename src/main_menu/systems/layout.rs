@@ -1,25 +1,40 @@
 use bevy::prelude::*;
+use bevy::render::view::RenderLayers;
 
-use crate::main_menu::components::{MainMenuOptions, MainMenuQuit};
+use crate::main_menu::components::{
+	MainMenu, MainMenuCamera, MainMenuOptions, MainMenuPlay, MainMenuQuit,
+};
 use crate::main_menu::styles::*;
 
-use crate::{
-	game::player::Player,
-	main_menu::components::{MainMenu, MainMenuPlay},
-};
+use crate::game::player::components::Player;
 
 pub fn spawn_main_menu(
 	mut commands: Commands,
 	asset_server: Res<AssetServer>,
 	q_player: Query<Entity, With<Player>>,
 ) {
-	commands.spawn(Camera2dBundle::default());
-	let main_menu_entity = build_main_menu(&mut commands, &asset_server, q_player);
+	println!("Spawn Main Menu");
+	commands.spawn((
+		Camera2dBundle {
+			camera: Camera { ..default() },
+			..default()
+		},
+		MainMenuCamera,
+	));
+	let _main_menu_entity = build_main_menu(&mut commands, &asset_server, q_player);
 }
 
-pub fn despawn_main_menu(mut commands: Commands, q_main_menu: Query<Entity, With<MainMenu>>) {
+pub fn despawn_main_menu(
+	mut commands: Commands,
+	q_main_menu: Query<Entity, With<MainMenu>>,
+	q_camera: Query<Entity, With<MainMenuCamera>>,
+) {
 	if let Ok(main_menu_entity) = q_main_menu.get_single() {
 		commands.entity(main_menu_entity).despawn_recursive();
+	}
+
+	if let Ok(camera_entity) = q_camera.get_single() {
+		commands.entity(camera_entity).despawn_recursive();
 	}
 }
 
@@ -28,7 +43,6 @@ pub fn build_main_menu(
 	asset_server: &Res<AssetServer>,
 	q_player: Query<Entity, With<Player>>,
 ) -> Entity {
-	println!("Main Menu Opened");
 	if let Ok(player_entity) = q_player.get_single() {
 		commands.entity(player_entity).despawn_recursive();
 	}

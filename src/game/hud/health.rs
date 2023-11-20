@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_vector_shapes::{painter::ShapePainter, shapes::LinePainter};
 
-use crate::game::player::PlayerCamera;
+use crate::game::player::components::PlayerCamera;
 
 pub struct HealthPlugin;
 impl Plugin for HealthPlugin {
