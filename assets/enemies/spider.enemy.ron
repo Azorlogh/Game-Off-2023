@@ -7,7 +7,7 @@
 	spotting_range: 1.0,
 	speed: 0.5,
 	attack_stats: AttackStats (
-		range: 0.1,
+		range: 0.3,
 		speed: 0.5,
 		damage: 5,
 	),
