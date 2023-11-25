@@ -26,7 +26,6 @@ use menu::MenuPlugin;
 use movement::MovementPlugin;
 use player::PlayerPlugin;
 use proxies::GltfProxiesPlugin;
-use scaling::ScalingPlugin;
 use settings::SettingsPlugin;
 
 mod enemies;
@@ -38,7 +37,6 @@ mod menu;
 mod movement;
 mod player;
 mod proxies;
-mod scaling;
 mod settings;
 mod util;
 
@@ -78,7 +76,6 @@ fn main() {
 			EnemyPlugin,
 			FoodPlugin,
 			MovementPlugin,
-			ScalingPlugin,
 		))
 		// Game state
 		.add_state::<GameState>()

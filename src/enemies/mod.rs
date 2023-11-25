@@ -8,7 +8,7 @@ pub mod template;
 use bevy::{math::Vec3Swizzles, prelude::*};
 use bevy_rapier3d::{
 	dynamics::{LockedAxes, Velocity},
-	prelude::RigidBody,
+	prelude::{Collider, RigidBody},
 };
 use serde::Deserialize;
 
@@ -20,7 +20,6 @@ use crate::{
 	health::{Health, Hit},
 	movement::{MovementInput, OnGround, Speed},
 	player::Player,
-	scaling::Scaling,
 	GameAssets, GameState,
 };
 
@@ -121,12 +120,13 @@ fn enemy_spawn(
 			Name::new("Enemy"),
 			Enemy,
 			ev.template.clone_weak(),
-			SpatialBundle::from_transform(Transform::from_translation(ev.pos)),
+			SpatialBundle::from_transform(
+				Transform::from_translation(ev.pos).with_scale(Vec3::splat(template.scale)),
+			),
 			RigidBody::Dynamic,
 			EnemyState::Idle,
 			Velocity::default(),
 			LockedAxes::ROTATION_LOCKED,
-			Scaling(1.0),
 			(
 				OnGround(true),
 				MovementInput::default(),
@@ -141,10 +141,8 @@ fn enemy_spawn(
 		))
 		.with_children(|cmds| {
 			cmds.spawn((
-				TransformBundle::from_transform(Transform::from_translation(
-					template.collider_offset,
-				)),
-				template.collider.clone(),
+				TransformBundle::from_transform(Transform::from_translation(Vec3::Y * 1.0)),
+				Collider::cuboid(1.0, 1.0, 2.0),
 			));
 		});
 	}

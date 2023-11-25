@@ -5,7 +5,7 @@ use bevy::prelude::{App, Plugin};
 
 use self::physics::PhysicsProxies;
 
-pub mod physics;
+mod physics;
 
 pub struct GltfProxiesPlugin;
 impl Plugin for GltfProxiesPlugin {

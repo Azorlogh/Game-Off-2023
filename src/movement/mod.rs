@@ -4,8 +4,6 @@ use bevy_rapier3d::dynamics::Velocity;
 mod ground;
 pub use ground::*;
 
-use crate::scaling::Scaling;
-
 pub struct MovementPlugin;
 impl Plugin for MovementPlugin {
 	fn build(&self, app: &mut App) {
@@ -23,15 +21,13 @@ pub struct MovementInput(pub Vec2);
 
 fn movement(
 	time: Res<Time>,
-	mut q_player: Query<(&mut Velocity, &OnGround, &MovementInput, &Speed, &Scaling)>,
+	mut q_player: Query<(&mut Velocity, &OnGround, &MovementInput, &Speed)>,
 ) {
-	for (mut vel, on_ground, input, base_speed, scaling) in &mut q_player {
+	for (mut vel, on_ground, input, speed) in &mut q_player {
 		let friction = match on_ground.0 {
 			true => 64.0,
 			false => 1.0,
 		};
-
-		let speed = base_speed.0 * scaling.0;
 
 		let interp_t = 1.0 - (-friction * time.delta_seconds()).exp();
 
@@ -39,7 +35,7 @@ fn movement(
 
 		let dir = input.0;
 
-		let lacking = speed - current_vel.dot(dir);
+		let lacking = speed.0 - current_vel.dot(dir);
 		vel.linvel += dir.extend(0.0).xzy() * lacking * interp_t;
 
 		let extra = current_vel.dot(dir.perp());

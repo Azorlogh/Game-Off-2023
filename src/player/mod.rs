@@ -12,7 +12,6 @@ use crate::{
 	health::{Health, HideHealthBar},
 	input::Inputs,
 	movement::{GroundSensorBundle, MovementInput, OnGround, Speed},
-	scaling::Scaling,
 	GameState,
 };
 
@@ -22,8 +21,9 @@ pub struct MainCamera;
 pub mod eat;
 pub mod nutrition;
 
-const PLAYER_HEIGHT: f32 = 1.8;
-const PLAYER_RADIUS: f32 = 0.25;
+const SIZE: f32 = 1.0;
+const PLAYER_HEIGHT: f32 = SIZE * 1.8;
+const PLAYER_RADIUS: f32 = SIZE * 0.25;
 const PLAYER_EYE_OFFSET: f32 = (PLAYER_HEIGHT * 0.92) / 2.0; // relative to center of body
 
 pub struct PlayerPlugin;
@@ -32,22 +32,9 @@ impl Plugin for PlayerPlugin {
 		app.add_systems(OnExit(GameState::Loading), player_spawn)
 			.add_systems(
 				Update,
-				(
-					player_camera,
-					player_movement,
-					player_jump,
-					player_eat,
-					player_scale,
-					camera_follow_eyes,
-				)
+				(player_camera, player_movement, player_jump, player_eat)
 					.run_if(in_state(GameState::Running)),
 			);
-	}
-}
-
-fn player_scale(mut q_player: Query<(&mut Transform, &Scaling)>) {
-	for (mut transform, scaling) in &mut q_player {
-		transform.scale = Vec3::splat(scaling.0);
 	}
 }
 
@@ -82,12 +69,7 @@ pub fn player_spawn(mut cmds: Commands) {
 				combine_rule: CoefficientCombineRule::Min,
 			},
 		),
-		(
-			OnGround(false),
-			MovementInput::default(),
-			Speed(10.0),
-			Scaling(0.2),
-		),
+		(OnGround(false), MovementInput::default(), Speed(1.0)),
 		(
 			Health {
 				current: 100,
@@ -104,42 +86,25 @@ pub fn player_spawn(mut cmds: Commands) {
 			-PLAYER_HEIGHT / 2.0,
 		));
 		cmds.spawn((
-			PlayerEyes,
-			TransformBundle::from_transform(Transform::from_xyz(0.0, PLAYER_EYE_OFFSET, 0.0)),
-		));
-	});
-	cmds.spawn((
-		Camera3dBundle {
-			camera: Camera {
-				// hdr: true,
+			Camera3dBundle {
+				camera: Camera {
+					// hdr: true,
+					..default()
+				},
+				transform: Transform::from_xyz(0.0, PLAYER_EYE_OFFSET, 0.0),
+				projection: Projection::Perspective(PerspectiveProjection {
+					fov: std::f32::consts::PI / 4.0 * 1.5,
+					near: 0.01,
+					..default()
+				}),
 				..default()
 			},
-			projection: Projection::Perspective(PerspectiveProjection {
-				fov: std::f32::consts::PI / 4.0 * 1.5,
-				near: 0.01,
-				..default()
-			}),
-			..default()
-		},
-		MainCamera,
-		CameraAngles::default(),
-		AtmosphereCamera::default(),
-		BloomSettings::default(),
-	));
-}
-
-#[derive(Component)]
-pub struct PlayerEyes;
-
-fn camera_follow_eyes(
-	q_player_eyes: Query<&GlobalTransform, With<PlayerEyes>>,
-	mut q_camera: Query<&mut Transform, &MainCamera>,
-) {
-	let Ok(eyes_tr) = q_player_eyes.get_single() else {
-		return;
-	};
-	let mut camera_tr = q_camera.single_mut();
-	camera_tr.translation = eyes_tr.translation();
+			MainCamera,
+			CameraAngles::default(),
+			AtmosphereCamera::default(),
+			BloomSettings::default(),
+		));
+	});
 }
 
 #[derive(Default, Component)]
