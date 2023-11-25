@@ -21,9 +21,9 @@ pub struct MovementInput(pub Vec2);
 
 fn movement(
 	time: Res<Time>,
-	mut q_player: Query<(&mut Velocity, &OnGround, &MovementInput, &Speed)>,
+	mut q_agent: Query<(&mut Velocity, &OnGround, &MovementInput, &Speed)>,
 ) {
-	for (mut vel, on_ground, input, speed) in &mut q_player {
+	for (mut vel, on_ground, input, speed) in &mut q_agent {
 		let friction = match on_ground.0 {
 			true => 64.0,
 			false => 1.0,
