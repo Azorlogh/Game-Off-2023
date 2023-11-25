@@ -1,10 +1,4 @@
-use bevy::prelude::*;
-
-use super::{
-	components::{CameraAngles, Player, PlayerCamera},
-	nutrition::{Glucose, Hydration},
-};
-use bevy::{core_pipeline::bloom::BloomSettings, math::Vec3Swizzles};
+use bevy::{core_pipeline::bloom::BloomSettings, math::Vec3Swizzles, prelude::*};
 use bevy_atmosphere::prelude::AtmosphereCamera;
 use bevy_rapier3d::{
 	dynamics::CoefficientCombineRule,
@@ -12,15 +6,18 @@ use bevy_rapier3d::{
 	prelude::{Collider, CollidingEntities, GravityScale, LockedAxes, RigidBody, Velocity},
 };
 
+use super::{
+	components::{CameraAngles, Player, PlayerCamera},
+	nutrition::{Glucose, Hydration},
+};
 use crate::{
 	game::{
+		hud::health::{Health, HideHealthBar},
 		movement::{GroundSensorBundle, MovementInput, OnGround, Speed},
 		DespawnOnExitGame,
 	},
 	input::Inputs,
 };
-
-use crate::game::hud::health::{Health, HideHealthBar};
 
 const SIZE: f32 = 1.0;
 const PLAYER_HEIGHT: f32 = SIZE * 0.8;
@@ -32,7 +29,7 @@ pub fn player_spawn(mut cmds: Commands) {
 		Name::new("Player"),
 		Player,
 		DespawnOnExitGame,
-		SpatialBundle::from_transform(Transform::from_xyz(0.0, 10.0, 0.0)),
+		SpatialBundle::from_transform(Transform::from_xyz(0.0, PLAYER_HEIGHT / 2.0, 0.0)),
 		(
 			RigidBody::Dynamic,
 			Velocity::default(),
@@ -53,7 +50,7 @@ pub fn player_spawn(mut cmds: Commands) {
 				combine_rule: CoefficientCombineRule::Min,
 			},
 		),
-		(OnGround(false), MovementInput::default(), Speed(1.0)),
+		(OnGround(false), MovementInput::default(), Speed(5.0)),
 		(
 			Health {
 				current: 100,
@@ -72,7 +69,7 @@ pub fn player_spawn(mut cmds: Commands) {
 		cmds.spawn((
 			Camera3dBundle {
 				camera: Camera {
-					// hdr: true,
+					hdr: true,
 					..default()
 				},
 				transform: Transform::from_xyz(0.0, PLAYER_EYE_OFFSET, 0.0),
