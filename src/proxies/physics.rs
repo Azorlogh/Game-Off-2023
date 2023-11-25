@@ -15,6 +15,7 @@ impl Plugin for PhysicsProxies {
 			(
 				replace_physics_proxies.after(GltfBlueprintsSet::AfterSpawn),
 				detach_rigid_bodies,
+				fix_buggy_scale_issue,
 			),
 		);
 	}
@@ -29,6 +30,7 @@ pub enum Collider {
 	Cylinder(f32, f32),
 	#[default]
 	Mesh,
+	MeshConcave,
 }
 
 // replaces all physics stand-ins with the actual rapier types
@@ -45,6 +47,7 @@ pub fn replace_physics_proxies(
 		let (entity, collider_proxy) = proxy_colider;
 
 		let mut rapier_collider: RapierCollider;
+		commands.entity(entity).insert(MustFixBuggyScale(2));
 		match collider_proxy {
 			Collider::Ball(radius) => {
 				rapier_collider = RapierCollider::ball(*radius);
@@ -77,6 +80,34 @@ pub fn replace_physics_proxies(
 						.insert(ActiveEvents::COLLISION_EVENTS);
 				}
 			}
+			Collider::MeshConcave => {
+				for (_, collider_mesh) in
+					Mesh::search_in_children(entity, &children, &meshes, &mesh_handles)
+				{
+					rapier_collider = RapierCollider::from_bevy_mesh(
+						collider_mesh,
+						&ComputedColliderShape::ConvexDecomposition(default()),
+					)
+					.unwrap();
+					commands
+						.entity(entity)
+						.insert(rapier_collider)
+						.insert(ActiveEvents::COLLISION_EVENTS);
+				}
+			}
+		}
+	}
+}
+
+// Scale is initially f-ed up for some reason, so a system will reset it after a few frames
+#[derive(Component)]
+pub struct MustFixBuggyScale(i16);
+
+fn fix_buggy_scale_issue(mut q_objs: Query<(&mut MustFixBuggyScale, &mut Transform)>) {
+	for (mut mfbs, mut transform) in &mut q_objs {
+		mfbs.0 -= 1;
+		if mfbs.0 <= 0 {
+			transform.set_changed();
 		}
 	}
 }
