@@ -68,6 +68,7 @@ fn setup(mut commands: Commands) {
 		Camera2dBundle {
 			camera: Camera {
 				order: 1,
+				hdr: true,
 				..default()
 			},
 			camera_2d: Camera2d {
