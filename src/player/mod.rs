@@ -48,7 +48,7 @@ pub fn player_spawn(mut cmds: Commands) {
 	cmds.spawn((
 		Name::new("Player"),
 		Player,
-		SpatialBundle::from_transform(Transform::from_xyz(0.0, 10.0, 0.0)),
+		SpatialBundle::from_transform(Transform::from_xyz(0.0, PLAYER_HEIGHT / 2.0, 0.0)),
 		(
 			RigidBody::Dynamic,
 			Velocity::default(),
@@ -69,7 +69,7 @@ pub fn player_spawn(mut cmds: Commands) {
 				combine_rule: CoefficientCombineRule::Min,
 			},
 		),
-		(OnGround(false), MovementInput::default(), Speed(1.0)),
+		(OnGround(false), MovementInput::default(), Speed(5.0)),
 		(
 			Health {
 				current: 100,
@@ -88,7 +88,7 @@ pub fn player_spawn(mut cmds: Commands) {
 		cmds.spawn((
 			Camera3dBundle {
 				camera: Camera {
-					// hdr: true,
+					hdr: true,
 					..default()
 				},
 				transform: Transform::from_xyz(0.0, PLAYER_EYE_OFFSET, 0.0),
