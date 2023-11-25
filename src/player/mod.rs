@@ -1,4 +1,8 @@
-use bevy::{core_pipeline::bloom::BloomSettings, math::Vec3Swizzles, prelude::*};
+use bevy::{
+	core_pipeline::{bloom::BloomSettings, tonemapping::Tonemapping},
+	math::Vec3Swizzles,
+	prelude::*,
+};
 use bevy_atmosphere::prelude::AtmosphereCamera;
 use bevy_rapier3d::{
 	dynamics::CoefficientCombineRule,
@@ -37,17 +41,10 @@ impl Plugin for PlayerPlugin {
 					player_movement,
 					player_jump,
 					player_eat,
-					player_scale,
 					camera_follow_eyes,
 				)
 					.run_if(in_state(GameState::Running)),
 			);
-	}
-}
-
-fn player_scale(mut q_player: Query<(&mut Transform, &Scaling)>) {
-	for (mut transform, scaling) in &mut q_player {
-		transform.scale = Vec3::splat(scaling.0);
 	}
 }
 
@@ -61,7 +58,7 @@ pub fn player_spawn(mut cmds: Commands) {
 	cmds.spawn((
 		Name::new("Player"),
 		Player,
-		SpatialBundle::from_transform(Transform::from_xyz(0.0, 10.0, 0.0)),
+		SpatialBundle::from_transform(Transform::from_xyz(0.0, PLAYER_HEIGHT / 2.0, 0.0)),
 		(
 			RigidBody::Dynamic,
 			Velocity::default(),
@@ -86,7 +83,7 @@ pub fn player_spawn(mut cmds: Commands) {
 			OnGround(false),
 			MovementInput::default(),
 			Speed(10.0),
-			Scaling(0.2),
+			Scaling(1.0),
 		),
 		(
 			Health {
@@ -111,7 +108,7 @@ pub fn player_spawn(mut cmds: Commands) {
 	cmds.spawn((
 		Camera3dBundle {
 			camera: Camera {
-				// hdr: true,
+				hdr: true,
 				..default()
 			},
 			projection: Projection::Perspective(PerspectiveProjection {
@@ -124,7 +121,10 @@ pub fn player_spawn(mut cmds: Commands) {
 		MainCamera,
 		CameraAngles::default(),
 		AtmosphereCamera::default(),
-		BloomSettings::default(),
+		BloomSettings {
+			intensity: 0.05,
+			..default()
+		},
 	));
 }
 

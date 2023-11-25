@@ -70,6 +70,7 @@ pub struct Inputs {
 	pub punch: bool,
 	pub jump: bool,
 	pub eat: bool,
+	pub scale: i8,
 }
 
 impl Default for Inputs {
@@ -81,6 +82,7 @@ impl Default for Inputs {
 			punch: false,
 			jump: false,
 			eat: false,
+			scale: 0,
 		}
 	}
 }

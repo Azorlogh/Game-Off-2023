@@ -67,6 +67,7 @@ fn setup(mut commands: Commands) {
 	commands.spawn((
 		Camera2dBundle {
 			camera: Camera {
+				hdr: true,
 				order: 1,
 				..default()
 			},

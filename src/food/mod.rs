@@ -84,6 +84,7 @@ fn setup_food(mut ev_spawn_food: EventWriter<SpawnFood>) {
 	})
 }
 
+#[allow(unused)]
 fn spawn_food(
 	mut commands: Commands,
 	asset_server: Res<AssetServer>,

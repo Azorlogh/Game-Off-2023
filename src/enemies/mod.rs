@@ -8,6 +8,8 @@ pub mod template;
 use bevy::{math::Vec3Swizzles, prelude::*};
 use bevy_rapier3d::{
 	dynamics::{LockedAxes, Velocity},
+	pipeline::QueryFilter,
+	plugin::RapierContext,
 	prelude::RigidBody,
 };
 use serde::Deserialize;
@@ -140,12 +142,7 @@ fn enemy_spawn(
 			},
 		))
 		.with_children(|cmds| {
-			cmds.spawn((
-				TransformBundle::from_transform(Transform::from_translation(
-					template.collider_offset,
-				)),
-				template.collider.clone(),
-			));
+			cmds.spawn((TransformBundle::default(), template.collider.clone()));
 		});
 	}
 }
@@ -185,6 +182,8 @@ fn enemy_chase(
 
 		if let AttackState::Chasing = attack_state {
 			input.0 = to_target_dir.xz();
+		} else {
+			input.0 = default();
 		}
 	}
 }
@@ -194,6 +193,8 @@ fn enemy_attack(
 	q_global_transform: Query<&GlobalTransform>,
 	mut q_enemies: Query<(&mut EnemyState, &Transform, &AttackStats)>,
 	mut ev_hit: EventWriter<Hit>,
+	rapier_context: Res<RapierContext>,
+	mut gizmos: Gizmos,
 ) {
 	for (mut state, enemy_tr, stats) in &mut q_enemies {
 		let EnemyState::Attacking(target, ref mut attack_state) = *state else {
@@ -202,15 +203,38 @@ fn enemy_attack(
 
 		let target_pos = q_global_transform.get(target).unwrap().translation();
 		let enemy_pos = enemy_tr.translation;
-		let target_distance = enemy_pos.distance(target_pos);
+		// let target_distance = enemy_pos.distance(target_pos);
+
+		gizmos.ray(
+			enemy_pos,
+			((target_pos - enemy_pos) * Vec3::new(1.0, 0.0, 1.0)).normalize() * stats.range,
+			Color::RED,
+		);
+
+		let mut can_attack = false;
+		rapier_context.intersections_with_ray(
+			enemy_pos,
+			((target_pos - enemy_pos) * Vec3::new(1.0, 0.0, 1.0)).normalize(),
+			stats.range,
+			true,
+			QueryFilter::new().predicate(&|e| {
+				println!("{e:?}");
+				e == target
+			}),
+			|_, _| {
+				can_attack = true;
+				false
+			},
+		);
+		println!("can attack {can_attack}, {target:?}");
 
 		match attack_state {
-			AttackState::Chasing if target_distance < stats.range => {
+			AttackState::Chasing if can_attack => {
 				*attack_state = AttackState::Attacking(0.0);
 			}
 			AttackState::Attacking(attack_time) if *attack_time > stats.speed => {
 				*attack_state = AttackState::Chasing;
-				if target_distance < stats.range {
+				if can_attack {
 					ev_hit.send(Hit {
 						target,
 						damage: stats.damage,

@@ -11,6 +11,7 @@ use bevy_asset_loader::{
 use bevy_atmosphere::prelude::{AtmosphereModel, AtmospherePlugin, Nishita};
 use bevy_gltf_blueprints::{BlueprintsPlugin, GameWorldTag};
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
+use bevy_mod_mipmap_generator::generate_mipmaps;
 use bevy_rapier3d::{
 	prelude::{Collider, NoUserData, PhysicsSet, RapierPhysicsPlugin},
 	render::RapierDebugRenderPlugin,
@@ -55,7 +56,7 @@ fn main() {
 			// ComponentsFromGltfPlugin::default(),
 			RapierPhysicsPlugin::<NoUserData>::default().with_default_system_setup(false),
 			GltfProxiesPlugin,
-			RapierDebugRenderPlugin::default(),
+			// RapierDebugRenderPlugin::default(),
 			AtmospherePlugin,
 			ShapePlugin {
 				base_config: ShapeConfig {
@@ -66,7 +67,9 @@ fn main() {
 			},
 			ScreenDiagnosticsPlugin::default(),
 			ScreenFrameDiagnosticsPlugin,
+			bevy_mod_mipmap_generator::MipmapGeneratorPlugin,
 		))
+		.add_systems(Update, generate_mipmaps::<StandardMaterial>)
 		// Our own plugins
 		.add_plugins((
 			InputPlugin,

@@ -3,13 +3,14 @@
 
 use bevy::prelude::{App, Plugin};
 
-use self::physics::PhysicsProxies;
+use self::{lighting::LightingProxiesPlugin, physics::PhysicsProxies};
 
+pub mod lighting;
 pub mod physics;
 
 pub struct GltfProxiesPlugin;
 impl Plugin for GltfProxiesPlugin {
 	fn build(&self, app: &mut App) {
-		app.add_plugins(PhysicsProxies);
+		app.add_plugins((PhysicsProxies, LightingProxiesPlugin));
 	}
 }

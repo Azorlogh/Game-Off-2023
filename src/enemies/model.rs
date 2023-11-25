@@ -43,6 +43,7 @@ fn add_enemy_models(
 				SceneBundle {
 					scene: asset_server.load(format!("{model_path}#Scene0")),
 					transform: Transform::from_rotation(Quat::from_rotation_y(TAU / 2.0))
+						.with_translation(-template.collider_offset)
 						.with_scale(Vec3::splat(template.model_scale)),
 					..default()
 				},

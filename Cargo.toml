@@ -36,6 +36,8 @@ directories = "5.0.1"
 bevy_vector_shapes = "0.5"
 rand = "0.8.5"
 
+bevy_mod_mipmap_generator = { git = "https://github.com/DGriffin91/bevy_mod_mipmap_generator", rev = "234adf11f8851c90af974da9e18a53d06ef95e8f" }
+
 # Enable a small amount of optimization in debug mode
 [profile.dev]
 opt-level = 1

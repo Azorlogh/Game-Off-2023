@@ -1,7 +1,6 @@
 use std::{collections::HashMap, fs::read_to_string, path::PathBuf};
 
 use bevy::prelude::*;
-
 use serde::{Deserialize, Serialize};
 
 use crate::input::Inputs;
@@ -73,6 +72,7 @@ pub enum Movement {
 	Yaw(Option<bool>),
 	Pitch(Option<bool>),
 	Eat,
+	Scale,
 }
 
 impl ToString for Movement {
@@ -93,6 +93,7 @@ impl ToString for Movement {
 				None => String::from("Y Vision Mouse"),
 			},
 			Movement::Eat => String::from("Eat"),
+			Movement::Scale => String::from("Scale"),
 		}
 	}
 }
@@ -115,6 +116,8 @@ impl Movement {
 			Movement::Pitch(None) => inputs.pitch += modifier.y,
 
 			Movement::Eat => inputs.eat = true,
+
+			Movement::Scale => inputs.scale = 1,
 		};
 	}
 }
