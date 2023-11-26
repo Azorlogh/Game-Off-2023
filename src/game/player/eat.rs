@@ -1,12 +1,15 @@
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::{QueryFilter, RapierContext};
 
-use crate::food::{FoodProperties, FoodStats};
-use crate::{food::Food, input::Inputs};
-
-use super::nutrition::{Glucose, Hydration};
-use super::MainCamera;
-use super::Player;
+use super::{
+	camera::PlayerCamera,
+	nutrition::{Glucose, Hydration},
+	Player,
+};
+use crate::{
+	game::food::components::{Food, FoodProperties, FoodStats},
+	input::Inputs,
+};
 
 const EATING_RANGE: f32 = 2.0;
 const RAY_SOLID: bool = true;
@@ -22,7 +25,7 @@ pub fn player_eat(
 	rapier_context: Res<RapierContext>,
 	inputs: Res<Inputs>,
 	mut q_food: Query<(&FoodStats, &mut FoodProperties), With<Food>>,
-	q_camera_player: Query<&GlobalTransform, With<MainCamera>>,
+	q_camera_player: Query<&GlobalTransform, With<PlayerCamera>>,
 	mut q_player: Query<(Entity, (&mut Glucose, &mut Hydration)), With<Player>>,
 	mut commands: Commands,
 	mut gizmos: Gizmos,
@@ -42,7 +45,7 @@ pub fn player_eat(
 		return;
 	};
 
-	let ray_pos = player_transform.translation() - Vec3::Y*0.2;
+	let ray_pos = player_transform.translation() - Vec3::Y * 0.2;
 	let ray_dir = player_transform.forward();
 	let max_toi = EATING_RANGE;
 	let solid = RAY_SOLID;

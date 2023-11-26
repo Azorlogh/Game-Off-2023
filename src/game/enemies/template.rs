@@ -4,7 +4,7 @@ use bevy::{
 };
 use serde::Deserialize;
 
-use super::AttackStats;
+use super::attack::AttackStats;
 
 #[derive(Debug, Deserialize, TypeUuid, TypePath)]
 #[uuid = "75ae51b0-8103-4972-b95c-03d3c1cd166d"]

@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_vector_shapes::{painter::ShapePainter, shapes::LinePainter};
 
-use crate::player::MainCamera;
+use crate::game::player::camera::PlayerCamera;
 
 pub struct HealthPlugin;
 impl Plugin for HealthPlugin {
@@ -23,7 +23,7 @@ pub struct HideHealthBar;
 fn display_health(
 	mut painter: ShapePainter,
 	query: Query<(&Health, &GlobalTransform), Without<HideHealthBar>>,
-	q_camera: Query<&GlobalTransform, With<MainCamera>>,
+	q_camera: Query<&GlobalTransform, With<PlayerCamera>>,
 ) {
 	const HEALTHBAR_LENGTH: f32 = 0.25;
 	let Ok(camera_tr) = q_camera.get_single() else {

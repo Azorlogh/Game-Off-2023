@@ -3,7 +3,7 @@ use std::{f32::consts::TAU, time::Duration};
 use bevy::{prelude::*, utils::HashMap};
 
 use super::{template::EnemyTemplate, Enemy, EnemyState};
-use crate::enemies::AttackState;
+use crate::game::enemies::AttackState;
 
 pub struct EnemyModelPlugin;
 impl Plugin for EnemyModelPlugin {
