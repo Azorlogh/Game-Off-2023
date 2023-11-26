@@ -4,16 +4,6 @@ use bevy::prelude::*;
 #[reflect(Component)]
 pub struct Food;
 
-#[derive(Event)]
-pub struct SpawnFood {
-	pub name: String,
-	pub model: String,
-	pub stats: FoodStats,
-	pub position: Vec3,
-	pub scale_factor: f32,
-	pub properties: FoodProperties,
-}
-
 #[derive(Component, Clone, Copy, Reflect)]
 #[reflect(Component)]
 pub struct FoodStats {

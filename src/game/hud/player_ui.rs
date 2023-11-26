@@ -5,9 +5,13 @@ use bevy::{
 };
 use bevy_vector_shapes::{prelude::ShapePainter, shapes::LinePainter};
 
-use crate::game::hud::health::Health;
-use crate::game::player::components::Player;
-use crate::game::player::nutrition::{Glucose, Hydration};
+use crate::game::{
+	hud::health::Health,
+	player::{
+		nutrition::{Glucose, Hydration},
+		Player,
+	},
+};
 
 const BAR_LENGTH: f32 = 1.0;
 const BAR_WIDTH: f32 = 0.03;

@@ -1,5 +1,4 @@
 use bevy::prelude::*;
-
 use systems::{display_health_food, setup_food};
 pub(crate) mod systems;
 
@@ -18,4 +17,14 @@ impl Plugin for FoodPlugin {
 			.register_type::<FoodProperties>()
 			.register_type::<Food>();
 	}
+}
+
+#[derive(Event)]
+pub struct SpawnFood {
+	pub name: String,
+	pub model: String,
+	pub stats: FoodStats,
+	pub position: Vec3,
+	pub scale_factor: f32,
+	pub properties: FoodProperties,
 }

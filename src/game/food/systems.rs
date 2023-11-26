@@ -1,10 +1,11 @@
 use bevy::prelude::*;
-
 use bevy_vector_shapes::{prelude::ShapePainter, shapes::LinePainter};
 
-use crate::game::player::components::PlayerCamera;
-
-use super::components::{Food, FoodProperties, FoodStats, SpawnFood};
+use super::{
+	components::{Food, FoodProperties, FoodStats},
+	SpawnFood,
+};
+use crate::game::player::camera::PlayerCamera;
 
 pub fn setup_food(mut ev_spawn_food: EventWriter<SpawnFood>) {
 	ev_spawn_food.send(SpawnFood {

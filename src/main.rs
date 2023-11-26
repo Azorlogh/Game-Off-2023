@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use bevy::{app::App, audio::AudioPlugin, prelude::*, transform::TransformSystem, DefaultPlugins};
+use bevy::{app::App, audio::AudioPlugin, prelude::*, DefaultPlugins};
 use bevy_asset_loader::{
 	loading_state::{LoadingState, LoadingStateAppExt},
 	standard_dynamic_asset::StandardDynamicAssetCollection,
@@ -14,16 +14,13 @@ use bevy_rapier3d::{
 };
 use bevy_screen_diagnostics::{ScreenDiagnosticsPlugin, ScreenFrameDiagnosticsPlugin};
 use bevy_vector_shapes::{painter::ShapeConfig, ShapePlugin};
+use debug::DebugPlugin;
+use game::{GameAssets, GamePlugin, GameState};
 use input::InputPlugin;
 use main_menu::MainMenuPlugin;
 use menu::MenuPlugin;
 use proxies::GltfProxiesPlugin;
 use settings::SettingsPlugin;
-
-use debug::DebugPlugin;
-
-use game::GameState;
-use game::{GameAssets, GamePlugin};
 use systems::{enter_game, quit_game, transition_to_game_state, transition_to_main_menu_state};
 mod game;
 
@@ -79,9 +76,7 @@ fn main() {
 		// Game state
 		.add_state::<AppState>()
 		.add_state::<GameState>()
-		.add_loading_state(
-			LoadingState::new(AppState::Loading).continue_to_state(AppState::MainMenu),
-		)
+		.add_loading_state(LoadingState::new(AppState::Loading).continue_to_state(AppState::Game))
 		// Game assets: Tell our app to load the assets from GameAssets
 		.add_collection_to_loading_state::<_, GameAssets>(AppState::Loading)
 		.add_dynamic_collection_to_loading_state::<_, StandardDynamicAssetCollection>(

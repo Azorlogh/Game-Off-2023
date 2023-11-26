@@ -1,11 +1,12 @@
 use bevy::prelude::*;
 
-use crate::main_menu::components::{
-	MainMenu, MainMenuCamera, MainMenuOptions, MainMenuPlay, MainMenuQuit,
+use crate::{
+	game::player::Player,
+	main_menu::{
+		components::{MainMenu, MainMenuCamera, MainMenuOptions, MainMenuPlay, MainMenuQuit},
+		styles::*,
+	},
 };
-use crate::main_menu::styles::*;
-
-use crate::game::player::components::Player;
 
 pub fn spawn_main_menu(
 	mut commands: Commands,
