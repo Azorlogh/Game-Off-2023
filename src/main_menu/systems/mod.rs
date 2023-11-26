@@ -9,6 +9,12 @@ use options::OptionsMenuPlugin;
 pub mod keyboard;
 use keyboard::KeyboardMenuPlugin;
 
+pub mod sounds;
+use sounds::SoundsMenuPlugin;
+
+pub mod graphics;
+use graphics::GraphicsMenuPlugin;
+
 use crate::main_menu::components::MainMenuCamera;
 use crate::main_menu::systems::main::MainMenu;
 use crate::AppState;
@@ -18,9 +24,14 @@ use super::MenuState;
 pub struct MenuSystemsPlugin;
 impl Plugin for MenuSystemsPlugin {
 	fn build(&self, app: &mut App) {
-		app.add_plugins((MainMenuPlugin, OptionsMenuPlugin, KeyboardMenuPlugin))
-			.add_systems(OnEnter(AppState::Game), exit_menu)
-			.add_systems(OnEnter(MenuState::None), despawn_menu);
+		app.add_plugins((
+			MainMenuPlugin,
+			OptionsMenuPlugin,
+			KeyboardMenuPlugin,
+			SoundsMenuPlugin,
+		))
+		.add_systems(OnEnter(AppState::Game), exit_menu)
+		.add_systems(OnEnter(MenuState::None), despawn_menu);
 	}
 }
 
