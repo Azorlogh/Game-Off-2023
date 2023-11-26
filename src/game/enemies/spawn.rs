@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier3d::{
 	dynamics::{LockedAxes, Velocity},
-	prelude::{Collider, RigidBody},
+	prelude::RigidBody,
 };
 
 use super::{
@@ -11,6 +11,7 @@ use crate::{
 	game::{
 		hud::health::Health,
 		movement::{MovementInput, OnGround, Speed},
+		scaling::Scaling,
 	},
 	GameAssets,
 };
@@ -55,8 +56,16 @@ pub fn setup(mut ev_spawn_enemy: EventWriter<SpawnEnemy>, assets: Res<GameAssets
 
 	// Summon one enemy
 	ev_spawn_enemy.send(SpawnEnemy {
-		pos: Vec3::new(0.0, 0.0, -5.0),
+		pos: Vec3::new(0.0, 0.5, 0.0),
 		template: assets.enemies["enemies/spider.enemy.ron"].clone_weak(),
+	});
+	ev_spawn_enemy.send(SpawnEnemy {
+		pos: Vec3::new(-5.0, 0.5, -2.0),
+		template: assets.enemies["enemies/rat.enemy.ron"].clone_weak(),
+	});
+	ev_spawn_enemy.send(SpawnEnemy {
+		pos: Vec3::new(4.0, 0.5, -2.0),
+		template: assets.enemies["enemies/snake.enemy.ron"].clone_weak(),
 	});
 }
 
@@ -72,13 +81,12 @@ pub fn enemy_spawn(
 			Enemy,
 			DespawnOnExitGame,
 			ev.template.clone_weak(),
-			SpatialBundle::from_transform(
-				Transform::from_translation(ev.pos).with_scale(Vec3::splat(template.scale)),
-			),
+			SpatialBundle::from_transform(Transform::from_translation(ev.pos)),
 			RigidBody::Dynamic,
 			EnemyState::Idle,
 			Velocity::default(),
 			LockedAxes::ROTATION_LOCKED,
+			Scaling(1.0),
 			(
 				OnGround(true),
 				MovementInput::default(),
@@ -92,10 +100,7 @@ pub fn enemy_spawn(
 			},
 		))
 		.with_children(|cmds| {
-			cmds.spawn((
-				TransformBundle::from_transform(Transform::from_translation(Vec3::Y * 1.0)),
-				Collider::cuboid(1.0, 1.0, 2.0),
-			));
+			cmds.spawn((TransformBundle::default(), template.collider.clone()));
 		});
 	}
 }

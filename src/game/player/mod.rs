@@ -2,11 +2,11 @@ use bevy::{math::Vec3Swizzles, prelude::*};
 use bevy_rapier3d::dynamics::{GravityScale, Velocity};
 use eat::player_eat;
 
-use self::{
-	camera::{player_camera, PlayerCamera},
-	spawn::player_spawn,
+use self::{camera::PlayerCamera, spawn::player_spawn};
+use super::{
+	movement::{MovementInput, OnGround},
+	scaling::Scaling,
 };
-use super::movement::{MovementInput, OnGround};
 use crate::{input::Inputs, AppState, GameState};
 
 pub mod camera;
@@ -20,7 +20,13 @@ impl Plugin for PlayerPlugin {
 		app.add_systems(OnEnter(AppState::Game), player_spawn)
 			.add_systems(
 				Update,
-				(player_camera, player_movement, player_jump, player_eat)
+				(
+					camera::player_camera,
+					camera::camera_follow_eyes,
+					player_movement,
+					player_jump,
+					player_eat,
+				)
 					.run_if(in_state(GameState::Playing)),
 			);
 	}
@@ -47,16 +53,17 @@ pub fn player_movement(
 
 pub fn player_jump(
 	inputs: Res<Inputs>,
-	mut q_player: Query<(&mut Velocity, &mut GravityScale, &OnGround), With<Player>>,
+	mut q_player: Query<(&mut Velocity, &mut GravityScale, &OnGround, &Scaling), With<Player>>,
 	mut falling: Local<bool>,
 ) {
-	for (mut velocity, mut gravity, on_ground) in &mut q_player {
+	for (mut velocity, mut gravity, on_ground, scaling) in &mut q_player {
 		if on_ground.0 && inputs.jump {
-			velocity.linvel.y = 7.0;
-			gravity.0 = 1.0;
+			// velocity.linvel.y = 1.0;
+			velocity.linvel.y = (6.0 * 9.81 * scaling.0 * scaling.0).sqrt();
+			gravity.0 = 2.0 * scaling.0;
 			*falling = false;
 		} else if !on_ground.0 && !*falling && !inputs.jump {
-			gravity.0 = 2.0;
+			gravity.0 = 4.0 * scaling.0;
 			*falling = true;
 		}
 	}

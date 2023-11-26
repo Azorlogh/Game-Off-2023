@@ -1,11 +1,13 @@
 (
 	model_path: "models/characters/spider.glb",
-	scale: 0.05,
+	model_scale: 0.05,
+	collider: Cuboid((0.05, 0.05, 0.1)),
+	collider_offset: Vec3(0.0, 0.05, 0.0),
 	health: 5,
 	spotting_range: 1.0,
 	speed: 0.5,
 	attack_stats: AttackStats (
-		range: 1.0,
+		range: 0.2,
 		speed: 0.5,
 		damage: 5,
 	),

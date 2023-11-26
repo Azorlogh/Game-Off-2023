@@ -2,8 +2,7 @@ use std::{f32::consts::TAU, time::Duration};
 
 use bevy::{prelude::*, utils::HashMap};
 
-use super::{template::EnemyTemplate, Enemy, EnemyState};
-use crate::game::enemies::AttackState;
+use super::{attack::AttackState, template::EnemyTemplate, Enemy, EnemyState};
 
 pub struct EnemyModelPlugin;
 impl Plugin for EnemyModelPlugin {
@@ -35,13 +34,16 @@ fn add_enemy_models(
 	asset_server: Res<AssetServer>,
 ) {
 	for (entity, template) in &q_added_enemies {
-		let model_path = &enemy_assets.get(template).unwrap().model_path;
+		let template = enemy_assets.get(template).unwrap();
+		let model_path = &template.model_path;
 
 		cmds.entity(entity).with_children(|cmds| {
 			cmds.spawn((
 				SceneBundle {
 					scene: asset_server.load(format!("{model_path}#Scene0")),
-					transform: Transform::from_rotation(Quat::from_rotation_y(TAU / 2.0)),
+					transform: Transform::from_rotation(Quat::from_rotation_y(TAU / 2.0))
+						.with_translation(-template.collider_offset)
+						.with_scale(Vec3::splat(template.model_scale)),
 					..default()
 				},
 				ModelAnimations(
@@ -119,7 +121,7 @@ fn enemy_update_animation(
 				)
 				.repeat()
 				.set_speed(match *anim_state {
-					AnimationState::Run => 2.0,
+					AnimationState::Run => 1.0,
 					AnimationState::Idle => 1.0,
 					AnimationState::Attack => 0.45,
 				});
