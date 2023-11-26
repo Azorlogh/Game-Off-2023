@@ -1,5 +1,5 @@
 ({
-    "world": File(path: "world/World.glb#Scene0"),
+    "world": File(path: "world/World.glb"),
     "models": Folder (
         path: "world/library",
     ),

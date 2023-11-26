@@ -50,7 +50,7 @@ pub enum GameState {
 #[derive(AssetCollection, Resource)]
 pub struct GameAssets {
 	#[asset(key = "world")]
-	pub world: Handle<Scene>,
+	pub world: Handle<Gltf>,
 	// #[asset(key = "models", collection(typed, mapped))]
 	#[asset(
 		paths(

@@ -63,4 +63,4 @@ opt-level = 3
 
 # bevy_rapier3d = { git = "https://github.com/extrawurst/bevy_rapier", branch = "prep-for-bevy-master" }
 # bevy_egui = { git = "https://github.com/Azorlogh/bevy_egui" }
-# bevy_gltf_components = { path = "../../../Contrib/Blender_bevy_components_workflow/crates/bevy_gltf_components/" }
+# bevy_gltf_components = { git= "https://github.com/kaosat-dev/Blender_bevy_components_workflow/crates/bevy_gltf_components/" }

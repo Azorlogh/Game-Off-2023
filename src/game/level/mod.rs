@@ -24,10 +24,11 @@ pub fn spawn_level(
 	game_assets: Res<GameAssets>,
 	mut meshes: ResMut<Assets<Mesh>>,
 	mut materials: ResMut<Assets<StandardMaterial>>,
+	models: Res<Assets<bevy::gltf::Gltf>>,
 ) {
 	commands.spawn((
 		SceneBundle {
-			scene: game_assets.world.clone(),
+			scene: models.get(game_assets.world.id()).unwrap().scenes[0].clone(),
 			..default()
 		},
 		GameWorldTag,
