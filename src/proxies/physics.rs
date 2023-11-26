@@ -103,11 +103,15 @@ pub fn replace_physics_proxies(
 #[derive(Component)]
 pub struct MustFixBuggyScale(i16);
 
-fn fix_buggy_scale_issue(mut q_objs: Query<(&mut MustFixBuggyScale, &mut Transform)>) {
-	for (mut mfbs, mut transform) in &mut q_objs {
+fn fix_buggy_scale_issue(
+	mut cmds: Commands,
+	mut q_objs: Query<(Entity, &mut MustFixBuggyScale, &mut Transform)>,
+) {
+	for (entity, mut mfbs, mut transform) in &mut q_objs {
 		mfbs.0 -= 1;
 		if mfbs.0 <= 0 {
 			transform.set_changed();
+			cmds.entity(entity).remove::<MustFixBuggyScale>();
 		}
 	}
 }
