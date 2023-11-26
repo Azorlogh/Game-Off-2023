@@ -24,7 +24,7 @@ pub fn setup_food(mut ev_spawn_food: EventWriter<SpawnFood>) {
 		},
 		position: Vec3::new(0.0, 10.0, 0.0),
 		scale_factor: 0.1,
-	})
+	});
 }
 
 pub fn display_health_food(

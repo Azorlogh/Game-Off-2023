@@ -23,8 +23,8 @@ impl Plugin for EnemyPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_plugins(EnemyModelPlugin)
 			.register_type::<EnemyState>()
-			.add_asset::<EnemyTemplate>()
-			.add_asset_loader(EnemyAssetLoader)
+			.init_asset::<EnemyTemplate>()
+			.init_asset_loader::<EnemyAssetLoader>()
 			.add_event::<SpawnEnemy>()
 			.add_systems(OnEnter(AppState::Game), spawn::setup)
 			.add_systems(Update, spawn::enemy_spawn)

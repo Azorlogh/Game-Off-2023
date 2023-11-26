@@ -5,13 +5,13 @@ edition = "2021"
 
 [dependencies]
 # Bevy
-bevy = "0.11.3"
+bevy = { version = "0.12.0", features = ["serialize"] }
 # Debug menu to inspect the game world
-bevy-inspector-egui = "0.20.0"
+bevy-inspector-egui = "0.21.0"
 # diagnostics
-bevy_screen_diagnostics = "0.3"
+bevy_screen_diagnostics = "0.4"
 # Plugin to pre-load assets before the game starts
-bevy_asset_loader = { version = "0.17.0", features = [
+bevy_asset_loader = { version = "0.18.0", features = [
     "standard_dynamic_assets",
 ] }
 # Automatically inserts component to entities spawned from glb files
@@ -19,22 +19,24 @@ bevy_gltf_components = { git = "https://github.com/kaosat-dev/Blender_bevy_compo
 # Support for glb blueprints
 bevy_gltf_blueprints = { git = "https://github.com/kaosat-dev/Blender_bevy_components_workflow/" }
 # Physics engine
-bevy_rapier3d = "0.22.0"
+bevy_rapier3d = "0.23.0"
 # To make camera controls
-bevy_dolly = "0.0.1"
+bevy_dolly = { git = "https://github.com/Azorlogh/bevy_dolly", default-features = false, features = ["drivers"]}
 # A nice procedural sky
-bevy_atmosphere = "0.7.0"
+bevy_atmosphere = "0.8.1"
 #Bevy iced
-bevy_egui = "0.22.0"
+bevy_egui = "0.23.0"
 # Serde
-serde = "1.0.190"
+serde = "1.0.193"
 #Ron
 ron = "0.8.1"
 #Directories to save files
 directories = "5.0.1"
 
-bevy_vector_shapes = "0.5"
+bevy_vector_shapes = "0.6"
 rand = "0.8.5"
+anyhow = "1.0.75"
+thiserror = "1.0.50"
 
 # Enable a small amount of optimization in debug mode
 [profile.dev]
@@ -43,3 +45,22 @@ opt-level = 1
 # Enable high optimizations for dependencies (incl. Bevy), but not for our code:
 [profile.dev.package."*"]
 opt-level = 3
+
+# [patch.crates-io]
+# bevy = { git = "https://github.com/bevyengine/bevy" }
+# bevy_transform = { git = "https://github.com/bevyengine/bevy" }
+# bevy_asset = { git = "https://github.com/bevyengine/bevy" }
+# bevy_reflect = { git = "https://github.com/bevyengine/bevy" }
+# bevy_core = { git = "https://github.com/bevyengine/bevy" }
+# bevy_hierarchy = { git = "https://github.com/bevyengine/bevy" }
+# bevy_ecs = { git = "https://github.com/bevyengine/bevy" }
+# bevy_input = { git = "https://github.com/bevyengine/bevy" }
+# bevy_render = { git = "https://github.com/bevyengine/bevy" }
+# bevy_core_pipeline = { git = "https://github.com/bevyengine/bevy" }
+# bevy_pbr = { git = "https://github.com/bevyengine/bevy" }
+# bevy_app = { git = "https://github.com/bevyengine/bevy" }
+
+
+# bevy_rapier3d = { git = "https://github.com/extrawurst/bevy_rapier", branch = "prep-for-bevy-master" }
+# bevy_egui = { git = "https://github.com/Azorlogh/bevy_egui" }
+# bevy_gltf_components = { path = "../../../Contrib/Blender_bevy_components_workflow/crates/bevy_gltf_components/" }

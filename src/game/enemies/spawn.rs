@@ -65,7 +65,7 @@ pub fn enemy_spawn(
 	mut ev_spawn_enemy: EventReader<SpawnEnemy>,
 	enemy_assets: Res<Assets<EnemyTemplate>>,
 ) {
-	for ev in ev_spawn_enemy.iter() {
+	for ev in ev_spawn_enemy.read() {
 		let template = enemy_assets.get(&ev.template).unwrap();
 		cmds.spawn((
 			Name::new("Enemy"),

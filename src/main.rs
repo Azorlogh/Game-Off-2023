@@ -48,7 +48,7 @@ fn main() {
 					..default()
 				})
 				.set(bevy::log::LogPlugin {
-					level: bevy::log::Level::INFO,
+					level: bevy::log::Level::DEBUG,
 					..default()
 				})
 				.build()
@@ -56,6 +56,8 @@ fn main() {
 			WorldInspectorPlugin::new(),
 			BlueprintsPlugin {
 				library_folder: PathBuf::from("world/library"),
+				format: bevy_gltf_blueprints::GltfFormat::GLB,
+				aabbs: false,
 			},
 			// ComponentsFromGltfPlugin::default(),
 			RapierPhysicsPlugin::<NoUserData>::default(), //.with_default_system_setup(false),

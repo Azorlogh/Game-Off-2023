@@ -1,15 +1,13 @@
-use bevy::{app::AppExit, prelude::*};
+use bevy::{app::AppExit, input::mouse::MouseMotion, prelude::*};
 use bevy_egui::EguiContexts;
 use bevy_inspector_egui::egui;
 
-use crate::{game::GameState, AppState};
-
-use crate::settings::{GeneralInput, Movement, Settings};
-
-use crate::settings::systems::save_settings;
-
 use super::MenuState;
-use bevy::input::mouse::MouseMotion;
+use crate::{
+	game::GameState,
+	settings::{systems::save_settings, GeneralInput, Movement, Settings},
+	AppState,
+};
 
 pub fn ui_options(
 	mut contexts: EguiContexts,
@@ -23,7 +21,7 @@ pub fn ui_options(
 	mut motion: EventReader<MouseMotion>,
 ) {
 	if let Some(movement) = *changing_movement {
-		let delta = motion.iter().fold(Vec2::ZERO, |acc, x| acc + x.delta);
+		let delta = motion.read().fold(Vec2::ZERO, |acc, x| acc + x.delta);
 
 		let mut general_input = None;
 
@@ -83,7 +81,7 @@ pub fn ui_system(
 			app_state.set(AppState::MainMenu);
 		}
 		if ui.button("Quit").clicked() {
-			app_exit_events.send(AppExit)
+			app_exit_events.send(AppExit);
 		}
 	});
 }
@@ -106,7 +104,7 @@ pub fn ui_pause_game(
 			app_state.set(AppState::MainMenu);
 		}
 		if ui.button("Quit").clicked() {
-			app_exit_events.send(AppExit)
+			app_exit_events.send(AppExit);
 		}
 	});
 }

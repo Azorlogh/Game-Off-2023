@@ -57,7 +57,7 @@ pub struct Hit {
 }
 
 fn take_hit(mut ev_take_hit: EventReader<Hit>, mut q_health: Query<&mut Health>) {
-	for ev in ev_take_hit.iter() {
+	for ev in ev_take_hit.read() {
 		if let Ok(mut health) = q_health.get_mut(ev.target) {
 			health.current = health.current.saturating_sub(ev.damage);
 		}
