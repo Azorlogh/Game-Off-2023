@@ -4,6 +4,7 @@ use bevy::prelude::*;
 
 use super::Settings;
 
+#[cfg(not(target_arch = "wasm32"))]
 pub fn load_settings() -> Settings {
 	let path = settings_path();
 	// Load Settings
@@ -22,6 +23,12 @@ pub fn load_settings() -> Settings {
 	}
 }
 
+#[cfg(target_arch = "wasm32")]
+pub fn load_settings() -> Settings {
+	Settings::default()
+}
+
+#[cfg(not(target_arch = "wasm32"))]
 pub fn save_settings(settings: &Settings) {
 	let path = settings_path();
 	// Save Settings
@@ -35,6 +42,12 @@ pub fn save_settings(settings: &Settings) {
 		},
 		Err(e) => warn!("failed to save settings: {e}"),
 	}
+}
+
+#[cfg(target_arch = "wasm32")]
+pub fn save_settings(_settings: &Settings) {
+	// No-op
+	// TODO: local storage?
 }
 
 fn settings_path() -> PathBuf {

@@ -20,3 +20,17 @@ pub fn toggle_shadows(
 		}
 	}
 }
+
+pub fn despawn_lights(
+	mut cmds: Commands,
+	mut q_lights: Query<Entity, With<SpotLight>>,
+	mut disabled: Local<bool>,
+	keys: Res<Input<KeyCode>>,
+) {
+	if keys.just_pressed(KeyCode::K) {
+		*disabled = !*disabled;
+		for entity in &mut q_lights {
+			cmds.entity(entity).despawn_recursive();
+		}
+	}
+}

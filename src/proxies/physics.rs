@@ -37,14 +37,21 @@ pub enum Collider {
 pub fn replace_physics_proxies(
 	meshes: Res<Assets<Mesh>>,
 	mesh_handles: Query<&Handle<Mesh>>,
-	mut proxy_colliders: Query<(Entity, &Collider), (Without<RapierCollider>, With<Collider>)>,
+	mut proxy_colliders: Query<
+		(Entity, &Collider, Option<&Name>),
+		(Without<RapierCollider>, With<Collider>),
+	>,
 	// needed for tri meshes
 	children: Query<&Children>,
 
 	mut commands: Commands,
 ) {
 	for proxy_colider in proxy_colliders.iter_mut() {
-		let (entity, collider_proxy) = proxy_colider;
+		let (entity, collider_proxy, maybe_name) = proxy_colider;
+
+		if maybe_name.map(|name| name.as_str()) != Some("Floor") {
+			continue;
+		}
 
 		let mut rapier_collider: RapierCollider;
 		commands.entity(entity).insert(MustFixBuggyScale(2));
