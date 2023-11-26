@@ -10,19 +10,19 @@ use crate::main_menu::MenuState;
 
 // Options Menu
 #[derive(Component)]
-pub struct OptionsMenu {}
+pub struct OptionsMenu;
 
 #[derive(Component)]
-pub struct OptionsBack {}
+pub struct OptionsBack;
 
 #[derive(Component)]
-pub struct Keyboard {}
+pub struct Keyboard;
 
 #[derive(Component)]
-pub struct Sounds {}
+pub struct Sounds;
 
 #[derive(Component)]
-pub struct Graphics {}
+pub struct Graphics;
 
 pub struct OptionsMenuPlugin;
 impl Plugin for OptionsMenuPlugin {

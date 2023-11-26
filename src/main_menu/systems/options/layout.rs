@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use crate::{game::player::Player, main_menu::styles::*};
+use crate::{
+	game::player::Player,
+	main_menu::{styles::*, ColoredButton},
+};
 
 use super::{Graphics, Keyboard, OptionsBack, OptionsMenu, Sounds};
 
@@ -41,7 +44,7 @@ pub fn build_option_menu(
 				background_color: DEFAULT_BACKGROUND_COLOR.into(),
 				..default()
 			},
-			OptionsMenu {},
+			OptionsMenu,
 		))
 		.with_children(|parent| {
 			// GRAPHICS
@@ -52,7 +55,8 @@ pub fn build_option_menu(
 						background_color: BUTTON_COLOR.into(),
 						..default()
 					},
-					Graphics {},
+					Graphics,
+					ColoredButton,
 				))
 				.with_children(|parent| {
 					parent.spawn(default_text("Graphics", 32.0, asset_server));
@@ -65,7 +69,8 @@ pub fn build_option_menu(
 						background_color: BUTTON_COLOR.into(),
 						..default()
 					},
-					Keyboard {},
+					Keyboard,
+					ColoredButton,
 				))
 				.with_children(|parent| {
 					parent.spawn(default_text("Keyboard", 32.0, asset_server));
@@ -78,7 +83,8 @@ pub fn build_option_menu(
 						background_color: BUTTON_COLOR.into(),
 						..default()
 					},
-					Sounds {},
+					Sounds,
+					ColoredButton,
 				))
 				.with_children(|parent| {
 					parent.spawn(default_text("Sound", 32.0, asset_server));
@@ -91,7 +97,8 @@ pub fn build_option_menu(
 						background_color: BUTTON_COLOR.into(),
 						..default()
 					},
-					OptionsBack {},
+					OptionsBack,
+					ColoredButton,
 				))
 				.with_children(|parent| {
 					parent.spawn(default_text("Back", 32.0, asset_server));

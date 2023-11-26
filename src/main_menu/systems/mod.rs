@@ -29,6 +29,7 @@ impl Plugin for MenuSystemsPlugin {
 			OptionsMenuPlugin,
 			KeyboardMenuPlugin,
 			SoundsMenuPlugin,
+			GraphicsMenuPlugin,
 		))
 		.add_systems(OnEnter(AppState::Game), exit_menu)
 		.add_systems(OnEnter(MenuState::None), despawn_menu);

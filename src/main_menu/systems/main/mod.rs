@@ -10,16 +10,16 @@ use crate::main_menu::MenuState;
 
 // Main Menu
 #[derive(Component)]
-pub struct MainMenu {}
+pub struct MainMenu;
 
 #[derive(Component)]
-pub struct Options {}
+pub struct Options;
 
 #[derive(Component)]
-pub struct Play {}
+pub struct Play;
 
 #[derive(Component)]
-pub struct Quit {}
+pub struct Quit;
 
 pub struct MainMenuPlugin;
 impl Plugin for MainMenuPlugin {

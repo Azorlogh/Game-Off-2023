@@ -1,5 +1,7 @@
 use bevy::prelude::*;
 
+use super::ColoredButton;
+
 pub const MAIN_MENU_BACKGROUND_COLOR: Color = Color::ORANGE;
 pub const DEFAULT_BACKGROUND_COLOR: Color = Color::ORANGE;
 
@@ -47,5 +49,26 @@ pub fn default_text(text: &str, font_size: f32, asset_server: &Res<AssetServer>)
 			..default()
 		},
 		..default()
+	}
+}
+
+pub fn highlight_button_interactions(
+	mut q_buttons: Query<
+		(&Interaction, &mut BackgroundColor),
+		(Changed<Interaction>, With<ColoredButton>),
+	>,
+) {
+	for (interaction, mut background_color) in &mut q_buttons {
+		match *interaction {
+			Interaction::Pressed => {
+				*background_color = PRESSED_BUTTON_COLOR.into();
+			}
+			Interaction::Hovered => {
+				*background_color = HOVERED_BUTTON_COLOR.into();
+			}
+			Interaction::None => {
+				*background_color = BUTTON_COLOR.into();
+			}
+		}
 	}
 }

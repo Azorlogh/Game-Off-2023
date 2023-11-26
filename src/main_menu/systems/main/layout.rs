@@ -2,7 +2,7 @@ use bevy::prelude::*;
 
 use crate::{
 	game::player::Player,
-	main_menu::components::MainMenuCamera,
+	main_menu::{components::MainMenuCamera, ColoredButton},
 	main_menu::{styles::*, MenuState},
 };
 
@@ -57,7 +57,7 @@ pub fn build_main_menu(
 				background_color: MAIN_MENU_BACKGROUND_COLOR.into(),
 				..default()
 			},
-			MainMenu {},
+			MainMenu,
 		))
 		.with_children(|parent| {
 			// LOGO
@@ -78,7 +78,8 @@ pub fn build_main_menu(
 						background_color: BUTTON_COLOR.into(),
 						..default()
 					},
-					Play {},
+					Play,
+					ColoredButton,
 				))
 				.with_children(|parent| {
 					parent.spawn(default_text("Play", 32.0, asset_server));
@@ -91,7 +92,8 @@ pub fn build_main_menu(
 						background_color: BUTTON_COLOR.into(),
 						..default()
 					},
-					Options {},
+					Options,
+					ColoredButton,
 				))
 				.with_children(|parent| {
 					parent.spawn(default_text("Options", 32.0, asset_server));
@@ -104,7 +106,8 @@ pub fn build_main_menu(
 						background_color: BUTTON_COLOR.into(),
 						..default()
 					},
-					Quit {},
+					Quit,
+					ColoredButton,
 				))
 				.with_children(|parent| {
 					parent.spawn(default_text("Quit", 32.0, asset_server));

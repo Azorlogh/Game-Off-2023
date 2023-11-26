@@ -10,10 +10,10 @@ use crate::main_menu::MenuState;
 
 // Graphics Menu
 #[derive(Component)]
-pub struct GraphicsMenu {}
+pub struct GraphicsMenu;
 
 #[derive(Component)]
-pub struct GraphicsBack {}
+pub struct GraphicsBack;
 
 pub struct GraphicsMenuPlugin;
 impl Plugin for GraphicsMenuPlugin {

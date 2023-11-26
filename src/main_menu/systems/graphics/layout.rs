@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
-use crate::{game::player::Player, main_menu::styles::*};
+use crate::{
+	game::player::Player,
+	main_menu::{styles::*, ColoredButton},
+};
 
 use super::{GraphicsBack, GraphicsMenu};
 
@@ -41,7 +44,7 @@ pub fn build_menu(
 				background_color: DEFAULT_BACKGROUND_COLOR.into(),
 				..default()
 			},
-			GraphicsMenu {},
+			GraphicsMenu,
 		))
 		.with_children(|parent| {
 			// BACK
@@ -52,7 +55,8 @@ pub fn build_menu(
 						background_color: BUTTON_COLOR.into(),
 						..default()
 					},
-					GraphicsBack {},
+					GraphicsBack,
+					ColoredButton,
 				))
 				.with_children(|parent| {
 					parent.spawn(default_text("Back", 32.0, asset_server));

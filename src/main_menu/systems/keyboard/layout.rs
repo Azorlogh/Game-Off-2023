@@ -1,8 +1,12 @@
 use bevy::prelude::*;
 
-use crate::{game::player::Player, main_menu::styles::*};
+use crate::{
+	game::player::Player,
+	main_menu::{styles::*, ColoredButton},
+	settings::Action,
+};
 
-use super::{Forward, KeyboardBack, KeyboardMenu};
+use super::{ActionButton, KeyText, KeyboardBack, KeyboardMenu};
 
 pub fn spawn_menu(
 	mut commands: Commands,
@@ -41,7 +45,7 @@ pub fn build_menu(
 				background_color: DEFAULT_BACKGROUND_COLOR.into(),
 				..default()
 			},
-			KeyboardMenu {},
+			KeyboardMenu,
 		))
 		.with_children(|parent| {
 			// FORWARD
@@ -52,10 +56,87 @@ pub fn build_menu(
 						background_color: BUTTON_COLOR.into(),
 						..default()
 					},
-					Forward {},
+					ActionButton(Action::Forward),
+					ColoredButton,
 				))
 				.with_children(|parent| {
-					parent.spawn(default_text("Forward", 32.0, asset_server));
+					parent.spawn(default_text("Forward ", 32.0, asset_server));
+					parent.spawn((default_text("", 32.0, asset_server), KeyText));
+				});
+			// BACKWARD
+			parent
+				.spawn((
+					ButtonBundle {
+						style: BUTTON_STYLE,
+						background_color: BUTTON_COLOR.into(),
+						..default()
+					},
+					ActionButton(Action::Backward),
+					ColoredButton,
+				))
+				.with_children(|parent| {
+					parent.spawn(default_text("Backward ", 32.0, asset_server));
+					parent.spawn((default_text("", 32.0, asset_server), KeyText));
+				});
+			// LEFT
+			parent
+				.spawn((
+					ButtonBundle {
+						style: BUTTON_STYLE,
+						background_color: BUTTON_COLOR.into(),
+						..default()
+					},
+					ActionButton(Action::Left),
+					ColoredButton,
+				))
+				.with_children(|parent| {
+					parent.spawn(default_text("Left ", 32.0, asset_server));
+					parent.spawn((default_text("", 32.0, asset_server), KeyText));
+				});
+			// Right
+			parent
+				.spawn((
+					ButtonBundle {
+						style: BUTTON_STYLE,
+						background_color: BUTTON_COLOR.into(),
+						..default()
+					},
+					ActionButton(Action::Right),
+					ColoredButton,
+				))
+				.with_children(|parent| {
+					parent.spawn(default_text("Right ", 32.0, asset_server));
+					parent.spawn((default_text("", 32.0, asset_server), KeyText));
+				});
+			// Jump
+			parent
+				.spawn((
+					ButtonBundle {
+						style: BUTTON_STYLE,
+						background_color: BUTTON_COLOR.into(),
+						..default()
+					},
+					ActionButton(Action::Jump),
+					ColoredButton,
+				))
+				.with_children(|parent| {
+					parent.spawn(default_text("Jump ", 32.0, asset_server));
+					parent.spawn((default_text("", 32.0, asset_server), KeyText));
+				});
+			// Eat
+			parent
+				.spawn((
+					ButtonBundle {
+						style: BUTTON_STYLE,
+						background_color: BUTTON_COLOR.into(),
+						..default()
+					},
+					ActionButton(Action::Eat),
+					ColoredButton,
+				))
+				.with_children(|parent| {
+					parent.spawn(default_text("Eat ", 32.0, asset_server));
+					parent.spawn((default_text("", 32.0, asset_server), KeyText));
 				});
 			// BACK
 			parent
@@ -65,7 +146,8 @@ pub fn build_menu(
 						background_color: BUTTON_COLOR.into(),
 						..default()
 					},
-					KeyboardBack {},
+					KeyboardBack,
+					ColoredButton,
 				))
 				.with_children(|parent| {
 					parent.spawn(default_text("Back", 32.0, asset_server));

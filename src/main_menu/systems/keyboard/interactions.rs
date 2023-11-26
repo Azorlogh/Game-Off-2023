@@ -1,58 +1,87 @@
 use bevy::prelude::*;
 
-use crate::main_menu::styles::{BUTTON_COLOR, HOVERED_BUTTON_COLOR, PRESSED_BUTTON_COLOR};
 use crate::main_menu::MenuState;
+use crate::settings::{Action, GeneralInput, Settings};
 
-use super::{Forward, KeyboardBack};
+use super::{ActionButton, KeyText, KeyboardBack};
 
-// interact_forward_button,
-// interact_backward_button,
-// interact_left_button,
-// interact_right_button,
-// interact_eat_button,
-// interact_jump_button,
+#[derive(Resource)]
+pub struct ButtonState(pub Option<Action>);
 
-pub fn interact_forward_button(
-	mut q_button: Query<
-		(&Interaction, &mut BackgroundColor),
-		(Changed<Interaction>, With<Forward>),
-	>,
+pub fn interact_action_button(
+	mut q_button: Query<(&Interaction, &ActionButton), Changed<Interaction>>,
+	mut settings: ResMut<Settings>,
+	mut button_state: ResMut<ButtonState>,
+
+	keys: Res<Input<KeyCode>>,
+	buttons: Res<Input<MouseButton>>,
 ) {
-	if let Ok((interaction, mut background_color)) = q_button.get_single_mut() {
-		match *interaction {
-			Interaction::Pressed => {
-				*background_color = PRESSED_BUTTON_COLOR.into();
-				// Set forward button
+	match &mut button_state.0 {
+		Some(movement) => {
+			let mut general_input = None;
+
+			for k in keys.get_just_pressed() {
+				general_input = Some(GeneralInput::KeyCode(*k));
 			}
-			Interaction::Hovered => {
-				*background_color = HOVERED_BUTTON_COLOR.into();
+
+			for b in buttons.get_just_pressed() {
+				general_input = Some(GeneralInput::MouseButton(*b));
 			}
-			Interaction::None => {
-				*background_color = BUTTON_COLOR.into();
+
+			if let Some(input) = general_input {
+				*settings.input.get_mut(&movement).unwrap() = input;
+				button_state.0 = None;
+			}
+		}
+		_ => {
+			for (interaction, action) in &mut q_button {
+				match *interaction {
+					Interaction::Pressed => {
+						// change user action
+						button_state.0 = Some(action.0);
+					}
+					_ => {}
+				}
+			}
+		}
+	}
+}
+
+pub fn update_button_text(
+	q_action_button: Query<&ActionButton>,
+	mut q_text: Query<(&mut Text, &Parent), With<KeyText>>,
+	button_state: Res<ButtonState>,
+	settings: ResMut<Settings>,
+) {
+	for (mut text, parent) in &mut q_text {
+		let action_btn = q_action_button.get(parent.get()).unwrap();
+		match button_state.0 {
+			Some(action) if action_btn.0 == action => {
+				text.sections[0].value = String::from("???");
+			}
+			_ => {
+				let key_button = *settings.input.get(&action_btn.0).unwrap();
+				text.sections[0].value = format!("{}", key_button);
+
+				text.sections[0].style.color = Color::Rgba {
+					red: 1.0,
+					green: 0.0,
+					blue: 1.0,
+					alpha: 1.0,
+				}
 			}
 		}
 	}
 }
 
 pub fn interact_back_button(
-	mut q_button: Query<
-		(&Interaction, &mut BackgroundColor),
-		(Changed<Interaction>, With<KeyboardBack>),
-	>,
+	mut q_button: Query<&Interaction, (Changed<Interaction>, With<KeyboardBack>)>,
 	mut menu_state: ResMut<NextState<MenuState>>,
 ) {
-	if let Ok((interaction, mut background_color)) = q_button.get_single_mut() {
+	if let Ok(interaction) = q_button.get_single_mut() {
 		match *interaction {
-			Interaction::Pressed => {
-				*background_color = PRESSED_BUTTON_COLOR.into();
-				menu_state.set(MenuState::Options)
-			}
-			Interaction::Hovered => {
-				*background_color = HOVERED_BUTTON_COLOR.into();
-			}
-			Interaction::None => {
-				*background_color = BUTTON_COLOR.into();
-			}
+			Interaction::Pressed => menu_state.set(MenuState::Options),
+			_ => {}
 		}
 	}
 }

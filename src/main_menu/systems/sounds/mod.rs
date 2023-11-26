@@ -10,10 +10,10 @@ use crate::main_menu::MenuState;
 
 // SOunds Menu
 #[derive(Component)]
-pub struct SoundsMenu {}
+pub struct SoundsMenu;
 
 #[derive(Component)]
-pub struct SoundsdBack {}
+pub struct SoundsdBack;
 
 pub struct SoundsMenuPlugin;
 impl Plugin for SoundsMenuPlugin {
