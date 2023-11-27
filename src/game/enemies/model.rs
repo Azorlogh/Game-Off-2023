@@ -1,16 +1,23 @@
 use std::{f32::consts::TAU, time::Duration};
 
-use bevy::{prelude::*, utils::HashMap};
+use bevy::{gltf::Gltf, prelude::*, utils::HashMap};
 
 use super::{template::EnemyTemplate, Enemy, EnemyState};
-use crate::game::enemies::AttackState;
+use crate::{
+	game::{enemies::AttackState, GameAssets},
+	AppState,
+};
 
 pub struct EnemyModelPlugin;
 impl Plugin for EnemyModelPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_systems(
 			Update,
-			(add_enemy_models, enemy_animate, enemy_update_animation),
+			(
+				add_enemy_models.run_if(in_state(AppState::Game)),
+				enemy_animate,
+				enemy_update_animation,
+			),
 		);
 	}
 }
@@ -33,14 +40,18 @@ fn add_enemy_models(
 	q_added_enemies: Query<(Entity, &Handle<EnemyTemplate>), Added<Enemy>>,
 	enemy_assets: Res<Assets<EnemyTemplate>>,
 	asset_server: Res<AssetServer>,
+	game_assets: Res<GameAssets>,
+	gltfs: Res<Assets<Gltf>>,
 ) {
 	for (entity, template) in &q_added_enemies {
 		let model_path = &enemy_assets.get(template).unwrap().model_path;
 
+		let gltf = gltfs.get(game_assets.models[model_path].id()).unwrap();
+
 		cmds.entity(entity).with_children(|cmds| {
 			cmds.spawn((
 				SceneBundle {
-					scene: asset_server.load(format!("{model_path}#Scene0")),
+					scene: gltf.scenes[0].clone(),
 					transform: Transform::from_rotation(Quat::from_rotation_y(TAU / 2.0)),
 					..default()
 				},

@@ -16,7 +16,7 @@ use crate::game::{
 	DespawnOnExitGame,
 };
 
-const SIZE: f32 = 1.0;
+const SIZE: f32 = 0.1;
 const PLAYER_HEIGHT: f32 = SIZE * 0.8;
 const PLAYER_RADIUS: f32 = SIZE * 0.25;
 const PLAYER_EYE_OFFSET: f32 = (PLAYER_HEIGHT * 0.92) / 2.0; // relative to center of body

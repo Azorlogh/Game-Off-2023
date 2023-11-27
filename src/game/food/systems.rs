@@ -10,7 +10,7 @@ use crate::game::player::camera::PlayerCamera;
 pub fn setup_food(mut ev_spawn_food: EventWriter<SpawnFood>) {
 	ev_spawn_food.send(SpawnFood {
 		name: String::from("Apple"),
-		model: String::from("models/foods/glb/Apple.glb#Scene0"),
+		model: String::from("models/foods/glb/Apple.glb"),
 		stats: FoodStats {
 			hydration: 3,
 			glucose: 7,

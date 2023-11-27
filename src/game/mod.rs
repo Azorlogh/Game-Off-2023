@@ -72,7 +72,7 @@ pub struct GameAssets {
 		),
 		collection(typed, mapped)
 	)]
-	pub models: HashMap<String, Handle<Gltf>>,
+	pub library: HashMap<String, Handle<Gltf>>,
 	// #[asset(key = "enemies", collection(typed, mapped))]
 	#[asset(
 		paths(
@@ -83,6 +83,15 @@ pub struct GameAssets {
 		collection(typed, mapped)
 	)]
 	pub enemies: HashMap<String, Handle<EnemyTemplate>>,
+	#[asset(
+		paths(
+			"models/characters/rat.glb",
+			"models/characters/snake.glb",
+			"models/characters/spider.glb",
+		),
+		collection(typed, mapped)
+	)]
+	pub models: HashMap<String, Handle<Gltf>>,
 }
 
 #[derive(Component)]
