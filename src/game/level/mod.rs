@@ -13,11 +13,16 @@ pub struct LevelPlugin;
 impl Plugin for LevelPlugin {
 	fn build(&self, app: &mut App) {
 		// Once the assets are loaded, spawn the level
-		app.add_systems(OnEnter(AppState::Game), spawn_level);
+		app.register_type::<SpawnPoint>()
+			.add_systems(OnEnter(AppState::Game), spawn_level);
 	}
 }
 
 const SUN_POSITION: Vec3 = Vec3::new(3.0, 10.0, 4.0);
+
+#[derive(Default, Component, Reflect)]
+#[reflect(Component)]
+pub struct SpawnPoint;
 
 pub fn spawn_level(
 	mut commands: Commands,

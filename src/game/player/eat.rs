@@ -1,11 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier3d::prelude::{QueryFilter, RapierContext};
 
-use super::{
-	camera::PlayerCamera,
-	nutrition::{Glucose, Hydration},
-	Player,
-};
+use super::{calories::Calories, camera::PlayerCamera, Player};
 use crate::{
 	game::{
 		food::components::{Food, FoodProperties, FoodStats},
@@ -14,10 +10,10 @@ use crate::{
 	input::Inputs,
 };
 
-const EATING_RANGE: f32 = 2.0;
+const EATING_RANGE: f32 = 3.0;
 const RAY_SOLID: bool = true;
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Resource)]
 pub enum EatingState {
 	Eating(Entity, f32),
 	#[default]
@@ -29,10 +25,10 @@ pub fn player_eat(
 	inputs: Res<Inputs>,
 	mut q_food: Query<(&FoodStats, &mut FoodProperties), With<Food>>,
 	q_camera_player: Query<&GlobalTransform, With<PlayerCamera>>,
-	mut q_player: Query<(Entity, (&mut Glucose, &mut Hydration), &Scaling), With<Player>>,
+	mut q_player: Query<(Entity, &mut Calories, &Scaling), With<Player>>,
 	mut commands: Commands,
 	mut gizmos: Gizmos,
-	mut eating_state: Local<EatingState>,
+	mut eating_state: ResMut<EatingState>,
 	time: Res<Time>,
 ) {
 	if !inputs.eat {
@@ -44,14 +40,13 @@ pub fn player_eat(
 		return;
 	};
 
-	let Ok((player_entity, (mut glucose, mut hydration), scaling)) = q_player.get_single_mut()
-	else {
+	let Ok((player_entity, mut calories, scaling)) = q_player.get_single_mut() else {
 		return;
 	};
 
-	let ray_pos = player_transform.translation() - Vec3::Y * 0.2;
+	let ray_pos = player_transform.translation();
 	let ray_dir = player_transform.forward();
-	let max_toi = EATING_RANGE;
+	let max_toi = EATING_RANGE * scaling.0;
 	let solid = RAY_SOLID;
 	let filter: QueryFilter = QueryFilter::new().exclude_rigid_body(player_entity);
 
@@ -77,10 +72,9 @@ pub fn player_eat(
 						let new_time = eating_since + time.delta_seconds();
 						if new_time > food_properties.time_per_bite {
 							*eating_state = EatingState::Eating(entity, 0.0);
-							glucose.0 += (food_stats.glucose as f32 / scaling.0) as i32;
-							hydration.0 += (food_stats.hydration as f32 / scaling.0) as i32;
-							food_properties.health -= 1;
-							if food_properties.health == 0 {
+							calories.0 += food_stats.calories / food_properties.total_bites as f32;
+							food_properties.bites -= 1;
+							if food_properties.bites == 0 {
 								*eating_state = EatingState::Idle;
 								commands.entity(entity).despawn_recursive();
 							}

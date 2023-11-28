@@ -7,18 +7,14 @@ pub struct Food;
 #[derive(Component, Clone, Copy, Reflect)]
 #[reflect(Component)]
 pub struct FoodStats {
-	pub hydration: i32,
-	pub glucose: i32,
-	pub fat: i32,
-	pub health: i32,
+	pub calories: f32,
+	pub health: f32,
 }
 impl Default for FoodStats {
 	fn default() -> Self {
 		Self {
-			hydration: 1,
-			glucose: 1,
-			fat: 1,
-			health: 0,
+			calories: 0.0,
+			health: 0.0,
 		}
 	}
 }
@@ -26,7 +22,10 @@ impl Default for FoodStats {
 #[derive(Component, Clone, Copy, Reflect, Default)]
 #[reflect(Component)]
 pub struct FoodProperties {
-	pub health: u32,
-	pub total_health: u32,
+	pub bites: u32,
+	pub total_bites: u32,
 	pub time_per_bite: f32,
 }
+
+#[derive(Component, Reflect)]
+pub struct FoodSize(pub f32);

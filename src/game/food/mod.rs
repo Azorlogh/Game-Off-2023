@@ -3,6 +3,8 @@ use systems::{display_health_food, setup_food};
 pub(crate) mod systems;
 
 use components::*;
+
+use self::systems::calculate_food_size;
 pub(crate) mod components;
 
 pub struct FoodPlugin;
@@ -11,10 +13,11 @@ pub struct FoodPlugin;
 impl Plugin for FoodPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_systems(Startup, setup_food)
-			.add_systems(Update, (display_health_food,))
+			.add_systems(Update, (display_health_food, calculate_food_size))
 			.add_event::<SpawnFood>()
 			.register_type::<FoodStats>()
 			.register_type::<FoodProperties>()
+			.register_type::<FoodSize>()
 			.register_type::<Food>();
 	}
 }

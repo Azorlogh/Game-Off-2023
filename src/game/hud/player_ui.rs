@@ -7,10 +7,7 @@ use bevy_vector_shapes::{prelude::ShapePainter, shapes::LinePainter};
 
 use crate::game::{
 	health::Health,
-	player::{
-		nutrition::{Glucose, Hydration},
-		Player,
-	},
+	player::{calories::Calories, Player},
 };
 
 const BAR_LENGTH: f32 = 1.0;
@@ -18,8 +15,7 @@ const BAR_WIDTH: f32 = 0.03;
 const TEXT_SCALE: f32 = BAR_WIDTH / 20.0;
 const FONT_SIZE: f32 = 36.0;
 const HEALTH_OFFSET: f32 = -0.7;
-const HYDRATION_OFFSET: f32 = -0.75;
-const GLUCOSE_OFFSET: f32 = -0.8;
+const CALORIES_OFFSET: f32 = -0.75;
 const RIGHT_LABEL_OFFSET: f32 = BAR_LENGTH / 2.0 + 0.1;
 const LEFT_LABEL_OFFSET: f32 = -BAR_LENGTH / 2.0 - 0.15;
 
@@ -38,7 +34,7 @@ pub struct HealthValue;
 pub struct GlucoseValue;
 
 #[derive(Component)]
-pub struct HydrationValue;
+pub struct CaloriesValue;
 
 #[derive(Component)]
 pub struct HealthLabel;
@@ -47,7 +43,7 @@ pub struct HealthLabel;
 pub struct GlucoseLabel;
 
 #[derive(Component)]
-pub struct HydrationLabel;
+pub struct CaloriesLabel;
 
 pub fn create_label(label: String, position: Vec3) -> Text2dBundle {
 	Text2dBundle {
@@ -95,18 +91,9 @@ fn setup(mut commands: Commands) {
 	commands.spawn((
 		create_label(
 			String::from(""),
-			Vec3::new(RIGHT_LABEL_OFFSET, HYDRATION_OFFSET, 0.0),
+			Vec3::new(RIGHT_LABEL_OFFSET, CALORIES_OFFSET, 0.0),
 		),
-		HydrationValue,
-		RenderLayers::layer(1),
-	));
-
-	commands.spawn((
-		create_label(
-			String::from(""),
-			Vec3::new(RIGHT_LABEL_OFFSET, GLUCOSE_OFFSET, 0.0),
-		),
-		GlucoseValue,
+		CaloriesValue,
 		RenderLayers::layer(1),
 	));
 
@@ -121,40 +108,23 @@ fn setup(mut commands: Commands) {
 
 	commands.spawn((
 		create_label(
-			String::from("HYDRATION"),
-			Vec3::new(LEFT_LABEL_OFFSET, HYDRATION_OFFSET, 0.0),
+			String::from("CALORIES"),
+			Vec3::new(LEFT_LABEL_OFFSET, CALORIES_OFFSET, 0.0),
 		),
-		HydrationLabel,
-		RenderLayers::layer(1),
-	));
-
-	commands.spawn((
-		create_label(
-			String::from("GLUCOSE"),
-			Vec3::new(LEFT_LABEL_OFFSET, GLUCOSE_OFFSET, 0.0),
-		),
-		GlucoseLabel,
+		CaloriesLabel,
 		RenderLayers::layer(1),
 	));
 }
 
 fn player_status_ui(
 	mut painter: ShapePainter,
-	q_player: Query<(&Health, &Hydration, &Glucose), With<Player>>,
+	q_player: Query<(&Health, &Calories), With<Player>>,
 	mut q_health: Query<&mut Text, With<HealthValue>>,
-	mut q_hydration: Query<&mut Text, (With<HydrationValue>, Without<HealthValue>)>,
-	mut q_glucose: Query<
-		&mut Text,
-		(
-			With<GlucoseValue>,
-			Without<HealthValue>,
-			Without<HydrationValue>,
-		),
-	>,
+	mut q_calories: Query<&mut Text, (With<CaloriesValue>, Without<HealthValue>)>,
 ) {
 	painter.set_2d();
 	painter.render_layers = Some(RenderLayers::layer(1));
-	let Ok((health, hydration, glucose)) = q_player.get_single() else {
+	let Ok((health, calories)) = q_player.get_single() else {
 		return;
 	};
 
@@ -168,17 +138,10 @@ fn player_status_ui(
 	);
 	show_bar(
 		&mut painter,
-		(hydration.0).min(100) as f32 / 100.0,
-		HYDRATION_OFFSET,
+		(calories.0).min(100.0) as f32 / 100.0,
+		CALORIES_OFFSET,
 		Color::CYAN,
-		&mut q_hydration.single_mut().sections[0].value,
-	);
-	show_bar(
-		&mut painter,
-		(glucose.0).min(100) as f32 / 100.0,
-		GLUCOSE_OFFSET,
-		Color::YELLOW,
-		&mut q_glucose.single_mut().sections[0].value,
+		&mut q_calories.single_mut().sections[0].value,
 	);
 }
 

@@ -56,7 +56,7 @@ pub fn setup(mut ev_spawn_enemy: EventWriter<SpawnEnemy>, assets: Res<GameAssets
 
 	// Summon one enemy
 	ev_spawn_enemy.send(SpawnEnemy {
-		pos: Vec3::new(0.0, 0.5, 0.0),
+		pos: Vec3::new(0.0, 0.5, 4.0),
 		template: assets.enemies["enemies/spider.enemy.ron"].clone_weak(),
 	});
 	ev_spawn_enemy.send(SpawnEnemy {

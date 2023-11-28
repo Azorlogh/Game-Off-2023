@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, render::primitives::Aabb};
 use bevy_vector_shapes::{painter::ShapePainter, shapes::LinePainter};
 
 use super::scaling::Scaling;
@@ -23,7 +23,7 @@ pub struct HideHealthBar;
 
 fn display_health(
 	mut painter: ShapePainter,
-	query: Query<(&Health, &GlobalTransform), Without<HideHealthBar>>,
+	query: Query<(&Health, &GlobalTransform, &Aabb), Without<HideHealthBar>>,
 	q_camera: Query<&GlobalTransform, With<PlayerCamera>>,
 ) {
 	const HEALTHBAR_LENGTH: f32 = 0.25;
@@ -31,14 +31,17 @@ fn display_health(
 		return;
 	};
 
-	for (health, transform) in &query {
-		painter.thickness = 0.02;
+	for (health, transform, aabb) in &query {
+		let size = aabb.half_extents.max_element();
+		let healthbar_length = HEALTHBAR_LENGTH * size;
+		let healthbar_height = 0.5 * size;
+		painter.thickness = 0.02 * size;
 		painter.color = Color::GRAY;
-		let healthbar_pos = transform.translation() + Vec3::Y * 0.5;
-		let healthbar_left = healthbar_pos - camera_tr.right() * HEALTHBAR_LENGTH / 2.0;
+		let healthbar_pos = transform.translation() + Vec3::Y * healthbar_height;
+		let healthbar_left = healthbar_pos - camera_tr.right() * healthbar_length / 2.0;
 		painter.line(
 			healthbar_left,
-			healthbar_left + camera_tr.right() * HEALTHBAR_LENGTH,
+			healthbar_left + camera_tr.right() * healthbar_length,
 		);
 
 		let health_ratio = health.current as f32 / health.max as f32;
@@ -46,7 +49,7 @@ fn display_health(
 		painter.color = Color::RED;
 		painter.line(
 			healthbar_left,
-			healthbar_left + camera_tr.right() * (HEALTHBAR_LENGTH * health_ratio),
+			healthbar_left + camera_tr.right() * (healthbar_length * health_ratio),
 		);
 	}
 }
