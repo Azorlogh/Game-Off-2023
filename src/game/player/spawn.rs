@@ -12,7 +12,6 @@ use super::{
 };
 use crate::game::{
 	health::{Health, HideHealthBar},
-	level::SpawnPoint,
 	movement::{GroundSensorBundle, MovementInput, OnGround, Speed},
 	scaling::Scaling,
 	DespawnOnExitGame,
@@ -23,18 +22,15 @@ const PLAYER_RADIUS: f32 = 0.25;
 const PLAYER_EYE_OFFSET: f32 = (PLAYER_HEIGHT * 0.92) / 2.0; // relative to center of body
 
 #[derive(Event)]
-pub struct PlayerSpawn;
+pub struct SpawnPlayer(pub Vec3);
 
-pub fn player_spawn(
-	mut cmds: Commands,
-	q_added_spawn_points: Query<&Transform, Added<SpawnPoint>>,
-) {
-	for spawn_point_tr in &q_added_spawn_points {
+pub fn player_spawn(mut cmds: Commands, mut ev_spawn_player: EventReader<SpawnPlayer>) {
+	for ev in ev_spawn_player.iter() {
 		cmds.spawn((
 			Name::new("Player"),
 			Player,
 			DespawnOnExitGame,
-			SpatialBundle::from_transform(Transform::from_translation(spawn_point_tr.translation)),
+			SpatialBundle::from_transform(Transform::from_translation(ev.0)),
 			(
 				RigidBody::Dynamic,
 				Velocity::default(),

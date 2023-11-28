@@ -1,9 +1,16 @@
+mod blueprints;
+mod player;
+
 use bevy::prelude::*;
 #[cfg(not(target_arch = "wasm32"))]
 use bevy_atmosphere::{collection::nishita::Nishita, model::AtmosphereModel};
 use bevy_gltf_blueprints::GameWorldTag;
 use bevy_rapier3d::geometry::Collider;
 
+use self::{
+	blueprints::{spawn_blueprints, BlueprintSpawner},
+	player::{spawn_player, SpawnPoint},
+};
 use crate::{
 	game::{DespawnOnExitGame, GameAssets},
 	AppState,
@@ -14,15 +21,13 @@ impl Plugin for LevelPlugin {
 	fn build(&self, app: &mut App) {
 		// Once the assets are loaded, spawn the level
 		app.register_type::<SpawnPoint>()
-			.add_systems(OnEnter(AppState::Game), spawn_level);
+			.register_type::<BlueprintSpawner>()
+			.add_systems(OnEnter(AppState::Game), spawn_level)
+			.add_systems(Update, (spawn_player, spawn_blueprints));
 	}
 }
 
 const SUN_POSITION: Vec3 = Vec3::new(3.0, 10.0, 4.0);
-
-#[derive(Default, Component, Reflect)]
-#[reflect(Component)]
-pub struct SpawnPoint;
 
 pub fn spawn_level(
 	mut commands: Commands,

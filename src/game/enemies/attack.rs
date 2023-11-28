@@ -83,26 +83,27 @@ pub fn enemy_attack(
 			gizmos.sphere(enemy_pos, Quat::default(), stats.range, Color::RED);
 		}
 
-		let mut can_attack = false;
-		if rapier_context
-			.intersection_with_shape(
-				enemy_pos,
-				Quat::default(),
-				&Collider::ball(stats.range),
-				QueryFilter::new().predicate(&|e| e == target),
-			)
-			.is_some()
-		{
-			can_attack = true;
-		}
+		let player_within_range = |range: f32| {
+			rapier_context
+				.intersection_with_shape(
+					enemy_pos,
+					Quat::default(),
+					&Collider::ball(range),
+					QueryFilter::new().predicate(&|e| e == target),
+				)
+				.is_some()
+		};
+
+		let can_start_attack = player_within_range(stats.range * 0.5); // We wait until we have some margin to start attacking
+		let can_still_attack = player_within_range(stats.range);
 
 		match attack_state {
-			AttackState::Chasing if can_attack => {
+			AttackState::Chasing if can_start_attack => {
 				*attack_state = AttackState::Attacking(0.0);
 			}
 			AttackState::Attacking(attack_time) if *attack_time > stats.speed => {
 				*attack_state = AttackState::Chasing;
-				if can_attack {
+				if can_still_attack {
 					ev_hit.send(Hit {
 						target,
 						damage: stats.damage,
