@@ -1,6 +1,8 @@
 use bevy::prelude::*;
 use systems::log_system;
+
 mod lighting;
+mod scale;
 mod systems;
 
 pub struct DebugPlugin;
@@ -12,6 +14,7 @@ impl Plugin for DebugPlugin {
 				log_system,
 				lighting::toggle_shadows,
 				lighting::despawn_lights,
+				scale::scale,
 			),
 		);
 	}

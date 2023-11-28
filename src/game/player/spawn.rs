@@ -6,19 +6,19 @@ use bevy_rapier3d::{
 };
 
 use super::{
-	camera::{CameraAngles, PlayerCamera},
+	camera::{CameraAngles, PlayerCamera, PlayerEyes},
 	nutrition::{Glucose, Hydration},
 	Player,
 };
 use crate::game::{
-	hud::health::{Health, HideHealthBar},
+	health::{Health, HideHealthBar},
 	movement::{GroundSensorBundle, MovementInput, OnGround, Speed},
+	scaling::Scaling,
 	DespawnOnExitGame,
 };
 
-const SIZE: f32 = 1.0;
-const PLAYER_HEIGHT: f32 = SIZE * 0.8;
-const PLAYER_RADIUS: f32 = SIZE * 0.25;
+const PLAYER_HEIGHT: f32 = 1.8;
+const PLAYER_RADIUS: f32 = 0.25;
 const PLAYER_EYE_OFFSET: f32 = (PLAYER_HEIGHT * 0.92) / 2.0; // relative to center of body
 
 #[derive(Event)]
@@ -50,7 +50,12 @@ pub fn player_spawn(mut cmds: Commands) {
 				combine_rule: CoefficientCombineRule::Min,
 			},
 		),
-		(OnGround(false), MovementInput::default(), Speed(5.0)),
+		(
+			OnGround(false),
+			MovementInput::default(),
+			Speed(10.0),
+			Scaling(0.2),
+		),
 		(
 			Health {
 				current: 100,
@@ -67,24 +72,28 @@ pub fn player_spawn(mut cmds: Commands) {
 			-PLAYER_HEIGHT / 2.0,
 		));
 		cmds.spawn((
-			Camera3dBundle {
-				camera: Camera {
-					hdr: true,
-					..default()
-				},
-				transform: Transform::from_xyz(0.0, PLAYER_EYE_OFFSET, 0.0),
-				projection: Projection::Perspective(PerspectiveProjection {
-					fov: std::f32::consts::PI / 4.0 * 1.5,
-					near: 0.01,
-					..default()
-				}),
-				..default()
-			},
-			PlayerCamera,
-			CameraAngles::default(),
-			#[cfg(not(target_arch = "wasm32"))]
-			AtmosphereCamera::default(),
-			BloomSettings::default(),
+			PlayerEyes,
+			TransformBundle::from_transform(Transform::from_xyz(0.0, PLAYER_EYE_OFFSET, 0.0)),
 		));
 	});
+	cmds.spawn((
+		Camera3dBundle {
+			camera: Camera {
+				hdr: true,
+				..default()
+			},
+			transform: Transform::from_xyz(0.0, PLAYER_EYE_OFFSET, 0.0),
+			projection: Projection::Perspective(PerspectiveProjection {
+				fov: std::f32::consts::PI / 4.0 * 1.5,
+				near: 0.01,
+				..default()
+			}),
+			..default()
+		},
+		PlayerCamera,
+		CameraAngles::default(),
+		#[cfg(not(target_arch = "wasm32"))]
+		AtmosphereCamera::default(),
+		BloomSettings::default(),
+	));
 }

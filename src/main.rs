@@ -34,9 +34,11 @@ mod settings;
 mod systems;
 mod util;
 
+const DEBUG: bool = true;
+
 fn main() {
-	App::new()
-		.register_type::<bevy::pbr::wireframe::Wireframe>()
+	let mut app = App::new();
+	app.register_type::<bevy::pbr::wireframe::Wireframe>()
 		// External plugins
 		.add_plugins((
 			DefaultPlugins
@@ -60,7 +62,6 @@ fn main() {
 			// ComponentsFromGltfPlugin::default(),
 			RapierPhysicsPlugin::<NoUserData>::default(), //.with_default_system_setup(false),
 			GltfProxiesPlugin,
-			RapierDebugRenderPlugin::default(),
 			#[cfg(not(target_arch = "wasm32"))]
 			AtmospherePlugin,
 			ShapePlugin {
@@ -98,8 +99,13 @@ fn main() {
 			(transition_to_game_state, transition_to_main_menu_state),
 		)
 		.add_systems(OnEnter(AppState::Game), enter_game)
-		.add_systems(OnExit(AppState::Game), quit_game)
-		.run();
+		.add_systems(OnExit(AppState::Game), quit_game);
+
+	if DEBUG {
+		app.add_plugins(RapierDebugRenderPlugin::default());
+	}
+
+	app.run();
 }
 
 #[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
