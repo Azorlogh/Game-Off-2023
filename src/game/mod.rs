@@ -56,9 +56,37 @@ pub enum GameState {
 pub struct GameAssets {
 	#[asset(key = "world")]
 	pub world: Handle<Scene>,
-	#[asset(key = "models", collection(typed, mapped))]
+	// #[asset(key = "models", collection(typed, mapped))]
+	#[asset(
+		paths(
+			"world/library/Apple.glb",
+			"world/library/Avocado.glb",
+			"world/library/Banana.glb",
+			"world/library/Bread_Slice.glb",
+			"world/library/Broccoli.glb",
+			"world/library/Burger.glb",
+			"world/library/Carrot.glb",
+			"world/library/ChickenLeg.glb",
+			"world/library/Croissant.glb",
+			"world/library/Eggplant.glb",
+			"world/library/Foo.glb",
+			"world/library/Hotdog.glb",
+			"world/library/Orange.glb",
+			"world/library/Steak.glb",
+			"world/library/Tomato.glb",
+		),
+		collection(typed, mapped)
+	)]
 	pub models: HashMap<String, Handle<Gltf>>,
-	#[asset(key = "enemies", collection(typed, mapped))]
+	// #[asset(key = "enemies", collection(typed, mapped))]
+	#[asset(
+		paths(
+			"enemies/rat.enemy.ron",
+			"enemies/snake.enemy.ron",
+			"enemies/spider.enemy.ron",
+		),
+		collection(typed, mapped)
+	)]
 	pub enemies: HashMap<String, Handle<EnemyTemplate>>,
 }
 

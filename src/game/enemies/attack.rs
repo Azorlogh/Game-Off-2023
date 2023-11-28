@@ -1,5 +1,5 @@
 use bevy::{math::Vec3Swizzles, prelude::*};
-use bevy_rapier3d::{geometry::Collider, math::Rot, pipeline::QueryFilter, plugin::RapierContext};
+use bevy_rapier3d::{geometry::Collider, pipeline::QueryFilter, plugin::RapierContext};
 use serde::Deserialize;
 
 use super::{Enemy, EnemyState};
@@ -67,7 +67,6 @@ pub fn enemy_chase(
 
 pub fn enemy_attack(
 	time: Res<Time>,
-	q_global_transform: Query<&GlobalTransform>,
 	mut q_enemies: Query<(&mut EnemyState, &Transform, &AttackStats)>,
 	rapier_context: Res<RapierContext>,
 	mut gizmos: Gizmos,
@@ -78,15 +77,9 @@ pub fn enemy_attack(
 			continue;
 		};
 
-		let target_pos = q_global_transform.get(target).unwrap().translation();
 		let enemy_pos = enemy_tr.translation;
 
 		if DEBUG {
-			// gizmos.ray(
-			// 	enemy_pos,
-			// 	((target_pos - enemy_pos) * Vec3::new(1.0, 0.0, 1.0)).normalize() * stats.range,
-			// 	Color::RED,
-			// );
 			gizmos.sphere(enemy_pos, Quat::default(), stats.range, Color::RED);
 		}
 

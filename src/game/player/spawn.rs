@@ -92,6 +92,7 @@ pub fn player_spawn(mut cmds: Commands) {
 		},
 		PlayerCamera,
 		CameraAngles::default(),
+		#[cfg(not(target_arch = "wasm32"))]
 		AtmosphereCamera::default(),
 		BloomSettings::default(),
 	));

@@ -1,4 +1,5 @@
 use bevy::prelude::*;
+#[cfg(not(target_arch = "wasm32"))]
 use bevy_atmosphere::{collection::nishita::Nishita, model::AtmosphereModel};
 use bevy_gltf_blueprints::GameWorldTag;
 use bevy_rapier3d::geometry::Collider;
@@ -33,23 +34,24 @@ pub fn spawn_level(
 		DespawnOnExitGame,
 	));
 
+	#[cfg(not(target_arch = "wasm32"))]
 	commands.insert_resource(AtmosphereModel::new(Nishita {
 		sun_position: SUN_POSITION,
 		..default()
 	}));
 
-	commands.spawn((
-		DirectionalLightBundle {
-			directional_light: DirectionalLight {
-				illuminance: 10000.0,
-				shadows_enabled: true,
-				..default()
-			},
-			transform: Transform::default().looking_to(-SUN_POSITION, Vec3::Y),
-			..default()
-		},
-		DespawnOnExitGame,
-	));
+	// commands.spawn((
+	// 	DirectionalLightBundle {
+	// 		directional_light: DirectionalLight {
+	// 			illuminance: 10000.0,
+	// 			shadows_enabled: true,
+	// 			..default()
+	// 		},
+	// 		transform: Transform::default().looking_to(-SUN_POSITION, Vec3::Y),
+	// 		..default()
+	// 	},
+	// 	DespawnOnExitGame,
+	// ));
 
 	let ground_size = 200.1;
 	let ground_height = 0.1;

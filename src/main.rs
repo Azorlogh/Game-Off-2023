@@ -5,6 +5,7 @@ use bevy_asset_loader::{
 	loading_state::{LoadingState, LoadingStateAppExt},
 	standard_dynamic_asset::StandardDynamicAssetCollection,
 };
+#[cfg(not(target_arch = "wasm32"))]
 use bevy_atmosphere::prelude::AtmospherePlugin;
 use bevy_gltf_blueprints::BlueprintsPlugin;
 use bevy_inspector_egui::quick::WorldInspectorPlugin;
@@ -41,6 +42,13 @@ fn main() {
 		// External plugins
 		.add_plugins((
 			DefaultPlugins
+				.set(bevy::window::WindowPlugin {
+					primary_window: Some(Window {
+						fit_canvas_to_parent: true,
+						..default()
+					}),
+					..default()
+				})
 				.set(bevy::log::LogPlugin {
 					level: bevy::log::Level::INFO,
 					..default()
@@ -54,6 +62,7 @@ fn main() {
 			// ComponentsFromGltfPlugin::default(),
 			RapierPhysicsPlugin::<NoUserData>::default(), //.with_default_system_setup(false),
 			GltfProxiesPlugin,
+			#[cfg(not(target_arch = "wasm32"))]
 			AtmospherePlugin,
 			ShapePlugin {
 				base_config: ShapeConfig {
