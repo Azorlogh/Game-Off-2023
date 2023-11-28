@@ -9,7 +9,7 @@ use super::{
 };
 use crate::{
 	game::{
-		hud::health::Health,
+		health::Health,
 		movement::{MovementInput, OnGround, Speed},
 		scaling::Scaling,
 	},

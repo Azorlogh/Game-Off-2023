@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_vector_shapes::{painter::ShapePainter, shapes::LinePainter};
 
+use super::scaling::Scaling;
 use crate::game::player::camera::PlayerCamera;
 
 pub struct HealthPlugin;
@@ -56,10 +57,12 @@ pub struct Hit {
 	pub damage: u32,
 }
 
-fn take_hit(mut ev_take_hit: EventReader<Hit>, mut q_health: Query<&mut Health>) {
+fn take_hit(mut ev_take_hit: EventReader<Hit>, mut q_health: Query<(&mut Health, &Scaling)>) {
 	for ev in ev_take_hit.iter() {
-		if let Ok(mut health) = q_health.get_mut(ev.target) {
-			health.current = health.current.saturating_sub(ev.damage);
+		if let Ok((mut health, scaling)) = q_health.get_mut(ev.target) {
+			health.current = health
+				.current
+				.saturating_sub((ev.damage as f32 / scaling.0) as u32);
 		}
 	}
 }

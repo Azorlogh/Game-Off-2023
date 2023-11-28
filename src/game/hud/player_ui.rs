@@ -6,7 +6,7 @@ use bevy::{
 use bevy_vector_shapes::{prelude::ShapePainter, shapes::LinePainter};
 
 use crate::game::{
-	hud::health::Health,
+	health::Health,
 	player::{
 		nutrition::{Glucose, Hydration},
 		Player,

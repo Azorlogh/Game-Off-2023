@@ -7,7 +7,10 @@ use super::{
 	Player,
 };
 use crate::{
-	game::food::components::{Food, FoodProperties, FoodStats},
+	game::{
+		food::components::{Food, FoodProperties, FoodStats},
+		scaling::Scaling,
+	},
 	input::Inputs,
 };
 
@@ -26,7 +29,7 @@ pub fn player_eat(
 	inputs: Res<Inputs>,
 	mut q_food: Query<(&FoodStats, &mut FoodProperties), With<Food>>,
 	q_camera_player: Query<&GlobalTransform, With<PlayerCamera>>,
-	mut q_player: Query<(Entity, (&mut Glucose, &mut Hydration)), With<Player>>,
+	mut q_player: Query<(Entity, (&mut Glucose, &mut Hydration), &Scaling), With<Player>>,
 	mut commands: Commands,
 	mut gizmos: Gizmos,
 	mut eating_state: Local<EatingState>,
@@ -41,7 +44,8 @@ pub fn player_eat(
 		return;
 	};
 
-	let Ok((player_entity, (mut glucose, mut hydration))) = q_player.get_single_mut() else {
+	let Ok((player_entity, (mut glucose, mut hydration), scaling)) = q_player.get_single_mut()
+	else {
 		return;
 	};
 
@@ -73,8 +77,8 @@ pub fn player_eat(
 						let new_time = eating_since + time.delta_seconds();
 						if new_time > food_properties.time_per_bite {
 							*eating_state = EatingState::Eating(entity, 0.0);
-							glucose.0 += food_stats.glucose;
-							hydration.0 += food_stats.hydration;
+							glucose.0 += (food_stats.glucose as f32 / scaling.0) as i32;
+							hydration.0 += (food_stats.hydration as f32 / scaling.0) as i32;
 							food_properties.health -= 1;
 							if food_properties.health == 0 {
 								*eating_state = EatingState::Idle;

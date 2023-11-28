@@ -11,7 +11,7 @@ use super::{
 	Player,
 };
 use crate::game::{
-	hud::health::{Health, HideHealthBar},
+	health::{Health, HideHealthBar},
 	movement::{GroundSensorBundle, MovementInput, OnGround, Speed},
 	scaling::Scaling,
 	DespawnOnExitGame,

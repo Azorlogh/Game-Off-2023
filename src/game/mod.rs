@@ -3,6 +3,7 @@ use bevy_asset_loader::asset_collection::AssetCollection;
 
 pub(crate) mod enemies;
 pub(crate) mod food;
+pub(crate) mod health;
 pub(crate) mod hud;
 pub(crate) mod level;
 pub(crate) mod movement;
@@ -18,7 +19,7 @@ use movement::MovementPlugin;
 use player::PlayerPlugin;
 use systems::*;
 
-use self::scaling::ScalingPlugin;
+use self::{health::HealthPlugin, scaling::ScalingPlugin};
 use crate::AppState;
 
 pub struct GamePlugin;
@@ -33,6 +34,7 @@ impl Plugin for GamePlugin {
 				HudPlugin,
 				LevelPlugin,
 				ScalingPlugin,
+				HealthPlugin,
 			))
 			.add_systems(Update, toggle_game.run_if(in_state(AppState::Game)))
 			.add_systems(OnExit(AppState::Game), despawn_game);

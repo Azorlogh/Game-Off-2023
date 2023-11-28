@@ -1,10 +1,10 @@
 use bevy::{math::Vec3Swizzles, prelude::*};
-use bevy_rapier3d::{pipeline::QueryFilter, plugin::RapierContext};
+use bevy_rapier3d::{geometry::Collider, math::Rot, pipeline::QueryFilter, plugin::RapierContext};
 use serde::Deserialize;
 
 use super::{Enemy, EnemyState};
 use crate::{
-	game::{hud::health::Hit, movement::MovementInput, player::Player},
+	game::{health::Hit, movement::MovementInput, player::Player},
 	DEBUG,
 };
 
@@ -82,28 +82,26 @@ pub fn enemy_attack(
 		let enemy_pos = enemy_tr.translation;
 
 		if DEBUG {
-			gizmos.ray(
-				enemy_pos,
-				((target_pos - enemy_pos) * Vec3::new(1.0, 0.0, 1.0)).normalize() * stats.range,
-				Color::RED,
-			);
+			// gizmos.ray(
+			// 	enemy_pos,
+			// 	((target_pos - enemy_pos) * Vec3::new(1.0, 0.0, 1.0)).normalize() * stats.range,
+			// 	Color::RED,
+			// );
+			gizmos.sphere(enemy_pos, Quat::default(), stats.range, Color::RED);
 		}
 
 		let mut can_attack = false;
-		rapier_context.intersections_with_ray(
-			enemy_pos,
-			((target_pos - enemy_pos) * Vec3::new(1.0, 0.0, 1.0)).normalize(),
-			stats.range,
-			true,
-			QueryFilter::new().predicate(&|e| {
-				println!("{e:?}");
-				e == target
-			}),
-			|_, _| {
-				can_attack = true;
-				false
-			},
-		);
+		if rapier_context
+			.intersection_with_shape(
+				enemy_pos,
+				Quat::default(),
+				&Collider::ball(stats.range),
+				QueryFilter::new().predicate(&|e| e == target),
+			)
+			.is_some()
+		{
+			can_attack = true;
+		}
 
 		match attack_state {
 			AttackState::Chasing if can_attack => {
