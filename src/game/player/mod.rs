@@ -2,7 +2,13 @@ use bevy::{math::Vec3Swizzles, prelude::*};
 use bevy_rapier3d::dynamics::{GravityScale, Velocity};
 use eat::player_eat;
 
-use self::{calories::player_grow, camera::PlayerCamera, eat::EatingState, spawn::SpawnPlayer};
+use self::{
+	calories::player_grow,
+	camera::PlayerCamera,
+	eat::EatingState,
+	punch::{player_punch, PunchingState},
+	spawn::SpawnPlayer,
+};
 use super::{
 	movement::{MovementInput, OnGround},
 	scaling::Scaling,
@@ -12,6 +18,7 @@ use crate::{input::Inputs, GameState};
 pub mod calories;
 pub mod camera;
 pub mod eat;
+pub mod punch;
 pub mod spawn;
 
 pub struct PlayerPlugin;
@@ -19,6 +26,7 @@ impl Plugin for PlayerPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_event::<SpawnPlayer>()
 			.insert_resource(EatingState::default())
+			.insert_resource(PunchingState::default())
 			.add_systems(
 				Update,
 				(
@@ -29,6 +37,7 @@ impl Plugin for PlayerPlugin {
 					player_jump,
 					player_eat,
 					player_grow,
+					player_punch,
 				)
 					.run_if(in_state(GameState::Playing)),
 			);

@@ -5,7 +5,8 @@ use bevy_rapier3d::{
 };
 
 use super::{
-	super::DespawnOnExitGame, attack::SpottingRange, template::EnemyTemplate, Enemy, EnemyState,
+	super::DespawnOnExitGame, attack::SpottingRange, roaming::RoamingState,
+	template::EnemyTemplate, Enemy, EnemyState,
 };
 use crate::{
 	game::{
@@ -20,6 +21,7 @@ use crate::{
 pub struct SpawnEnemy {
 	pub template: Handle<EnemyTemplate>,
 	pub pos: Vec3,
+	pub size: f32,
 }
 
 pub fn setup(mut ev_spawn_enemy: EventWriter<SpawnEnemy>, assets: Res<GameAssets>) {
@@ -56,17 +58,20 @@ pub fn setup(mut ev_spawn_enemy: EventWriter<SpawnEnemy>, assets: Res<GameAssets
 
 	// Summon one enemy
 	ev_spawn_enemy.send(SpawnEnemy {
-		pos: Vec3::new(0.0, 0.5, 4.0),
-		template: assets.enemies["enemies/spider.enemy.ron"].clone_weak(),
-	});
-	ev_spawn_enemy.send(SpawnEnemy {
 		pos: Vec3::new(-5.0, 0.5, -2.0),
 		template: assets.enemies["enemies/rat.enemy.ron"].clone_weak(),
+		size: 1.0,
 	});
-	ev_spawn_enemy.send(SpawnEnemy {
-		pos: Vec3::new(4.0, 0.5, -2.0),
-		template: assets.enemies["enemies/snake.enemy.ron"].clone_weak(),
-	});
+	// ev_spawn_enemy.send(SpawnEnemy {
+	// 	pos: Vec3::new(0.0, 0.5, 4.0),
+	// 	template: assets.enemies["enemies/spider.enemy.ron"].clone_weak(),
+	// 	size: 1.0,
+	// });
+	// ev_spawn_enemy.send(SpawnEnemy {
+	// 	pos: Vec3::new(4.0, 0.5, -2.0),
+	// 	template: assets.enemies["enemies/snake.enemy.ron"].clone_weak(),
+	// 	size: 1.0,
+	// });
 }
 
 pub fn enemy_spawn(
@@ -83,10 +88,10 @@ pub fn enemy_spawn(
 			ev.template.clone_weak(),
 			SpatialBundle::from_transform(Transform::from_translation(ev.pos)),
 			RigidBody::Dynamic,
-			EnemyState::Idle,
+			EnemyState::Roaming(RoamingState::Waiting { remaining: 4.0 }),
 			Velocity::default(),
 			LockedAxes::ROTATION_LOCKED,
-			Scaling(1.0),
+			Scaling(ev.size),
 			(
 				OnGround(true),
 				MovementInput::default(),

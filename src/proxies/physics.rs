@@ -1,7 +1,8 @@
 use bevy::prelude::*;
 use bevy_gltf_blueprints::GltfBlueprintsSet;
-use bevy_rapier3d::prelude::{
-	ActiveEvents, Collider as RapierCollider, ComputedColliderShape, RigidBody,
+use bevy_rapier3d::{
+	dynamics::ExternalImpulse,
+	prelude::{ActiveEvents, Collider as RapierCollider, ComputedColliderShape, RigidBody},
 };
 use serde::Deserialize;
 
@@ -16,6 +17,7 @@ impl Plugin for PhysicsProxies {
 				replace_physics_proxies.after(GltfBlueprintsSet::AfterSpawn),
 				detach_rigid_bodies,
 				fix_buggy_scale_issue,
+				add_external_impulse,
 			),
 		);
 	}
@@ -122,5 +124,14 @@ fn detach_rigid_bodies(
 ) {
 	for entity in &q_added_rigid_bodies {
 		cmds.entity(entity).remove_parent();
+	}
+}
+
+fn add_external_impulse(
+	mut cmds: Commands,
+	q_added_rigid_bodies: Query<Entity, (Without<ExternalImpulse>, With<RigidBody>)>,
+) {
+	for entity in &q_added_rigid_bodies {
+		cmds.entity(entity).insert(ExternalImpulse::default());
 	}
 }

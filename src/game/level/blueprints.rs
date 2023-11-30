@@ -4,16 +4,13 @@ use bevy_gltf_blueprints::{BlueprintName, SpawnHere};
 #[derive(Default, Component, Reflect)]
 #[reflect(Component)]
 pub struct BlueprintSpawner {
-	name: String,
+	blueprints: Vec<String>,
 	density: f32,
 }
 
 pub fn spawn_blueprints(
 	mut cmds: Commands,
-	q_added_blueprints_spawners: Query<
-		(Entity, &BlueprintSpawner),
-		// Or<(Added<BlueprintSpawner>, Added<Aabb>)>,
-	>,
+	q_added_blueprints_spawners: Query<(Entity, &BlueprintSpawner)>,
 	q_children: Query<&Children>,
 	mut q_aabb: Query<&Aabb>,
 ) {
@@ -29,9 +26,11 @@ pub fn spawn_blueprints(
 						rand::random::<f32>() * 2.0 - 1.0,
 						rand::random::<f32>() * 2.0 - 1.0,
 					);
+					let bp_index = rand::random::<usize>() % spawner.blueprints.len();
+					let bp_name = spawner.blueprints[bp_index].clone();
 					cmds.spawn((
-						BlueprintName(spawner.name.clone()),
-						Name::new(format!("{:?} instance", spawner.name.clone())),
+						Name::new(format!("{:?} instance", bp_name)),
+						BlueprintName(bp_name),
 						SpawnHere,
 						SpatialBundle::from_transform(Transform::from_translation(
 							Vec3::from(aabb.center)

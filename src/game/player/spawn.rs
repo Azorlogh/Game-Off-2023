@@ -59,8 +59,8 @@ pub fn player_spawn(mut cmds: Commands, mut ev_spawn_player: EventReader<SpawnPl
 			),
 			(
 				Health {
-					current: 100,
-					max: 100,
+					current: 100.0,
+					max: 100.0,
 				},
 				Calories(10.0),
 				HideHealthBar,

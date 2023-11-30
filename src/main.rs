@@ -34,7 +34,7 @@ mod settings;
 mod systems;
 mod util;
 
-const DEBUG: bool = true;
+const DEBUG: bool = false;
 
 fn main() {
 	let mut app = App::new();
@@ -61,6 +61,10 @@ fn main() {
 			},
 			// ComponentsFromGltfPlugin::default(),
 			RapierPhysicsPlugin::<NoUserData>::default(), //.with_default_system_setup(false),
+			RapierDebugRenderPlugin {
+				enabled: DEBUG,
+				..default()
+			},
 			GltfProxiesPlugin,
 			#[cfg(not(target_arch = "wasm32"))]
 			AtmospherePlugin,
@@ -100,10 +104,6 @@ fn main() {
 		)
 		.add_systems(OnEnter(AppState::Game), enter_game)
 		.add_systems(OnExit(AppState::Game), quit_game);
-
-	if DEBUG {
-		app.add_plugins(RapierDebugRenderPlugin::default());
-	}
 
 	app.run();
 }

@@ -2,7 +2,9 @@ use std::{f32::consts::TAU, time::Duration};
 
 use bevy::{prelude::*, utils::HashMap};
 
-use super::{attack::AttackState, template::EnemyTemplate, Enemy, EnemyState};
+use super::{
+	attack::AttackState, roaming::RoamingState, template::EnemyTemplate, Enemy, EnemyState,
+};
 
 pub struct EnemyModelPlugin;
 impl Plugin for EnemyModelPlugin {
@@ -107,7 +109,8 @@ fn enemy_update_animation(
 		let mut anim_player = q_anim_player.get_mut(anim_player_link.0).unwrap();
 
 		let new_anim_state = match enemy_state {
-			EnemyState::Idle => AnimationState::Idle,
+			EnemyState::Roaming(RoamingState::Waiting { .. }) => AnimationState::Idle,
+			EnemyState::Roaming(RoamingState::GoingTo { .. }) => AnimationState::Run,
 			EnemyState::Attacking(_, AttackState::Chasing) => AnimationState::Run,
 			EnemyState::Attacking(_, AttackState::Attacking(_)) => AnimationState::Attack,
 		};

@@ -2,6 +2,7 @@ use bevy::prelude::*;
 use systems::log_system;
 
 mod lighting;
+mod physics;
 mod scale;
 mod systems;
 
@@ -15,6 +16,7 @@ impl Plugin for DebugPlugin {
 				lighting::toggle_shadows,
 				lighting::despawn_lights,
 				scale::scale,
+				physics::toggle_debug,
 			),
 		);
 	}

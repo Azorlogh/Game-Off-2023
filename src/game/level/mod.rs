@@ -1,4 +1,5 @@
 mod blueprints;
+mod enemy_spawner;
 mod player;
 
 use bevy::prelude::*;
@@ -9,6 +10,7 @@ use bevy_rapier3d::geometry::Collider;
 
 use self::{
 	blueprints::{spawn_blueprints, BlueprintSpawner},
+	enemy_spawner::{spawn_enemies, EnemySpawner},
 	player::{spawn_player, SpawnPoint},
 };
 use crate::{
@@ -22,8 +24,13 @@ impl Plugin for LevelPlugin {
 		// Once the assets are loaded, spawn the level
 		app.register_type::<SpawnPoint>()
 			.register_type::<BlueprintSpawner>()
+			.register_type::<EnemySpawner>()
+			.register_type::<Vec<String>>()
 			.add_systems(OnEnter(AppState::Game), spawn_level)
-			.add_systems(Update, (spawn_player, spawn_blueprints));
+			.add_systems(
+				Update,
+				(spawn_player, spawn_blueprints, spawn_enemies).run_if(in_state(AppState::Game)),
+			);
 	}
 }
 

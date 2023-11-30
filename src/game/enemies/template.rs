@@ -15,7 +15,7 @@ pub struct EnemyTemplate {
 	pub model_scale: f32,
 	pub collider: proxies::physics::Collider,
 	pub collider_offset: Vec3,
-	pub health: u32,
+	pub health: f32,
 	pub spotting_range: f32,
 	pub speed: f32,
 	pub attack_stats: AttackStats,

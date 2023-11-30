@@ -6,12 +6,15 @@ use bevy_vector_shapes::{
 	shapes::{DiscPainter, LinePainter},
 };
 
-use crate::game::{food::components::FoodProperties, player::eat::EatingState};
+use crate::game::{
+	food::components::FoodProperties,
+	player::{eat::EatingState, punch::PunchingState},
+};
 
 pub struct CrosshairPlugin;
 impl Plugin for CrosshairPlugin {
 	fn build(&self, app: &mut App) {
-		app.add_systems(Update, (croshair, eating_indicator));
+		app.add_systems(Update, (croshair, eating_indicator, punching_indicator));
 	}
 }
 
@@ -44,5 +47,19 @@ fn eating_indicator(
 			painter.arc(SIZE * 2.0, -TAU / 3.0, (-1.0 + portion * 2.0) * TAU / 3.0);
 		}
 		EatingState::Idle => {}
+	}
+}
+
+fn punching_indicator(mut painter: ShapePainter, punching_state: Res<PunchingState>) {
+	match *punching_state {
+		PunchingState::Idle => {}
+		PunchingState::Punching(remaining) => {
+			painter.set_2d();
+			painter.render_layers = Some(RenderLayers::layer(1));
+			painter.thickness = 0.006 + (1.0 - remaining).powf(1.0 / 0.2) * 0.05;
+			painter.hollow = true;
+			painter.color = Color::YELLOW;
+			painter.circle(SIZE * 4.0 * remaining.powf(0.2));
+		}
 	}
 }
