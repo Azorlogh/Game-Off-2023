@@ -65,7 +65,7 @@ pub fn player_movement(
 
 pub fn player_jump(
 	inputs: Res<Inputs>,
-	mut q_player: Query<(&mut Velocity, &mut GravityScale, &OnGround, &Scaling), With<Player>>,
+	mut q_player: Query<(&mut Velocity, &mut GravityScale, &OnGround, Ref<Scaling>), With<Player>>,
 	mut falling: Local<bool>,
 ) {
 	for (mut velocity, mut gravity, on_ground, scaling) in &mut q_player {
@@ -77,6 +77,8 @@ pub fn player_jump(
 		} else if !on_ground.0 && !*falling && !inputs.jump {
 			gravity.0 = 4.0 * scaling.0;
 			*falling = true;
+		} else if scaling.is_changed() {
+			gravity.0 = 4.0 * scaling.0;
 		}
 	}
 }
