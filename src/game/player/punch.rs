@@ -54,12 +54,11 @@ pub fn player_punch(
 					true,
 					filter,
 				) {
-					println!("Hit something");
+					debug!("Hit something");
 					cmds.entity(entity).log_components();
 					let mut target_entity = q_external_impulse.contains(entity).then_some(entity);
 					if target_entity.is_none() {
 						for ancestor in q_parent.iter_ancestors(entity) {
-							cmds.entity(ancestor).log_components();
 							if q_external_impulse.contains(ancestor) {
 								target_entity = Some(ancestor);
 							}
@@ -68,7 +67,7 @@ pub fn player_punch(
 					if let Some((target_entity, mut impulse)) = target_entity
 						.and_then(|e| q_external_impulse.get_mut(e).ok().map(|imp| (e, imp)))
 					{
-						println!("Hit something that can receive a hit");
+						debug!("Hit something that can receive a hit");
 						let mut dir = player_camera_tr.forward();
 						dir.y = 0.0;
 						impulse.impulse += dir.normalize_or_zero() * 0.001 * scaling.0;
