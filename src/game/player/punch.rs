@@ -20,7 +20,6 @@ pub enum PunchingState {
 const PUNCHING_RANGE: f32 = 3.0;
 
 pub fn player_punch(
-	mut cmds: Commands,
 	mut state: ResMut<PunchingState>,
 	time: Res<Time>,
 	inputs: Res<Inputs>,
@@ -55,7 +54,6 @@ pub fn player_punch(
 					filter,
 				) {
 					debug!("Hit something");
-					cmds.entity(entity).log_components();
 					let mut target_entity = q_external_impulse.contains(entity).then_some(entity);
 					if target_entity.is_none() {
 						for ancestor in q_parent.iter_ancestors(entity) {
@@ -69,11 +67,11 @@ pub fn player_punch(
 					{
 						debug!("Hit something that can receive a hit");
 						let mut dir = player_camera_tr.forward();
-						dir.y = 0.0;
+						dir.y = 0.1;
 						impulse.impulse += dir.normalize_or_zero() * 0.001 * scaling.0;
 						ev_hit.send(Hit {
 							target: target_entity,
-							damage: 100000.0 * scaling.0,
+							damage: 10.0 * scaling.0,
 						});
 					}
 				}

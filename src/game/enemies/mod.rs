@@ -15,7 +15,7 @@ use self::{
 	spawn::SpawnEnemy,
 	template::{EnemyAssetLoader, EnemyTemplate},
 };
-use super::movement::MovementInput;
+use super::{health::Dead, movement::MovementInput};
 use crate::AppState;
 
 pub mod attack;
@@ -37,7 +37,8 @@ impl Plugin for EnemyPlugin {
 					attack::enemy_start_chase,
 					attack::enemy_chase,
 					attack::enemy_attack,
-					align_to_walking_dir,
+					enemy_align_to_walking_dir,
+					enemy_die,
 				),
 			);
 	}
@@ -52,12 +53,18 @@ pub enum EnemyState {
 	Attacking(Entity, AttackState),
 }
 
-pub fn align_to_walking_dir(
+pub fn enemy_align_to_walking_dir(
 	mut q_enemies: Query<(&mut Transform, &GlobalTransform, &mut MovementInput)>,
 ) {
 	for (mut enemy_tr, enemy_gtr, enemy_input) in &mut q_enemies {
 		let dir = enemy_input.0.normalize_or_zero();
 		let axis = enemy_gtr.forward().cross(Vec3::new(dir.x, 0.0, dir.y));
 		enemy_tr.rotate(Quat::from_scaled_axis(axis * 0.1));
+	}
+}
+
+pub fn enemy_die(mut cmds: Commands, q_dead_enemies: Query<Entity, (With<Enemy>, With<Dead>)>) {
+	for entity in &q_dead_enemies {
+		cmds.entity(entity).despawn_recursive();
 	}
 }

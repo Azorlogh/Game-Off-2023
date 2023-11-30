@@ -9,6 +9,7 @@ impl Plugin for ScalingPlugin {
 }
 
 #[derive(Component, Reflect)]
+#[reflect(Component)]
 pub struct Scaling(pub f32);
 
 impl Default for Scaling {

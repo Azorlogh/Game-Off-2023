@@ -9,12 +9,12 @@ impl Plugin for HealthPlugin {
 	fn build(&self, app: &mut App) {
 		app.register_type::<Health>()
 			.add_event::<Hit>()
-			.add_event::<Die>()
 			.add_systems(Update, (display_health, take_hit, die));
 	}
 }
 
-#[derive(Component, Reflect)]
+#[derive(Default, Component, Reflect)]
+#[reflect(Component)]
 pub struct Health {
 	pub current: f32,
 	pub max: f32,
@@ -34,13 +34,13 @@ fn take_hit(mut ev_take_hit: EventReader<Hit>, mut q_health: Query<(&mut Health,
 	}
 }
 
-#[derive(Event)]
-pub struct Die(Entity);
+#[derive(Component)]
+pub struct Dead;
 
-fn die(q_agent: Query<(Entity, &Health)>, mut ev_die: EventWriter<Die>) {
+fn die(mut cmds: Commands, q_agent: Query<(Entity, &Health), Without<Dead>>) {
 	for (entity, health) in &q_agent {
 		if health.current <= 0.0 {
-			ev_die.send(Die(entity));
+			cmds.entity(entity).insert(Dead);
 		}
 	}
 }

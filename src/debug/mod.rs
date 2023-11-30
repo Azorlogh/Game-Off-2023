@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use systems::log_system;
 
+mod end_game;
 mod lighting;
 mod physics;
 mod scale;
@@ -17,6 +18,7 @@ impl Plugin for DebugPlugin {
 				lighting::despawn_lights,
 				scale::scale,
 				physics::toggle_debug,
+				end_game::trigger_end,
 			),
 		);
 	}

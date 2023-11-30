@@ -26,6 +26,7 @@ pub struct SpawnPlayer(pub Vec3);
 
 pub fn player_spawn(mut cmds: Commands, mut ev_spawn_player: EventReader<SpawnPlayer>) {
 	for ev in ev_spawn_player.iter() {
+		let calories = Calories(10.0);
 		cmds.spawn((
 			Name::new("Player"),
 			Player,
@@ -55,14 +56,14 @@ pub fn player_spawn(mut cmds: Commands, mut ev_spawn_player: EventReader<SpawnPl
 				OnGround(false),
 				MovementInput::default(),
 				Speed(10.0),
-				Scaling(0.2),
+				Scaling(calories.to_scaling()),
 			),
 			(
 				Health {
 					current: 100.0,
 					max: 100.0,
 				},
-				Calories(10.0),
+				calories,
 				HideHealthBar,
 			),
 		))

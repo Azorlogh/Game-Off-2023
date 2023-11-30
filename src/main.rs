@@ -31,6 +31,7 @@ mod main_menu;
 mod menu;
 mod proxies;
 mod settings;
+mod style;
 mod systems;
 mod util;
 

@@ -1,6 +1,8 @@
 use bevy::{gltf::Gltf, prelude::*, utils::HashMap};
 use bevy_asset_loader::asset_collection::AssetCollection;
 
+pub(crate) mod endboss;
+pub(crate) mod ending;
 pub(crate) mod enemies;
 pub(crate) mod food;
 pub(crate) mod health;
@@ -19,7 +21,9 @@ use movement::MovementPlugin;
 use player::PlayerPlugin;
 use systems::*;
 
-use self::{health::HealthPlugin, scaling::ScalingPlugin};
+use self::{
+	endboss::EndbossPlugin, ending::GameEndPlugin, health::HealthPlugin, scaling::ScalingPlugin,
+};
 use crate::AppState;
 
 pub struct GamePlugin;
@@ -35,6 +39,8 @@ impl Plugin for GamePlugin {
 				LevelPlugin,
 				ScalingPlugin,
 				HealthPlugin,
+				EndbossPlugin,
+				GameEndPlugin,
 			))
 			.add_systems(Update, toggle_game.run_if(in_state(AppState::Game)))
 			.add_systems(OnExit(AppState::Game), despawn_game);
@@ -49,6 +55,8 @@ pub enum GameState {
 	Playing,
 	Pause,
 	Menu,
+	Win,
+	Lose,
 }
 
 // Our game's assets

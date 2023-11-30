@@ -19,7 +19,7 @@ pub fn lighting_replace_proxies(
 ) {
 	for (entity, mut light) in added_dirights.iter_mut() {
 		// light.illuminance *= 5.0;
-		light.shadows_enabled = true;
+		light.shadows_enabled = false;
 		let shadow_config: CascadeShadowConfig = CascadeShadowConfigBuilder {
 			first_cascade_far_bound: 15.0,
 			maximum_distance: 135.0,
@@ -31,7 +31,7 @@ pub fn lighting_replace_proxies(
 	}
 	for mut light in added_spotlights.iter_mut() {
 		light.intensity *= 0.0025;
-		light.shadows_enabled = true;
+		light.shadows_enabled = false;
 	}
 
 	for mut light in added_pointlights.iter_mut() {
@@ -43,6 +43,6 @@ pub fn lighting_replace_proxies(
 			alpha: 1.0,
 		}
 		.as_rgba();
-		light.shadows_enabled = true;
+		light.shadows_enabled = false;
 	}
 }
