@@ -1,6 +1,9 @@
 use bevy::prelude::*;
 
+use super::ColoredButton;
+
 pub const MAIN_MENU_BACKGROUND_COLOR: Color = Color::ORANGE;
+pub const DEFAULT_BACKGROUND_COLOR: Color = Color::ORANGE;
 
 pub const BUTTON_COLOR: Color = Color::rgb(0.15, 0.15, 0.15);
 pub const HOVERED_BUTTON_COLOR: Color = Color::rgb(0.25, 0.25, 0.25);
@@ -30,3 +33,42 @@ pub const MAIN_LOGO_STYLE: Style = {
 	};
 	style
 };
+
+pub fn default_text(text: &str, font_size: f32, asset_server: &Res<AssetServer>) -> TextBundle {
+	TextBundle {
+		text: Text {
+			sections: vec![TextSection::new(
+				text,
+				TextStyle {
+					font: asset_server.load("fonts/FiraSans-Bold.ttf"),
+					font_size: font_size,
+					color: Color::WHITE,
+				},
+			)],
+			alignment: TextAlignment::Center,
+			..default()
+		},
+		..default()
+	}
+}
+
+pub fn highlight_button_interactions(
+	mut q_buttons: Query<
+		(&Interaction, &mut BackgroundColor),
+		(Changed<Interaction>, With<ColoredButton>),
+	>,
+) {
+	for (interaction, mut background_color) in &mut q_buttons {
+		match *interaction {
+			Interaction::Pressed => {
+				*background_color = PRESSED_BUTTON_COLOR.into();
+			}
+			Interaction::Hovered => {
+				*background_color = HOVERED_BUTTON_COLOR.into();
+			}
+			Interaction::None => {
+				*background_color = BUTTON_COLOR.into();
+			}
+		}
+	}
+}

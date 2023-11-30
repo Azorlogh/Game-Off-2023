@@ -22,7 +22,7 @@ use main_menu::MainMenuPlugin;
 use menu::MenuPlugin;
 use proxies::GltfProxiesPlugin;
 use settings::SettingsPlugin;
-use systems::{enter_game, quit_game, transition_to_game_state, transition_to_main_menu_state};
+use systems::{enter_game, quit_game};
 mod game;
 
 mod debug;
@@ -91,17 +91,14 @@ fn main() {
 		// Game state
 		.add_state::<AppState>()
 		.add_state::<GameState>()
-		.add_loading_state(LoadingState::new(AppState::Loading).continue_to_state(AppState::Game))
+		.add_loading_state(
+			LoadingState::new(AppState::Loading).continue_to_state(AppState::MainMenu),
+		)
 		// Game assets: Tell our app to load the assets from GameAssets
 		.add_collection_to_loading_state::<_, GameAssets>(AppState::Loading)
 		.add_dynamic_collection_to_loading_state::<_, StandardDynamicAssetCollection>(
 			AppState::Loading,
 			"assets_game.assets.ron",
-		)
-		// Systems
-		.add_systems(
-			Update,
-			(transition_to_game_state, transition_to_main_menu_state),
 		)
 		.add_systems(OnEnter(AppState::Game), enter_game)
 		.add_systems(OnExit(AppState::Game), quit_game);

@@ -4,7 +4,7 @@ use bevy_inspector_egui::egui;
 
 use crate::{game::GameState, AppState};
 
-use crate::settings::{GeneralInput, Movement, Settings};
+use crate::settings::{Action, GeneralInput, Settings};
 
 use crate::settings::systems::save_settings;
 
@@ -16,7 +16,7 @@ pub fn ui_options(
 	mut menu_state: ResMut<NextState<MenuState>>,
 
 	mut settings: ResMut<Settings>,
-	mut changing_movement: Local<Option<Movement>>,
+	mut changing_movement: Local<Option<Action>>,
 
 	keys: Res<Input<KeyCode>>,
 	buttons: Res<Input<MouseButton>>,

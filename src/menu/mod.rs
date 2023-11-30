@@ -16,13 +16,12 @@ impl Plugin for MenuPlugin {
 			.add_state::<OptionState>()
 			.add_systems(
 				Update,
-				ui_system.run_if(in_state(GameState::Menu).and_then(in_state(MenuState::Menu))),
-			)
-			.add_systems(
-				Update,
-				ui_pause_game
-					.run_if(in_state(GameState::Pause).and_then(in_state(MenuState::Menu))),
-			)
-			.add_systems(Update, ui_options.run_if(in_state(MenuState::Option)));
+				(
+					ui_system.run_if(in_state(GameState::Menu).and_then(in_state(MenuState::Menu))),
+					ui_pause_game
+						.run_if(in_state(GameState::Pause).and_then(in_state(MenuState::Menu))),
+					ui_options.run_if(in_state(MenuState::Option)),
+				),
+			);
 	}
 }
