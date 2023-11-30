@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 
-use crate::main_menu::MenuState;
-
 use super::GraphicsBack;
+use crate::menu::MenuState;
 
 pub fn interact_back_button(
 	mut q_button: Query<&Interaction, (Changed<Interaction>, With<GraphicsBack>)>,

@@ -1,10 +1,7 @@
-use bevy::app::AppExit;
-use bevy::prelude::*;
-
-use crate::main_menu::MenuState;
-use crate::AppState;
+use bevy::{app::AppExit, prelude::*};
 
 use super::{Options, Play, Quit};
+use crate::{menu::MenuState, AppState};
 
 pub fn interact_play_button(
 	mut q_button: Query<&Interaction, (Changed<Interaction>, With<Play>)>,

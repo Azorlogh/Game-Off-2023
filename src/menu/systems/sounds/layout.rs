@@ -1,11 +1,10 @@
 use bevy::prelude::*;
 
+use super::{SoundsMenu, SoundsdBack};
 use crate::{
 	game::player::Player,
-	main_menu::{styles::*, ColoredButton},
+	menu::{styles::*, ColoredButton},
 };
-
-use super::{SoundsMenu, SoundsdBack};
 
 pub fn spawn_menu(
 	mut commands: Commands,

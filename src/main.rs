@@ -1,6 +1,8 @@
 use std::path::PathBuf;
 
-use bevy::{app::App, audio::AudioPlugin, prelude::*, DefaultPlugins};
+use bevy::{
+	app::App, audio::AudioPlugin, ecs::schedule::SystemConfigs, prelude::*, DefaultPlugins,
+};
 use bevy_asset_loader::{
 	loading_state::{LoadingState, LoadingStateAppExt},
 	standard_dynamic_asset::StandardDynamicAssetCollection,
@@ -18,21 +20,17 @@ use bevy_vector_shapes::{painter::ShapeConfig, ShapePlugin};
 use debug::DebugPlugin;
 use game::{GameAssets, GamePlugin, GameState};
 use input::InputPlugin;
-use main_menu::MainMenuPlugin;
-use menu::MenuPlugin;
+use menu::MainMenuPlugin;
 use proxies::GltfProxiesPlugin;
 use settings::SettingsPlugin;
-use systems::{enter_game, quit_game};
 mod game;
 
 mod debug;
 mod input;
-mod main_menu;
 mod menu;
 mod proxies;
 mod settings;
 mod style;
-mod systems;
 mod util;
 
 const DEBUG: bool = false;
@@ -85,7 +83,6 @@ fn main() {
 			MainMenuPlugin,
 			InputPlugin,
 			SettingsPlugin,
-			MenuPlugin,
 			DebugPlugin,
 		))
 		// Game state
@@ -100,17 +97,22 @@ fn main() {
 			AppState::Loading,
 			"assets_game.assets.ron",
 		)
-		.add_systems(OnEnter(AppState::Game), enter_game)
-		.add_systems(OnExit(AppState::Game), quit_game);
+		.add_systems(OnEnter(AppState::Game), transition_to(GameState::Playing))
+		.add_systems(OnExit(AppState::Game), transition_to(GameState::None))
+		.add_systems(OnEnter(AppState::Restart), transition_to(AppState::Game));
 
 	app.run();
 }
 
-#[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
+#[derive(Clone, Copy, Eq, PartialEq, Debug, Hash, Default, States)]
 pub enum AppState {
 	#[default]
 	Loading,
 	MainMenu,
 	Game,
-	GameOver,
+	Restart,
+}
+
+fn transition_to<S: States + Copy>(s: S) -> SystemConfigs {
+	IntoSystemConfigs::into_configs(move |mut next_state: ResMut<NextState<S>>| next_state.set(s))
 }

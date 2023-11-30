@@ -1,12 +1,10 @@
 use bevy::prelude::*;
 
+use super::{MainMenu, Options, Play, Quit};
 use crate::{
 	game::player::Player,
-	main_menu::{components::MainMenuCamera, ColoredButton},
-	main_menu::{styles::*, MenuState},
+	menu::{components::MainMenuCamera, styles::*, ColoredButton, MenuState},
 };
-
-use super::{MainMenu, Options, Play, Quit};
 
 pub fn enter_main_menu(mut commands: Commands, mut menu_state: ResMut<NextState<MenuState>>) {
 	commands.spawn((

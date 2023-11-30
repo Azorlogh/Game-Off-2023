@@ -9,18 +9,22 @@ use bevy_vector_shapes::{
 use crate::game::{
 	food::components::FoodProperties,
 	player::{eat::EatingState, punch::PunchingState},
+	GameState,
 };
 
 pub struct CrosshairPlugin;
 impl Plugin for CrosshairPlugin {
 	fn build(&self, app: &mut App) {
-		app.add_systems(Update, (croshair, eating_indicator, punching_indicator));
+		app.add_systems(
+			Update,
+			(crosshair, eating_indicator, punching_indicator).run_if(in_state(GameState::Playing)),
+		);
 	}
 }
 
 const SIZE: f32 = 0.02;
 
-fn croshair(mut painter: ShapePainter) {
+fn crosshair(mut painter: ShapePainter) {
 	painter.set_2d();
 	painter.render_layers = Some(RenderLayers::layer(1));
 

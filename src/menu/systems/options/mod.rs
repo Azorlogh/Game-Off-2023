@@ -6,7 +6,7 @@ pub mod layout;
 use interactions::*;
 use layout::*;
 
-use crate::main_menu::MenuState;
+use crate::menu::MenuState;
 
 // Options Menu
 #[derive(Component)]

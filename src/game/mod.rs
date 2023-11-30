@@ -9,20 +9,21 @@ pub(crate) mod health;
 pub(crate) mod hud;
 pub(crate) mod level;
 pub(crate) mod movement;
+mod pause;
 pub(crate) mod player;
 pub(crate) mod scaling;
-pub(crate) mod systems;
 
+use bevy_rapier3d::dynamics::RigidBody;
 use enemies::{template::EnemyTemplate, EnemyPlugin};
 use food::FoodPlugin;
 use hud::HudPlugin;
 use level::LevelPlugin;
 use movement::MovementPlugin;
 use player::PlayerPlugin;
-use systems::*;
 
 use self::{
-	endboss::EndbossPlugin, ending::GameEndPlugin, health::HealthPlugin, scaling::ScalingPlugin,
+	endboss::EndbossPlugin, ending::GameEndPlugin, health::HealthPlugin, pause::GamePausePlugin,
+	scaling::ScalingPlugin,
 };
 use crate::AppState;
 
@@ -41,20 +42,20 @@ impl Plugin for GamePlugin {
 				HealthPlugin,
 				EndbossPlugin,
 				GameEndPlugin,
+				GamePausePlugin,
 			))
-			.add_systems(Update, toggle_game.run_if(in_state(AppState::Game)))
-			.add_systems(OnExit(AppState::Game), despawn_game);
+			.add_systems(OnExit(AppState::Game), despawn_game)
+			.add_systems(Update, mark_game_entities);
 	}
 }
 
 // TODO: enlever Menu
-#[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
+#[derive(Clone, Copy, Eq, PartialEq, Debug, Hash, Default, States)]
 pub enum GameState {
 	#[default]
 	None,
 	Playing,
 	Pause,
-	Menu,
 	Win,
 	Lose,
 }
@@ -102,3 +103,23 @@ pub struct GameAssets {
 
 #[derive(Component)]
 pub struct DespawnOnExitGame;
+
+pub fn despawn_game(
+	mut commands: Commands,
+	q_game_despawn: Query<Entity, With<DespawnOnExitGame>>,
+	q_food_despawn: Query<Entity, With<food::components::Food>>,
+) {
+	for game_entity in q_game_despawn.iter() {
+		commands.entity(game_entity).despawn_recursive();
+	}
+
+	for food_entity in q_food_despawn.iter() {
+		commands.entity(food_entity).despawn_recursive();
+	}
+}
+
+fn mark_game_entities(mut cmds: Commands, q_entities: Query<Entity, Added<RigidBody>>) {
+	for entity in &q_entities {
+		cmds.entity(entity).insert(DespawnOnExitGame);
+	}
+}

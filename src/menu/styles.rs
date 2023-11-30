@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 use super::ColoredButton;
+pub use crate::style::default_text;
 
 pub const MAIN_MENU_BACKGROUND_COLOR: Color = Color::ORANGE;
 pub const DEFAULT_BACKGROUND_COLOR: Color = Color::ORANGE;
@@ -33,24 +34,6 @@ pub const MAIN_LOGO_STYLE: Style = {
 	};
 	style
 };
-
-pub fn default_text(text: &str, font_size: f32, asset_server: &Res<AssetServer>) -> TextBundle {
-	TextBundle {
-		text: Text {
-			sections: vec![TextSection::new(
-				text,
-				TextStyle {
-					font: asset_server.load("fonts/FiraSans-Bold.ttf"),
-					font_size: font_size,
-					color: Color::WHITE,
-				},
-			)],
-			alignment: TextAlignment::Center,
-			..default()
-		},
-		..default()
-	}
-}
 
 pub fn highlight_button_interactions(
 	mut q_buttons: Query<

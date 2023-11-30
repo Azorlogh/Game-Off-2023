@@ -1,9 +1,10 @@
 use bevy::prelude::*;
 
-use crate::main_menu::MenuState;
-use crate::settings::{Action, GeneralInput, Settings};
-
 use super::{ActionButton, KeyText, KeyboardBack};
+use crate::{
+	menu::MenuState,
+	settings::{Action, GeneralInput, Settings},
+};
 
 #[derive(Resource)]
 pub struct ButtonState(pub Option<Action>);

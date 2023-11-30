@@ -78,6 +78,8 @@ pub fn player_spawn(mut cmds: Commands, mut ev_spawn_player: EventReader<SpawnPl
 			));
 		});
 		cmds.spawn((
+			Name::new("Player camera"),
+			DespawnOnExitGame,
 			Camera3dBundle {
 				camera: Camera {
 					hdr: true,

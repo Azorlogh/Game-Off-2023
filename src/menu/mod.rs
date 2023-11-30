@@ -1,27 +1,33 @@
-use bevy::prelude::*;
-
-use crate::game::GameState;
-
-pub(crate) use components::{MenuState, OptionState};
-mod components;
-
-use systems::{ui_options, ui_pause_game, ui_system};
+pub(crate) mod components;
+pub(crate) mod styles;
 mod systems;
 
-// TODO: Refactor avec MainMenu
-pub struct MenuPlugin;
-impl Plugin for MenuPlugin {
+use bevy::prelude::*;
+use systems::main::layout::*;
+
+use self::systems::MenuSystemsPlugin;
+use crate::AppState;
+
+#[derive(Component)]
+pub struct ColoredButton;
+
+#[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
+pub enum MenuState {
+	#[default]
+	Main,
+	Options,
+	Graphics,
+	Sounds,
+	Keyboard,
+	None,
+}
+
+pub struct MainMenuPlugin;
+impl Plugin for MainMenuPlugin {
 	fn build(&self, app: &mut App) {
 		app.add_state::<MenuState>()
-			.add_state::<OptionState>()
-			.add_systems(
-				Update,
-				(
-					ui_system.run_if(in_state(GameState::Menu).and_then(in_state(MenuState::Menu))),
-					ui_pause_game
-						.run_if(in_state(GameState::Pause).and_then(in_state(MenuState::Menu))),
-					ui_options.run_if(in_state(MenuState::Option)),
-				),
-			);
+			.add_plugins(MenuSystemsPlugin)
+			.add_systems(OnEnter(AppState::MainMenu), enter_main_menu)
+			.add_systems(Update, styles::highlight_button_interactions);
 	}
 }

@@ -1,11 +1,10 @@
 use bevy::prelude::*;
 
+use super::{Graphics, Keyboard, OptionsBack, OptionsMenu, Sounds};
 use crate::{
 	game::player::Player,
-	main_menu::{styles::*, ColoredButton},
+	menu::{styles::*, ColoredButton},
 };
-
-use super::{Graphics, Keyboard, OptionsBack, OptionsMenu, Sounds};
 
 pub fn spawn_option_menu(
 	mut commands: Commands,

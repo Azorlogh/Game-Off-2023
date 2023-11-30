@@ -6,7 +6,7 @@ pub mod layout;
 use interactions::*;
 use layout::*;
 
-use crate::{main_menu::MenuState, settings::Action};
+use crate::{menu::MenuState, settings::Action};
 
 // Keyboard Menu
 #[derive(Component)]

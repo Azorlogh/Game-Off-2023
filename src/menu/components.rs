@@ -1,17 +1,5 @@
-use bevy::prelude::*;
+use bevy::prelude::Component;
 
-#[derive(Event)]
-enum UiMessage {}
-
-#[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
-pub enum MenuState {
-	#[default]
-	Menu,
-	Option,
-}
-
-#[derive(Clone, Eq, PartialEq, Debug, Hash, Default, States)]
-pub enum OptionState {
-	#[default]
-	Option,
-}
+// Menu camera
+#[derive(Component)]
+pub struct MainMenuCamera;

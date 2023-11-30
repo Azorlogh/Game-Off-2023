@@ -1,13 +1,13 @@
-use bevy::{
-	core_pipeline::clear_color::ClearColorConfig,
-	prelude::*,
-	render::{camera::ScalingMode, view::RenderLayers},
-};
+use bevy::{prelude::*, render::view::RenderLayers};
 use bevy_vector_shapes::{prelude::ShapePainter, shapes::LinePainter};
 
-use crate::game::{
-	health::Health,
-	player::{calories::Calories, Player},
+use crate::{
+	game::{
+		health::Health,
+		player::{calories::Calories, Player},
+		DespawnOnExitGame,
+	},
+	AppState,
 };
 
 const BAR_LENGTH: f32 = 1.0;
@@ -22,7 +22,7 @@ const LEFT_LABEL_OFFSET: f32 = -BAR_LENGTH / 2.0 - 0.15;
 pub struct PlayerUiPlugin;
 impl Plugin for PlayerUiPlugin {
 	fn build(&self, app: &mut App) {
-		app.add_systems(Startup, setup)
+		app.add_systems(OnEnter(AppState::Game), setup)
 			.add_systems(Update, player_status_ui);
 	}
 }
@@ -61,31 +61,13 @@ pub fn create_label(label: String, position: Vec3) -> Text2dBundle {
 
 fn setup(mut commands: Commands) {
 	commands.spawn((
-		Camera2dBundle {
-			camera: Camera {
-				order: 1,
-				hdr: true,
-				..default()
-			},
-			camera_2d: Camera2d {
-				clear_color: ClearColorConfig::None,
-			},
-			projection: OrthographicProjection {
-				scaling_mode: ScalingMode::FixedVertical(2.0),
-				..default()
-			},
-			..default()
-		},
-		RenderLayers::layer(1),
-	));
-
-	commands.spawn((
 		create_label(
 			String::from("100"),
 			Vec3::new(RIGHT_LABEL_OFFSET, HEALTH_OFFSET, 0.0),
 		),
 		HealthValue,
 		RenderLayers::layer(1),
+		DespawnOnExitGame,
 	));
 
 	commands.spawn((
@@ -95,6 +77,7 @@ fn setup(mut commands: Commands) {
 		),
 		CaloriesValue,
 		RenderLayers::layer(1),
+		DespawnOnExitGame,
 	));
 
 	commands.spawn((
@@ -104,6 +87,7 @@ fn setup(mut commands: Commands) {
 		),
 		HealthLabel,
 		RenderLayers::layer(1),
+		DespawnOnExitGame,
 	));
 
 	commands.spawn((
@@ -113,6 +97,7 @@ fn setup(mut commands: Commands) {
 		),
 		CaloriesLabel,
 		RenderLayers::layer(1),
+		DespawnOnExitGame,
 	));
 }
 

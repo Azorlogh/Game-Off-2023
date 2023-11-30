@@ -1,8 +1,7 @@
 use bevy::prelude::*;
 
-use crate::main_menu::MenuState;
-
 use super::{Graphics, Keyboard, OptionsBack, Sounds};
+use crate::menu::MenuState;
 
 pub fn interact_sounds_button(
 	mut q_button: Query<&Interaction, (Changed<Interaction>, With<Sounds>)>,

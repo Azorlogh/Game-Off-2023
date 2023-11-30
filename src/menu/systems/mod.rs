@@ -15,11 +15,11 @@ use sounds::SoundsMenuPlugin;
 pub mod graphics;
 use graphics::GraphicsMenuPlugin;
 
-use crate::main_menu::components::MainMenuCamera;
-use crate::main_menu::systems::main::MainMenu;
-use crate::AppState;
-
 use super::MenuState;
+use crate::{
+	menu::{components::MainMenuCamera, systems::main::MainMenu},
+	AppState,
+};
 
 pub struct MenuSystemsPlugin;
 impl Plugin for MenuSystemsPlugin {

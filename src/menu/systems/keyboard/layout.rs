@@ -1,12 +1,11 @@
 use bevy::prelude::*;
 
+use super::{ActionButton, KeyText, KeyboardBack, KeyboardMenu};
 use crate::{
 	game::player::Player,
-	main_menu::{styles::*, ColoredButton},
+	menu::{styles::*, ColoredButton},
 	settings::Action,
 };
-
-use super::{ActionButton, KeyText, KeyboardBack, KeyboardMenu};
 
 pub fn spawn_menu(
 	mut commands: Commands,

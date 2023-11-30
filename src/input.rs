@@ -5,7 +5,6 @@ use bevy::{
 };
 
 use crate::{
-	menu::MenuState,
 	settings::{GeneralInput, Settings},
 	GameState,
 };
@@ -18,11 +17,6 @@ impl Plugin for InputPlugin {
 	fn build(&self, app: &mut App) {
 		app.init_resource::<Inputs>()
 			.add_systems(Update, capture_mouse.run_if(in_state(GameState::Playing)))
-			.add_systems(
-				PreUpdate,
-				handle_menu
-					.run_if(in_state(GameState::Playing).or_else(in_state(GameState::Pause))),
-			)
 			.add_systems(
 				PreUpdate,
 				(
@@ -183,20 +177,5 @@ fn handle_inputs(
 fn finalize_input(mut inputs: ResMut<Inputs>) {
 	if inputs.dir.length() > 1.0 {
 		inputs.dir = inputs.dir.normalize();
-	}
-}
-
-fn handle_menu(
-	keys: Res<Input<KeyCode>>,
-	mut app_state: ResMut<NextState<GameState>>,
-	state: Res<State<GameState>>,
-	menu_state: Res<State<MenuState>>,
-) {
-	if keys.just_pressed(KeyCode::Escape) && menu_state.get() == &MenuState::Menu {
-		match state.get() {
-			GameState::Playing => app_state.set(GameState::Pause),
-			GameState::Pause => app_state.set(GameState::Playing),
-			_ => {}
-		};
 	}
 }
