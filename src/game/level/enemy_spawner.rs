@@ -36,7 +36,7 @@ pub fn spawn_enemies(
 						pos: position,
 						template: assets.enemies[&format!("enemies/{}.enemy.ron", spawner.name)]
 							.clone_weak(),
-						size: 2f32.powf((rand::random::<f32>() - 0.5) * 4.0),
+						size: 2f32.powf((rand::random::<f32>() - 0.5) * 2.0),
 					});
 				}
 

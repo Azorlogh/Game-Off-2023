@@ -131,7 +131,7 @@ pub fn enemy_attack(
 				if can_still_attack {
 					ev_hit.send(Hit {
 						target,
-						damage: stats.damage,
+						damage: stats.damage * scaling.0 * scaling.0,
 					});
 				}
 			}

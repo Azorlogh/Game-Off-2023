@@ -19,9 +19,7 @@ fn trigger_win_on_boss_destroyed(
 	q_boss: Query<Entity, (With<EndBoss>, With<Dead>)>,
 	mut ev_win: EventWriter<Win>,
 ) {
-	println!("boss dead?");
 	if q_boss.get_single().is_ok() {
-		println!("boss dead!");
 		ev_win.send(Win);
 	}
 }
