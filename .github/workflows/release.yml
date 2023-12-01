@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@master
       - run: sudo apt-get update
-      - run: sudo apt-get install -y alsa-base alsa-utils
+      - run: sudo apt-get install -y alsa-base alsa-utils libasound2-dev
       - name: Compile and release
         uses: rust-build/rust-build.action@v1.4.4
         env:
