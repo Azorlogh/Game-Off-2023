@@ -21,7 +21,7 @@ pub fn spawn_enemies(
 		for descendant_e in q_children.iter_descendants(entity) {
 			if let Ok(aabb) = q_aabb.get_mut(descendant_e) {
 				let sides = aabb.half_extents * 2.0;
-				let nb_instances = (sides.x * sides.y * spawner.density) as usize;
+				let nb_instances = (sides.x * sides.z * spawner.density) as usize;
 				println!("Spawning {} instances!", nb_instances);
 				for _ in 0..nb_instances {
 					let position_relative = Vec3::new(

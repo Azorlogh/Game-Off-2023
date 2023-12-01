@@ -33,7 +33,7 @@ mod settings;
 mod style;
 mod util;
 
-const DEBUG: bool = false;
+const DEBUG: bool = true;
 
 fn main() {
 	let mut app = App::new();
