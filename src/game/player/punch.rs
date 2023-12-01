@@ -71,7 +71,8 @@ pub fn player_punch(
 						impulse.impulse += dir.normalize_or_zero() * 0.001 * scaling.0;
 						ev_hit.send(Hit {
 							target: target_entity,
-							damage: 10.0 * scaling.0,
+							// damage: 10.0 * scaling.0,
+							damage: 1000.0 * scaling.0 * scaling.0,
 						});
 					}
 				}

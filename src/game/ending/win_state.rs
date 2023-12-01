@@ -21,7 +21,7 @@ fn setup_win(mut cmds: Commands, asset_server: Res<AssetServer>) {
 			cmds.spawn(
 				style::default_text(
 					"You have managed to destroy your dangerous invention.",
-					64.0,
+					48.0,
 					&asset_server,
 				)
 				.with_style(Style {

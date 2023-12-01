@@ -47,19 +47,19 @@ pub fn build_option_menu(
 		))
 		.with_children(|parent| {
 			// GRAPHICS
-			parent
-				.spawn((
-					ButtonBundle {
-						style: BUTTON_STYLE,
-						background_color: BUTTON_COLOR.into(),
-						..default()
-					},
-					Graphics,
-					ColoredButton,
-				))
-				.with_children(|parent| {
-					parent.spawn(default_text("Graphics", 32.0, asset_server));
-				});
+			// parent
+			// 	.spawn((
+			// 		ButtonBundle {
+			// 			style: BUTTON_STYLE,
+			// 			background_color: BUTTON_COLOR.into(),
+			// 			..default()
+			// 		},
+			// 		Graphics,
+			// 		ColoredButton,
+			// 	))
+			// 	.with_children(|parent| {
+			// 		parent.spawn(default_text("Graphics", 32.0, asset_server));
+			// 	});
 			// KEYBOARD
 			parent
 				.spawn((
@@ -75,19 +75,19 @@ pub fn build_option_menu(
 					parent.spawn(default_text("Keyboard", 32.0, asset_server));
 				});
 			// SOUNDS
-			parent
-				.spawn((
-					ButtonBundle {
-						style: BUTTON_STYLE,
-						background_color: BUTTON_COLOR.into(),
-						..default()
-					},
-					Sounds,
-					ColoredButton,
-				))
-				.with_children(|parent| {
-					parent.spawn(default_text("Sound", 32.0, asset_server));
-				});
+			// parent
+			// 	.spawn((
+			// 		ButtonBundle {
+			// 			style: BUTTON_STYLE,
+			// 			background_color: BUTTON_COLOR.into(),
+			// 			..default()
+			// 		},
+			// 		Sounds,
+			// 		ColoredButton,
+			// 	))
+			// 	.with_children(|parent| {
+			// 		parent.spawn(default_text("Sound", 32.0, asset_server));
+			// 	});
 			// BACK
 			parent
 				.spawn((

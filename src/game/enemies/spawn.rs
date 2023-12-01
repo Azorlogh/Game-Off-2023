@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 use bevy_rapier3d::{
-	dynamics::{LockedAxes, Velocity},
+	dynamics::{CoefficientCombineRule, LockedAxes, Velocity},
+	geometry::{Friction, Restitution},
 	prelude::RigidBody,
 };
 
@@ -87,11 +88,21 @@ pub fn enemy_spawn(
 			DespawnOnExitGame,
 			ev.template.clone_weak(),
 			SpatialBundle::from_transform(Transform::from_translation(ev.pos)),
-			RigidBody::Dynamic,
 			EnemyState::Roaming(RoamingState::Waiting { remaining: 4.0 }),
-			Velocity::default(),
-			LockedAxes::ROTATION_LOCKED,
 			Scaling(ev.size),
+			(
+				RigidBody::Dynamic,
+				Velocity::default(),
+				LockedAxes::ROTATION_LOCKED,
+				Friction {
+					coefficient: 0.0,
+					combine_rule: CoefficientCombineRule::Min,
+				},
+				Restitution {
+					coefficient: 0.0,
+					combine_rule: CoefficientCombineRule::Min,
+				},
+			),
 			(
 				OnGround(true),
 				MovementInput::default(),
@@ -105,7 +116,18 @@ pub fn enemy_spawn(
 			},
 		))
 		.with_children(|cmds| {
-			cmds.spawn((TransformBundle::default(), template.collider.clone()));
+			cmds.spawn((
+				TransformBundle::default(),
+				template.collider.clone(),
+				Friction {
+					coefficient: 0.0,
+					combine_rule: CoefficientCombineRule::Min,
+				},
+				Restitution {
+					coefficient: 0.0,
+					combine_rule: CoefficientCombineRule::Min,
+				},
+			));
 		});
 	}
 }

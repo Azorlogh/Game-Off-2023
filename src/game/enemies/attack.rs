@@ -34,13 +34,13 @@ pub fn enemy_start_chase(
 		With<Enemy>,
 	>,
 ) {
-	for (mut enemy_state, enemy_tr, spotting_range, scaling) in q_enemies
+	for (mut enemy_state, enemy_tr, spotting_range, _scaling) in q_enemies
 		.iter_mut()
 		.filter(|(state, _, _, _)| matches!(**state, EnemyState::Roaming(_)))
 	{
 		for (player_entity, player_tr, player_scaling) in &q_player {
 			if enemy_tr.translation().distance(player_tr.translation())
-				< spotting_range.0 * scaling.0 * player_scaling.0
+				< spotting_range.0 * player_scaling.0
 			{
 				*enemy_state = EnemyState::Attacking(player_entity, AttackState::Chasing);
 			}
@@ -59,7 +59,7 @@ pub fn enemy_chase(
 		&Scaling,
 	)>,
 ) {
-	for (mut state, enemy_entity, mut input, spotting_range, scaling) in &mut q_enemies {
+	for (mut state, enemy_entity, mut input, spotting_range, _scaling) in &mut q_enemies {
 		let EnemyState::Attacking(target, attack_state) = *state else {
 			continue;
 		};
@@ -70,7 +70,7 @@ pub fn enemy_chase(
 
 		let target_scaling = q_scaling.get(target).unwrap();
 
-		if to_target.length() > spotting_range.0 * scaling.0 * target_scaling.0 * 3.0 {
+		if to_target.length() > spotting_range.0 * target_scaling.0 * 3.0 {
 			*state = EnemyState::Roaming(RoamingState::Waiting { remaining: 4.0 });
 		}
 
@@ -79,7 +79,8 @@ pub fn enemy_chase(
 		if let AttackState::Chasing = attack_state {
 			input.0 = to_target_dir.xz();
 		} else {
-			input.0 = to_target_dir.xz() * 0.0000001; // hack: just so the auto-align system works on this
+			input.0 = Vec2::ZERO;
+			// input.0 = to_target_dir.xz() * 0.0000001; // hack: just so the auto-align system works on this | EDIT: lol it makes the enemies slide
 		}
 	}
 }
@@ -99,7 +100,12 @@ pub fn enemy_attack(
 		let enemy_pos = enemy_tr.translation;
 
 		if DEBUG {
-			gizmos.sphere(enemy_pos, Quat::default(), stats.range, Color::RED);
+			gizmos.sphere(
+				enemy_pos,
+				Quat::default(),
+				stats.range * scaling.0,
+				Color::RED,
+			);
 		}
 
 		let player_within_range = |range: f32| {

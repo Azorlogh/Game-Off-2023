@@ -42,7 +42,7 @@ pub fn enemy_roam(
 				}
 			}
 			RoamingState::GoingTo { dir, remaining } => {
-				input.0 = *dir * 0.5; // 0.5: walking speed
+				input.0 = *dir * 1.0; // 0.5: walking speed
 				let new_remaining = *remaining - time.delta_seconds();
 				if new_remaining <= 0.0 {
 					*state = RoamingState::Waiting {

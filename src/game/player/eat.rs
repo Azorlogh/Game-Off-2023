@@ -5,6 +5,7 @@ use super::{calories::Calories, camera::PlayerCamera, Player};
 use crate::{
 	game::{
 		food::components::{Food, FoodProperties, FoodStats},
+		health::Health,
 		scaling::Scaling,
 	},
 	input::Inputs,
@@ -25,7 +26,7 @@ pub fn player_eat(
 	inputs: Res<Inputs>,
 	mut q_food: Query<(&FoodStats, &mut FoodProperties), With<Food>>,
 	q_camera_player: Query<&GlobalTransform, With<PlayerCamera>>,
-	mut q_player: Query<(Entity, &mut Calories, &Scaling), With<Player>>,
+	mut q_player: Query<(Entity, &mut Calories, &mut Health, &Scaling), With<Player>>,
 	mut commands: Commands,
 	mut gizmos: Gizmos,
 	mut eating_state: ResMut<EatingState>,
@@ -40,7 +41,7 @@ pub fn player_eat(
 		return;
 	};
 
-	let Ok((player_entity, mut calories, scaling)) = q_player.get_single_mut() else {
+	let Ok((player_entity, mut calories, mut health, scaling)) = q_player.get_single_mut() else {
 		return;
 	};
 
@@ -73,6 +74,7 @@ pub fn player_eat(
 						if new_time > food_properties.time_per_bite {
 							*eating_state = EatingState::Eating(entity, 0.0);
 							calories.0 += food_stats.calories / food_properties.total_bites as f32;
+							health.heal(food_stats.calories * 0.1 / scaling.0);
 							food_properties.bites -= 1;
 							if food_properties.bites == 0 {
 								*eating_state = EatingState::Idle;

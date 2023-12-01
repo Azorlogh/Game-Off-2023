@@ -71,7 +71,7 @@ pub fn player_jump(
 	for (mut velocity, mut gravity, on_ground, scaling) in &mut q_player {
 		if on_ground.0 && inputs.jump {
 			// velocity.linvel.y = 1.0;
-			velocity.linvel.y = (6.0 * 9.81 * scaling.0 * scaling.0).sqrt();
+			velocity.linvel.y = (15.0 * 9.81 * scaling.0 * scaling.0).sqrt();
 			gravity.0 = 2.0 * scaling.0;
 			*falling = false;
 		} else if !on_ground.0 && !*falling && !inputs.jump {

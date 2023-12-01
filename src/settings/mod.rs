@@ -1,19 +1,25 @@
-use bevy::prelude::*;
-
 use std::collections::HashMap;
 
+use bevy::prelude::*;
 use serde::{Deserialize, Serialize};
 
 use crate::input::Inputs;
 
 pub struct SettingsPlugin;
 
-use systems::load_settings;
-pub(crate) mod systems;
+use fs::load_settings;
+pub(crate) mod fs;
 
 impl Plugin for SettingsPlugin {
 	fn build(&self, app: &mut App) {
-		app.insert_resource(load_settings());
+		app.insert_resource(load_settings())
+			.add_systems(Update, save_settings);
+	}
+}
+
+fn save_settings(settings: Res<Settings>) {
+	if settings.is_changed() {
+		fs::save_settings(&settings);
 	}
 }
 
@@ -109,14 +115,14 @@ impl Default for Settings {
 				(Action::Jump, GeneralInput::KeyCode(KeyCode::Space)),
 				(Action::Punch, GeneralInput::MouseButton(MouseButton::Left)),
 				(Action::Yaw(None), GeneralInput::Motion),
-				(Action::Yaw(Some(false)), GeneralInput::KeyCode(KeyCode::T)),
-				(Action::Yaw(Some(true)), GeneralInput::KeyCode(KeyCode::G)),
+				// (Action::Yaw(Some(false)), GeneralInput::KeyCode(KeyCode::T)),
+				// (Action::Yaw(Some(true)), GeneralInput::KeyCode(KeyCode::G)),
 				(Action::Pitch(None), GeneralInput::Motion),
-				(
-					Action::Pitch(Some(false)),
-					GeneralInput::KeyCode(KeyCode::R),
-				),
-				(Action::Pitch(Some(true)), GeneralInput::KeyCode(KeyCode::F)),
+				// (
+				// 	Action::Pitch(Some(false)),
+				// 	GeneralInput::KeyCode(KeyCode::R),
+				// ),
+				// (Action::Pitch(Some(true)), GeneralInput::KeyCode(KeyCode::F)),
 				(Action::Eat, GeneralInput::KeyCode(KeyCode::E)),
 			]),
 		}

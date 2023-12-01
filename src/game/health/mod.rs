@@ -20,6 +20,12 @@ pub struct Health {
 	pub max: f32,
 }
 
+impl Health {
+	pub fn heal(&mut self, amt: f32) {
+		self.current = (self.current + amt).clamp(0.0, self.max);
+	}
+}
+
 #[derive(Event)]
 pub struct Hit {
 	pub target: Entity,
@@ -61,7 +67,7 @@ fn display_health(
 	for (health, transform) in &query {
 		let size = 1.0;
 		let healthbar_length = HEALTHBAR_LENGTH * size;
-		let healthbar_height = 0.5 * size;
+		let healthbar_height = 0.1 * size;
 		painter.thickness = 0.02 * size;
 		painter.color = Color::GRAY;
 		let healthbar_pos = transform.translation() + Vec3::Y * healthbar_height;

@@ -137,6 +137,7 @@ fn show_bar(
 	color: Color,
 	label: &mut String,
 ) {
+	let portion = portion.clamp(0.0, 1.0);
 	let start_x = -BAR_LENGTH / 2.0;
 	let end_x = BAR_LENGTH / 2.0;
 	painter.thickness = BAR_WIDTH;
@@ -151,5 +152,5 @@ fn show_bar(
 		Vec3::new(start_x * (1.0 - portion) + end_x * portion, y_offset, 0.0),
 	);
 
-	*label = portion.to_string();
+	*label = ((portion * 100.0).ceil() as i32).to_string();
 }

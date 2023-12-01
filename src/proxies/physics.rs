@@ -16,7 +16,7 @@ impl Plugin for PhysicsProxies {
 			(
 				replace_physics_proxies.after(GltfBlueprintsSet::AfterSpawn),
 				detach_rigid_bodies,
-				// fix_buggy_scale_issue,
+				fix_buggy_scale_issue,
 				add_external_impulse,
 			),
 		);

@@ -1,4 +1,9 @@
-use bevy::{gltf::Gltf, prelude::*, utils::HashMap};
+use bevy::{
+	gltf::Gltf,
+	prelude::*,
+	utils::HashMap,
+	window::{CursorGrabMode, PrimaryWindow},
+};
 use bevy_asset_loader::asset_collection::AssetCollection;
 
 pub(crate) mod endboss;
@@ -45,6 +50,7 @@ impl Plugin for GamePlugin {
 				GamePausePlugin,
 			))
 			.add_systems(OnExit(AppState::Game), despawn_game)
+			.add_systems(OnExit(GameState::Playing), exit_playing)
 			.add_systems(Update, mark_game_entities);
 	}
 }
@@ -76,13 +82,13 @@ pub struct GameAssets {
 			"world/library/Burger.glb",
 			// "world/library/Carrot.glb",
 			// "world/library/ChickenLeg.glb",
-			// "world/library/Croissant.glb",
-			// "world/library/Eggplant.glb",
+			"world/library/Croissant.glb",
+			"world/library/Eggplant.glb",
 			// "world/library/Foo.glb",
 			// "world/library/Hotdog.glb",
-			// "world/library/Orange.glb",
+			"world/library/Orange.glb",
 			// "world/library/Steak.glb",
-			// "world/library/Tomato.glb",
+			"world/library/Tomato.glb",
 			"world/library/BreadCrumb.glb",
 			"world/library/CornKernel.glb",
 		),
@@ -122,4 +128,10 @@ fn mark_game_entities(mut cmds: Commands, q_entities: Query<Entity, Added<RigidB
 	for entity in &q_entities {
 		cmds.entity(entity).insert(DespawnOnExitGame);
 	}
+}
+
+fn exit_playing(mut q_window: Query<&mut Window, With<PrimaryWindow>>) {
+	let mut window = q_window.single_mut();
+	window.cursor.grab_mode = CursorGrabMode::None;
+	window.cursor.visible = true;
 }

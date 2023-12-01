@@ -21,20 +21,21 @@ pub struct Restart;
 pub struct BackToMenu;
 
 fn setup_lose(mut cmds: Commands, asset_server: Res<AssetServer>) {
-	cmds.spawn(style::transparent_root()).with_children(|cmds| {
-		cmds.spawn(style::central_panel()).with_children(|cmds| {
-			cmds.spawn(
-				style::default_text("You Lost :(", 64.0, &asset_server).with_style(Style {
-					padding: UiRect::all(Val::Px(style::PADDING)),
-					..default()
-				}),
-			);
-			cmds.spawn((style::button_bundle(), Restart))
-				.with_children(|cmds| {
-					cmds.spawn(style::default_text("Restart", 64.0, &asset_server));
-				});
+	cmds.spawn((style::transparent_root(), LoseMenu))
+		.with_children(|cmds| {
+			cmds.spawn(style::central_panel()).with_children(|cmds| {
+				cmds.spawn(
+					style::default_text("You died :(", 64.0, &asset_server).with_style(Style {
+						padding: UiRect::all(Val::Px(style::PADDING)),
+						..default()
+					}),
+				);
+				cmds.spawn((style::button_bundle(), Restart))
+					.with_children(|cmds| {
+						cmds.spawn(style::default_text("Restart", 64.0, &asset_server));
+					});
+			});
 		});
-	});
 }
 
 fn cleanup_lose(mut cmds: Commands, q_menu: Query<Entity, With<LoseMenu>>) {
