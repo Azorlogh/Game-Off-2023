@@ -54,7 +54,6 @@ fn main() {
 				})
 				.build()
 				.disable::<AudioPlugin>(), // disabling audio for now because it glitches out on linux when csing the app
-			WorldInspectorPlugin::new(),
 			BlueprintsPlugin {
 				library_folder: PathBuf::from("world/library"),
 			},
@@ -74,17 +73,9 @@ fn main() {
 				},
 				..default()
 			},
-			ScreenDiagnosticsPlugin::default(),
-			ScreenFrameDiagnosticsPlugin,
 		))
 		// Our own plugins
-		.add_plugins((
-			GamePlugin,
-			MainMenuPlugin,
-			InputPlugin,
-			SettingsPlugin,
-			DebugPlugin,
-		))
+		.add_plugins((GamePlugin, MainMenuPlugin, InputPlugin, SettingsPlugin))
 		// Game state
 		.add_state::<AppState>()
 		.add_state::<GameState>()
@@ -100,6 +91,15 @@ fn main() {
 		.add_systems(OnEnter(AppState::Game), transition_to(GameState::Playing))
 		.add_systems(OnExit(AppState::Game), transition_to(GameState::None))
 		.add_systems(OnEnter(AppState::Restart), transition_to(AppState::Game));
+
+	if DEBUG {
+		app.add_plugins((
+			WorldInspectorPlugin::new(),
+			DebugPlugin,
+			ScreenDiagnosticsPlugin::default(),
+			ScreenFrameDiagnosticsPlugin,
+		));
+	}
 
 	app.run();
 }
