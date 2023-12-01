@@ -11,10 +11,11 @@ pub(crate) mod ending;
 pub(crate) mod enemies;
 pub(crate) mod food;
 pub(crate) mod health;
+pub(crate) mod hit_effect;
 pub(crate) mod hud;
 pub(crate) mod level;
 pub(crate) mod movement;
-mod pause;
+pub(crate) mod pause;
 pub(crate) mod player;
 pub(crate) mod scaling;
 
@@ -27,8 +28,8 @@ use movement::MovementPlugin;
 use player::PlayerPlugin;
 
 use self::{
-	endboss::EndbossPlugin, ending::GameEndPlugin, health::HealthPlugin, pause::GamePausePlugin,
-	scaling::ScalingPlugin,
+	endboss::EndbossPlugin, ending::GameEndPlugin, health::HealthPlugin,
+	hit_effect::HitEffectPlugin, pause::GamePausePlugin, scaling::ScalingPlugin,
 };
 use crate::AppState;
 
@@ -48,6 +49,7 @@ impl Plugin for GamePlugin {
 				EndbossPlugin,
 				GameEndPlugin,
 				GamePausePlugin,
+				HitEffectPlugin,
 			))
 			.add_systems(OnExit(AppState::Game), despawn_game)
 			.add_systems(OnExit(GameState::Playing), exit_playing)
