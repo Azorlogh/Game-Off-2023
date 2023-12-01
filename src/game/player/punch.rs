@@ -20,7 +20,9 @@ pub enum PunchingState {
 const PUNCHING_RANGE: f32 = 3.0;
 
 pub fn player_punch(
+	mut cmds: Commands,
 	mut state: ResMut<PunchingState>,
+	asset_server: Res<AssetServer>,
 	time: Res<Time>,
 	inputs: Res<Inputs>,
 	rapier_context: Res<RapierContext>,
@@ -33,6 +35,10 @@ pub fn player_punch(
 	match &*state {
 		PunchingState::Idle if inputs.punch => {
 			*state = PunchingState::Punching(1.0);
+			cmds.spawn(AudioBundle {
+				source: asset_server.load("sounds/punch_start.ogg"),
+				..default()
+			});
 		}
 		PunchingState::Punching(remaining) => {
 			let new_remaining = remaining - time.delta_seconds() / 0.3;

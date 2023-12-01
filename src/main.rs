@@ -52,8 +52,7 @@ fn main() {
 					level: bevy::log::Level::INFO,
 					..default()
 				})
-				.build()
-				.disable::<AudioPlugin>(), // disabling audio for now because it glitches out on linux when csing the app
+				.build(),
 			BlueprintsPlugin {
 				library_folder: PathBuf::from("world/library"),
 			},

@@ -22,6 +22,8 @@ pub enum EatingState {
 }
 
 pub fn player_eat(
+	mut cmds: Commands,
+	asset_server: Res<AssetServer>,
 	rapier_context: Res<RapierContext>,
 	inputs: Res<Inputs>,
 	mut q_food: Query<(&FoodStats, &mut FoodProperties), With<Food>>,
@@ -72,6 +74,14 @@ pub fn player_eat(
 						// continue eating
 						let new_time = eating_since + time.delta_seconds();
 						if new_time > food_properties.time_per_bite {
+							cmds.spawn(AudioBundle {
+								source: asset_server.load("sounds/bite.ogg"),
+								settings: PlaybackSettings {
+									speed: rand::random::<f32>() * 0.2 + 0.9,
+									..default()
+								},
+							});
+
 							*eating_state = EatingState::Eating(entity, 0.0);
 							calories.0 += food_stats.calories / food_properties.total_bites as f32;
 							health.heal(food_stats.calories * 0.1 / scaling.0);

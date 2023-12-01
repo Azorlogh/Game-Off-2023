@@ -32,10 +32,22 @@ pub struct Hit {
 	pub damage: f32,
 }
 
-fn take_hit(mut ev_take_hit: EventReader<Hit>, mut q_health: Query<(&mut Health, &Scaling)>) {
+fn take_hit(
+	mut cmds: Commands,
+	asset_server: Res<AssetServer>,
+	mut ev_take_hit: EventReader<Hit>,
+	mut q_health: Query<(&mut Health, &Scaling)>,
+) {
 	for ev in ev_take_hit.iter() {
 		if let Ok((mut health, scaling)) = q_health.get_mut(ev.target) {
 			health.current = health.current - ev.damage / scaling.0;
+			cmds.spawn(AudioBundle {
+				source: asset_server.load("sounds/hurt.ogg"),
+				settings: PlaybackSettings {
+					speed: rand::random::<f32>() * 0.2 + 0.9,
+					..default()
+				},
+			});
 		}
 	}
 }
